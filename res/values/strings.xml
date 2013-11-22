@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Lifebeam</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="testImage">Hello world!</string>
+    <string name="what_is_lifebeam">What is lifebeam?</string>
+    <string name="lifebeam_is">lifebeam is</string>
+    <string name="lifebeam_desc">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritais et quasi architecto beatae vitae dicta sunt explicabo.</string>
+	<string name="how">How?</string>
+	<string name="register">Register</string>
+	<string name="to_a_family_account">to a family account</string>
+	<string name="connect">Connect</string>
+	<string name="to_a_loved_one">to a loved one.</string>
+	<string name="continue_with">Continue with</string>
+	<string name="registration">registration.</string>
+</resources>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/LLregistration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:padding="10dp"
+        android:orientation="vertical"
+        android:visibility="visible" >
+        
+        <TextView
+            android:id="@+id/txtCompletetheff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
+            android:gravity="center_horizontal"
+            android:text="Complete the following details to create your own lifebeam account"
+            android:textSize="15dp"
+            android:textColor="#9f9f9f" />
+
+        <EditText
+            android:id="@+id/firstname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:textColor="#34bdc2"
+            android:textColorHint="#34bdc2"
+            android:textSize="18dp"
+            android:layout_marginTop="35dp"
+            android:hint="First Name"
+            android:inputType="textPersonName" >
+            <requestFocus />
+        </EditText>
+
+        <EditText
+            android:id="@+id/lastname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:textColor="#34bdc2"
+            android:textColorHint="#34bdc2"
+            android:textSize="18dp"
+            android:hint="Last Name"
+            android:layout_marginTop="20dp"
+            android:inputType="textPersonName" />
+        
+        <EditText
+            android:id="@+id/mobilenumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:textColor="#34bdc2"
+            android:textColorHint="#34bdc2"
+            android:textSize="18dp"
+            android:hint="Mobile Number"
+            android:layout_marginTop="20dp"
+            android:inputType="phone" />
+        
+        <EditText
+            android:id="@+id/emailaddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:textColor="#34bdc2"
+            android:textColorHint="#34bdc2"
+            android:textSize="18dp"
+            android:hint="Email Address"
+            android:layout_marginTop="20dp"
+            android:inputType="textEmailAddress" />
+
+    </LinearLayout>
+  
+</RelativeLayout>
