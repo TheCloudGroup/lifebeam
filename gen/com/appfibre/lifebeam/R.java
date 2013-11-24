@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.renante.lifebeam;
+package com.appfibre.lifebeam;
 
 public final class R {
     public static final class attr {

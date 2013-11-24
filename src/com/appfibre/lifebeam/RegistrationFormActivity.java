@@ -1,7 +1,8 @@
 /**
  * 
  */
-package com.renante.lifebeam;
+package com.appfibre.lifebeam;
+
 
 import android.app.Activity;
 import android.os.Bundle;
