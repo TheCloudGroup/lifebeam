@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item 
+        android:id="@+id/menuRegister" 
+        android:title="Register" 
+        android:showAsAction="always" 
+        android:orderInCategory="1"
+        android:visible="true">
+    </item>
+    
+    <item android:id="@+id/menuNext" 
+        android:showAsAction="always" 
+        android:orderInCategory="2" 
+        android:title="Next"
+        android:visible="true"> 
+    </item>
+    
+    <item 
+        android:id="@+id/menuRegisterFamilyAccount" 
+        android:title="Register - Familty Account" 
+        android:showAsAction="always" 
+        android:orderInCategory="1"
+        android:visible="false">
+    </item>
+    
+    <item 
+        android:id="@+id/menuNext2" 
+        android:title="Next" 
+        android:showAsAction="always" 
+        android:orderInCategory="2"
+        android:visible="false">
+    </item>
+</menu>
