@@ -6,13 +6,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
 import com.parse.ParseAnalytics;
 
 public class MainActivity extends Activity {
 	
-	private static final String TAG = "MainActivity";
+	//private static final String TAG = "MainActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +36,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				Toast.makeText(getApplicationContext(), 
-                        "Login is clicked", Toast.LENGTH_SHORT).show();
+				startActivity(new Intent(MainActivity.this,LoginActivity.class));
 			}
 		});
 	}
