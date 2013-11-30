@@ -10,8 +10,8 @@
 
 # generated files
 bin/
-com.appfibre.lifebeam/gen/
 gen/
+
 # Local configuration file (sdk path, etc)
 local.properties
 addition.properties
