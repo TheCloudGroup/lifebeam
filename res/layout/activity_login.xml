@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF" >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="79dp"
+        android:src="@drawable/lifebeam_logo1" />
+
+    <LinearLayout
+        android:id="@+id/LLloginpage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/imageView1"
+        android:orientation="vertical"
+        android:padding="10dp" >
+
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:ems="10"
+            android:textColor="#34bdc2"
+            android:textColorHint="#34bdc2"
+            android:textSize="18dp"
+            android:inputType="textEmailAddress" 
+            android:hint="Username">
+            <requestFocus />
+        </EditText>
+
+        <EditText
+            android:id="@+id/editText2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:ems="10"
+            android:textColor="#34bdc2"
+            android:textColorHint="#34bdc2"
+            android:textSize="18dp"
+            android:inputType="textPassword" 
+            android:hint="Password"/>
+
+        <Button
+            android:id="@+id/btnRegisterUsingFacebook"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/rounded_cornerblue"
+            android:text="Register Using Facebook"
+            android:textSize="17dp"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_cornerskyblue"
+            android:text="Login"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/txtForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center"
+            android:text="Forgot Password?"
+            android:textSize="20dp"
+            android:textColor="#9f9f9f" />
+
+    </LinearLayout>
+
+</RelativeLayout>

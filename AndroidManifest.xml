@@ -34,9 +34,26 @@
         </activity>
         <activity
             android:name=".RegistrationFormActivity"
+            android:theme="@style/AppTheme"
+            android:label="Register"
+            android:icon="@drawable/icon_arrow_left" >
+        </activity>
+        <activity
+            android:name=".RegisterFamilyActivity"
             android:theme="@style/AppTheme">
         </activity>
-
+        <activity
+            android:name=".RegisterSummaryActivity"
+            android:theme="@style/AppTheme">
+        </activity>
+		<activity
+            android:name=".LoginActivity"
+            android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <activity
+            android:name=".LostPasswordActivity"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>
