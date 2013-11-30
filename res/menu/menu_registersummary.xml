@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item 
+        android:id="@+id/menuInviteFamily" 
+        android:title="Invite Family" 
+        android:showAsAction="always" 
+        android:orderInCategory="1"
+        android:visible="true">
+    </item>
+    
+    <item 
+        android:id="@+id/menuNext" 
+        android:title="Next" 
+        android:showAsAction="always" 
+        android:orderInCategory="2"
+        android:visible="true">
+    </item>
+</menu>
