@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 /**
  * @author REBUCAS RENANTE
@@ -29,9 +28,10 @@ public class RegistrationFormActivity extends Activity {
 		ActionBar ab = getActionBar();
         ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#3fc1c6"));     
         ab.setBackgroundDrawable(colorDrawable);
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setDisplayShowHomeEnabled(false);
         ab.setDisplayShowTitleEnabled(true);
-        ab.setDisplayShowHomeEnabled(true);
-
+        ab.setDisplayUseLogoEnabled(false);
 	}
 	
 	@Override
@@ -44,17 +44,19 @@ public class RegistrationFormActivity extends Activity {
 	 @Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
-	    case R.id.menuRegister:
-	      Toast.makeText(this, "Action Register selected", Toast.LENGTH_SHORT)
-	          .show();
-	      break;
+	    
+	    case android.R.id.home:
+	    	startActivity(new Intent(RegistrationFormActivity.this,MainActivity.class));
+	    	finish();
+	    	return true; 
+	    	
 	    case R.id.menuNext:
 	    	startActivity(new Intent(RegistrationFormActivity.this,RegisterFamilyActivity.class));
 	    	finish();
-	      break;
+	    	break;
 
-	    default:
-	      break;
+	    default:            
+	         return super.onOptionsItemSelected(item);
 	    }
 
 	    return true;

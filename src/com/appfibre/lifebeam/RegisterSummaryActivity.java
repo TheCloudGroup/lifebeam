@@ -2,6 +2,7 @@ package com.appfibre.lifebeam;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -21,8 +22,10 @@ public class RegisterSummaryActivity extends Activity {
 		ActionBar ab = getActionBar();
         ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#3fc1c6"));     
         ab.setBackgroundDrawable(colorDrawable);
-        ab.setDisplayShowTitleEnabled(false);
+        ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowHomeEnabled(false);
+        ab.setDisplayShowTitleEnabled(true);
+        ab.setDisplayUseLogoEnabled(false);
         
         final Button btnInvite = (Button) findViewById(R.id.btnInvite);
         final Button btnContinue = (Button) findViewById(R.id.btnContinue);
@@ -52,24 +55,26 @@ public class RegisterSummaryActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu_registersummary, menu);
+		getMenuInflater().inflate(R.menu.menu_registration, menu);
 		return true;
 	}
 	
 	 @Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
-	    case R.id.menuInviteFamily:
-	      Toast.makeText(this, "Action Invite Family selected", Toast.LENGTH_SHORT)
-	          .show();
-	      break;
+	    
+	    case android.R.id.home:
+	    	startActivity(new Intent(RegisterSummaryActivity.this,RegisterFamilyActivity.class));
+	    	finish();
+	    	return true; 
+	    	
 	    case R.id.menuNext:
 	    	  Toast.makeText(this, "Action Next selected", Toast.LENGTH_SHORT)
 	          .show();
-	      break;
+	    	  break;
 
 	    default:
-	      break;
+	    	return super.onOptionsItemSelected(item);
 	    }
 
 	    return true;
