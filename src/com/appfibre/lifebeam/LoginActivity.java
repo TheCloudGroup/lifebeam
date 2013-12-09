@@ -359,8 +359,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 						SharedPrefMgr.setString(LoginActivity.this, "sessionUName", mUsername);
 						SharedPrefMgr.setString(LoginActivity.this, "sessionPWord", mPassword);
 						
-						//Intent myIntent = new Intent(LoginActivity.this, DashboardFeedActivity.class);
-						//startActivity(myIntent);
+						Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+						startActivity(myIntent);
 					} else if (user == null){
 
 						switch (e.getCode()) {

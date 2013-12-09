@@ -16,4 +16,7 @@
 	<string name="continue_with">Continue with</string>
 	<string name="registration">registration.</string>
 	<string name="fbAppID"  type="string">637814986280032</string>
+	<color name="lifebeamBlue">#ff3fc1c6</color>
+	<color name="listbg">#FFf0f0f0</color>
+	<color name="White">#FFFFFFFF</color>
 </resources>
