@@ -1,13 +1,8 @@
 package com.appfibre.lifebeam;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,7 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -42,7 +37,6 @@ import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 public class LoginActivity extends Activity implements OnClickListener{
@@ -81,12 +75,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 				// and they are linked to a Facebook account.
 				currentUser = ParseUser.getCurrentUser();
 				if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
-					// Go to the user info activity
-					//showUserDetailsActivity();
-					//Toast.makeText(getApplicationContext(), "Straight now to login activity", Toast.LENGTH_SHORT).show();
-					//showUserDetailsActivity();
-					//Intent myIntent = new Intent(LoginActivity.this, HomeActivity.class);
-					//startActivity(myIntent);
+					new UserLoginTask().execute();
+					return;
 				}
 				
 				//check if there is a stored session login via normal and not FB
@@ -154,7 +144,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 		LoginActivity.this.progressDialog = ProgressDialog.show(
 				LoginActivity.this, "", "Logging in...", true);
 		final List<String> permissions = Arrays.asList("basic_info", "user_about_me",
-				"user_relationships", "user_birthday", "user_location", "email");
+				 "email");
 
 		ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
 			@Override
@@ -162,21 +152,19 @@ public class LoginActivity extends Activity implements OnClickListener{
 				LoginActivity.this.progressDialog.dismiss();
 				if (user == null) {
 					Log.d(TAG, "Uh oh. The user cancelled the Facebook login.");
-					//Toast.makeText(getApplicationContext(), "Uh oh. The user cancelled the Facebook login.", Toast.LENGTH_SHORT).show();
 				} else if (user.isNew()) {
 					Log.d(TAG, "User signed up and logged in through Facebook!");
-					//Toast.makeText(getApplicationContext(), "User signed up and logged in through Facebook!", Toast.LENGTH_SHORT).show();
 					Log.d(TAG, "Now try saving the user111!");
 					makeMeRequest(); //putting up the fbProfile object and other objects
-					//Intent myIntent = new Intent(LoginActivity.this, HomeActivity.class);
-					//startActivity(myIntent);
+					Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+					startActivity(myIntent);
 				} else {
 					Log.d(TAG, "User logged in through Facebook!");
 					//Toast.makeText(getApplicationContext(), "User logged in through Facebook!", Toast.LENGTH_SHORT).show();
 					Log.d(TAG, "Now try saving the user222!");
 					makeMeRequest(); //displaying what has been extracted
-					//Intent myIntent = new Intent(LoginActivity.this, HomeActivity.class);
-					//startActivity(myIntent);
+					Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+					startActivity(myIntent);
 				}
 			}
 		});
@@ -189,61 +177,17 @@ public class LoginActivity extends Activity implements OnClickListener{
 			@Override
 			public void onCompleted(GraphUser user, Response response) {
 				if (user != null) {
-					// Create a JSON object to hold the profile info
-					JSONObject userProfile = new JSONObject();
-
+					currentUser = ParseUser.getCurrentUser();
 					try {
-						// Populate the JSON object
-						if (user.getBirthday() != null) {
-							userProfile.put("birthday",
-									user.getBirthday());
-						}
 						if (user.getProperty("email") != null) {
-							userProfile.put("email",
-									user.getProperty("email"));
+							currentUser.put("username", user.getProperty("email")); 
+							currentUser.put("email", user.getProperty("email")); 
 						}
-						userProfile.put("facebookId", user.getId());
-						if (user.getProperty("gender") != null) {
-							userProfile.put("gender",
-									(String) user.getProperty("gender"));
-						}
-						userProfile.put("name", user.getName());
-
-						//manually building the pixURL here
-						String pixUrl = "https://graph.facebook.com/" + user.getId() +
-								"/picture?type=large&return_ssl_resources=1";
-
-						String pixUrl2 = "http://graph.facebook.com/" + user.getId() +
-								"/picture";
-
-						userProfile.put("pictureURL", pixUrl);
-
-						// Save the user profile info in a user property
-						// and other properties as well
-						currentUser = ParseUser.getCurrentUser();
-						currentUser.put("fbProfile", userProfile); //object stored
 						currentUser.put("name", user.getName()); //string stored
-
-						//now to setup saving of profile picture in FB
-						URL img_value = null;
-						img_value = new URL(pixUrl);
-						try {
-							Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-							ParseFile file = new ParseFile("file.jpg", bitmapToByteArray(mIcon1));
-							file.saveInBackground();
-							currentUser.put("profilePic", file); //image stored as file	
-						} catch (Exception e) {
-							Log.v(TAG, "Error parsing FB image: " + e.getMessage());
-						}
-
-						//save it in background
 						currentUser.saveInBackground();
 
-					} catch (JSONException e) {
-						Log.d(TAG, "Error parsing returned user data.");
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (Exception e) {
+						Log.d(TAG, "Error parsing returned user data.  " + e.toString());
 					} 
 
 				} else if (response.getError() != null) {
@@ -496,5 +440,51 @@ public class LoginActivity extends Activity implements OnClickListener{
 
 		// Showing Alert Message
 		alertDialog.show();
+	}
+	
+	/**
+	 * Represents an asynchronous login/registration task used to authenticate
+	 * the user.
+	 */
+	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			// TODO: attempt authentication against a network service.
+			showProgress(true);
+			try {
+				// Simulate network access.
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			showProgress(false);
+			Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+			startActivity(myIntent);
+			finish();
+		}
+
+		@Override
+		protected void onCancelled() {
+			showProgress(false);
+		}
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Log.v(TAG, "onActivityResult=============================================");
+		try {
+			Log.v(TAG, "onActivityResult -- Now calling parsefacebookutils.finishautentication=============================================");
+			ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);	
+		} catch (Exception e) {
+			Log.e(TAG, "Error: " + e.getMessage());
+		}
+
 	}
 }
