@@ -15,7 +15,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,13 +29,17 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.appfibre.lifebeam.utils.CameraUtils;
 import com.appfibre.lifebeam.utils.ImageLoader2;
 import com.appfibre.lifebeam.utils.MyImageItem;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 /**
  * @author Angel Abellanosa Jr
@@ -41,8 +47,13 @@ import com.parse.ParseUser;
  */
 public class GalleryActivity extends Activity {
 
+	private static final int CAPTURE_CAMERA_CODE  = 1337;
+	private Uri profileImageUri = null;
+	
 	private String TAG = "GalleryActivity";
 	private ArrayList<MyImageItem> Images;
+	
+	private ParseFile file;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +134,7 @@ public class GalleryActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.menuCamera:
 			Log.v(TAG, "selected camera...");
+			captureImage();
 			break;
 
 		case R.id.menuSignout:
@@ -233,4 +245,68 @@ public class GalleryActivity extends Activity {
 		}
 	}
 
+	private void captureImage(){
+		Log.v(TAG, "Now creating output file directory for image captured");
+		profileImageUri = CameraUtils.getOutputMediaFileUri(CameraUtils.MEDIA_TYPE_IMAGE, getPackageName());
+		
+		SharedPrefMgr.setString(getApplicationContext(), "profileImageUri", profileImageUri.toString());
+		
+		Log.v(TAG, "profileImageUri = " +  profileImageUri);
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, profileImageUri);
+		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+		startActivityForResult(intent, GalleryActivity.CAPTURE_CAMERA_CODE);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.v(TAG, "onActivityResult=====>>>>>>>>>>");
+		Log.v(TAG, "requestCode = " + requestCode);
+		Log.v(TAG, "resultCode = " + resultCode);
+		
+		String strProfileImageUri = SharedPrefMgr.getString(getApplicationContext(), "profileImageUri");
+		profileImageUri = Uri.parse(strProfileImageUri);
+		
+		Log.v(TAG, "onActivityResult profileImageUri = " +  profileImageUri);
+
+		if (requestCode == GalleryActivity.CAPTURE_CAMERA_CODE) {
+			if (resultCode == RESULT_OK) {
+				Toast.makeText(GalleryActivity.this, "Image Confirmed!", Toast.LENGTH_SHORT).show();
+				if (profileImageUri != null) {
+					try {
+						file = new ParseFile( "file.jpg", CameraUtils.convertUriToBytes(GalleryActivity.this, profileImageUri));
+						file.saveInBackground(new SaveCallback() {
+
+							@Override
+							public void done(com.parse.ParseException e) {
+								if (e == null) {
+									saveImage();
+								} else {
+									Log.v(TAG, "Error saving user with new group : " + e.toString());
+								}
+							}
+
+						});
+						
+					} catch (Exception e) {
+						Log.e(TAG, "Error: " + e.getMessage());
+					}
+						
+				}
+				Log.v(TAG, "profileImageUri = " + profileImageUri);
+			} else {
+				profileImageUri = null;
+			}
+		}
+	}
+	
+	private void saveImage(){
+		Log.v(TAG, "Now attempt to save the image");
+		Intent myIntent;
+        Bundle bundle = new Bundle();
+		bundle.putString("imgLink", "" + profileImageUri);
+    	myIntent = new Intent(GalleryActivity.this, ImageSaveActivity.class);
+    	myIntent.putExtras(bundle);
+		startActivity(myIntent);
+	}
 }
