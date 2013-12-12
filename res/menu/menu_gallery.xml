@@ -1,19 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item 
-        android:id="@+id/menuCamera" 
-        android:title="Camera"
-        android:icon="@drawable/ic_action_device_access_camera" 
-        android:showAsAction="never" 
+
+    <item
+        android:id="@+id/menuCamera"
+        android:icon="@drawable/ic_action_device_access_camera"
         android:orderInCategory="1"
+        android:showAsAction="always|withText"
+        android:title="@string/camera"
+        android:titleCondensed="@string/camera"
         android:visible="true">
     </item>
-    
-    <item android:id="@+id/menuNext" 
-        android:showAsAction="always" 
-        android:orderInCategory="2" 
-        android:title="Next"
-        android:visible="true"> 
+    <item
+        android:id="@+id/menuGallery"
+        android:icon="@drawable/ic_action_content_picture"
+        android:orderInCategory="2"
+        android:showAsAction="always|withText"
+        android:title="@string/gallery"
+        android:titleCondensed="@string/gallery"
+        android:visible="true">
     </item>
-    
+    <item
+        android:id="@+id/a_More"
+        android:icon="@drawable/ic_action_core_overflow"
+        android:orderInCategory="3"
+        android:showAsAction="always"
+        android:title="More">
+        <menu>
+            <item
+                android:id="@+id/menuInvite"
+                android:title="@string/invitefamily">
+            </item>
+            <item
+                android:id="@+id/menuSettings"
+                android:title="@string/settings">
+            </item>
+            <item
+                android:id="@+id/menuHelp"
+                android:title="@string/help">
+            </item>
+            <item
+                android:id="@+id/menuSignout"
+                android:title="@string/signout">
+            </item>
+        </menu>
+    </item>
+
 </menu>

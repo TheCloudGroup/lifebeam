@@ -12,6 +12,7 @@ import java.util.List;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -26,8 +28,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.appfibre.lifebeam.utils.ImageLoader;
+import com.appfibre.lifebeam.utils.ImageLoader2;
 import com.appfibre.lifebeam.utils.MyImageItem;
+import com.appfibre.lifebeam.utils.Session;
+import com.appfibre.lifebeam.utils.SharedPrefMgr;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
 
 /**
  * @author Angel Abellanosa Jr
@@ -37,7 +43,7 @@ public class GalleryActivity extends Activity {
 
 	private String TAG = "GalleryActivity";
 	private ArrayList<MyImageItem> Images;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,12 +52,13 @@ public class GalleryActivity extends Activity {
 		ActionBar ab = getActionBar();
 		ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#3fc1c6"));     
 		ab.setBackgroundDrawable(colorDrawable);
-		ab.setDisplayShowTitleEnabled(true);
-		ab.setDisplayShowHomeEnabled(true);
-		
-		
+		ab.setDisplayShowTitleEnabled(false);
+		ab.setDisplayShowHomeEnabled(false);
+		//ab.setDisplayUseLogoEnabled(false);
+
+
 		Images = new ArrayList<MyImageItem>();
-		
+
 		Log.v(TAG, "hardcoding data initially");
 		String URL = "http://cdn01.cdnwp.celebuzz.com/kourtney-kardashian/wp-content/blogs.dir/313/files/2012/11/27/Kourtney-Kardashian-Family-Beach-Day-Mason-Penelope-Scott-Disick-001.jpg";
 		String Id = "123";
@@ -65,7 +72,7 @@ public class GalleryActivity extends Activity {
 		String message = "Family Time at the Beach";
 		int messageCount = 3;
 		int likedCount = 2;
-		
+
 		MyImageItem image = new MyImageItem(Id, URL, message, owner, family, date, time,
 				messageCount, likedCount);
 		Images.add(image);
@@ -79,12 +86,12 @@ public class GalleryActivity extends Activity {
 		message = "Family Time at the Beach";
 		messageCount = 3;
 		likedCount = 2;
-		
+
 		image = new MyImageItem(Id, URL, message, owner, family, date, time,
 				messageCount, likedCount);
 		Images.add(image);
-		
-		
+
+
 		Log.v(TAG, "size of Images arraylist = " + Images.size());
 		// Find the ListView resource.
 		ListView mainListView = (ListView) findViewById(R.id.listImages);
@@ -93,22 +100,47 @@ public class GalleryActivity extends Activity {
 		// Set our custom array adapter as the ListView's adapter.
 		MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
 		mainListView.setAdapter(adapter);
-		
+
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_gallery, menu);
+
+		SubMenu submenu = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, "More");
+		submenu.add(0, R.id.menuInvite, Menu.NONE, "Invite Family");
+		submenu.add(0, R.id.menuSettings, Menu.NONE, "Settings");
+		submenu.add(0, R.id.menuHelp, Menu.NONE, "Help");
+		submenu.add(0, R.id.menuSignout, Menu.NONE, "Signout");
+		getMenuInflater().inflate(R.menu.menu_gallery, submenu);
+
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menuRegister:
+		case R.id.menuCamera:
+			Log.v(TAG, "selected camera...");
 			break;
-		case R.id.menuNext:
+
+		case R.id.menuSignout:
+			Log.v(TAG, "clicked logout...");
+			if (ParseFacebookUtils.getSession() != null) {
+				Log.v(TAG, "Now clearing tokens as there is an FB sessions");
+				ParseFacebookUtils.getSession().closeAndClearTokenInformation();
+			}
+			// Log the user out
+			ParseUser.logOut();
+			
+			Session.setSessionId("");
+			Session.setUserName("");
+			Session.setUserPassword("");
+			
+			// Go to the login view
+			startActivity(new Intent(GalleryActivity.this, LoginActivity.class));
+			finish();
 			break;
 
 		default:
@@ -129,7 +161,7 @@ public class GalleryActivity extends Activity {
 		private Context context;
 		private List<MyImageItem> images;
 		private MyImageItem image;
-		public ImageLoader imageLoader;
+		public ImageLoader2 imageLoader;
 		private String TAG = "MyImageAdapter";
 
 		public MyImageAdapter(Context context, ArrayList<MyImageItem> images) {
@@ -146,7 +178,7 @@ public class GalleryActivity extends Activity {
 			TextView txtMessage;
 			TextView txtMessageCount;
 			TextView txtLikedCount;
-			
+
 		}
 
 		@Override
@@ -168,7 +200,7 @@ public class GalleryActivity extends Activity {
 			ViewHolder holder = null;
 
 			LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-			imageLoader = new ImageLoader(context);
+			imageLoader = new ImageLoader2(context);
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.gallery_list_item, null);
 				holder = new ViewHolder();
@@ -183,22 +215,22 @@ public class GalleryActivity extends Activity {
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			
+
 			image = (MyImageItem) getItem(position);
-			
+
 			holder.txtOwner.setText(image.getOwner());
 			holder.txtDate.setText(image.getDate());
 			holder.txtTime.setText(image.getTime());
 			holder.txtMessage.setText(image.getMessage());
 			holder.txtMessageCount.setText(String.valueOf(image.getMessagecount()));
 			holder.txtLikedCount.setText(String.valueOf(image.getLiked()));
-			
+
 			holder.imgPix.setTag(image.getURL());
-	        imageLoader.DisplayImage(image.getURL(), holder.imgPix);
-			
+			imageLoader.DisplayImage(image.getURL(), holder.imgPix);
+
 
 			return convertView;
 		}
 	}
-	
+
 }
