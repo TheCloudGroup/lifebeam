@@ -64,11 +64,14 @@ public class RegistrationFormActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_registrationform);
 
+
 		ActionBar ab = getActionBar();
 		ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#3fc1c6"));     
 		ab.setBackgroundDrawable(colorDrawable);
-		ab.setDisplayShowTitleEnabled(true);
-		ab.setDisplayShowHomeEnabled(true);
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setDisplayShowHomeEnabled(false);
+        ab.setDisplayShowTitleEnabled(true);
+        ab.setDisplayUseLogoEnabled(false);
 		
 		mFirstNameView = (EditText) findViewById(R.id.firstname);
 		mLastNameView = (EditText) findViewById(R.id.lastname);
@@ -91,10 +94,11 @@ public class RegistrationFormActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menuRegister:
-			Toast.makeText(this, "Action Register selected", Toast.LENGTH_SHORT)
-			.show();
-			break;
+		case android.R.id.home:
+	    	startActivity(new Intent(RegistrationFormActivity.this,MainActivity.class));
+	    	finish();
+	    	return true; 
+	    	
 		case R.id.menuNext:
 			Log.v(TAG, "do actual registration here");
 			attemptRegister();
@@ -103,17 +107,13 @@ public class RegistrationFormActivity extends Activity {
 			break;
 
 		default:
-			break;
+			 return super.onOptionsItemSelected(item);
 		}
 
 		return true;
 	}
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
 
-		return true;
-	}
 
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
@@ -190,6 +190,13 @@ public class RegistrationFormActivity extends Activity {
 		}
 	}
 	
+
+
+	 
+	 @Override
+	 public boolean onPrepareOptionsMenu(Menu menu) {
+		 return true;
+	 }
 	/**
 	 * After all input fields are checked and validated, this will be called 
 	 * to register the new user.

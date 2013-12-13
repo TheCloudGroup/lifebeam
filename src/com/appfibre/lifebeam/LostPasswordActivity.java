@@ -27,8 +27,10 @@ public class LostPasswordActivity extends Activity{
 		ActionBar ab = getActionBar();
         ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#3fc1c6"));     
         ab.setBackgroundDrawable(colorDrawable);
-        ab.setDisplayShowTitleEnabled(false);
+        ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowHomeEnabled(false);
+        ab.setDisplayShowTitleEnabled(true);
+        ab.setDisplayUseLogoEnabled(false);
 		
 	}
 
@@ -42,10 +44,12 @@ public class LostPasswordActivity extends Activity{
 	 @Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
-	    case R.id.menuLostPassword:
-	      Toast.makeText(this, "Action Lost Password selected", Toast.LENGTH_SHORT)
-	          .show();
-	      break;
+	    
+	    case android.R.id.home:
+	    	startActivity(new Intent(LostPasswordActivity.this,LoginActivity.class));
+	    	finish();
+	    	return true; 
+	    	
 	    case R.id.menuSend:
 	    	 Toast.makeText(this, "Action Send selected", Toast.LENGTH_SHORT)
 	          .show();

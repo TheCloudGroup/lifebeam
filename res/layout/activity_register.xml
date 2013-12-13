@@ -221,10 +221,12 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:text="Repeat Intro"
-         	android:textSize="18dp"
-         	android:textColor="#ffffff"
-         	android:background="#3fc1c6" />
+            android:background="#3fc1c6"
+            android:drawableLeft="@drawable/icon_arrow_left"
+            android:padding="10dp"
+            android:text="  Repeat Intro"
+            android:textColor="#ffffff"
+            android:textSize="18dp" />
 
     </RelativeLayout>
 

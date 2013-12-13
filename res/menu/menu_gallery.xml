@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+    
     <item
         android:id="@+id/menuCamera"
         android:icon="@drawable/ic_action_device_access_camera"
@@ -10,6 +10,7 @@
         android:titleCondensed="@string/camera"
         android:visible="true">
     </item>
+    
     <item
         android:id="@+id/menuGallery"
         android:icon="@drawable/ic_action_content_picture"
@@ -19,10 +20,17 @@
         android:titleCondensed="@string/gallery"
         android:visible="true">
     </item>
+	
+   	<item android:id="@+id/menuRefresh" 
+          android:orderInCategory="3" 
+          android:title="Refresh"
+          android:icon="@drawable/ic_menu_refresh"
+          android:showAsAction="always">
+    </item>
     <item
         android:id="@+id/a_More"
         android:icon="@drawable/ic_action_core_overflow"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:showAsAction="always"
         android:title="More">
         <menu>
