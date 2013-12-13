@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:stretchColumns="*"
+    	android:shrinkColumns="*" >
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btnTermsAndCondition"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Terms And Conditions"
+                android:gravity="left|center_vertical"
+                android:layout_span="2" 
+                android:background="#ffffff"
+                android:drawableRight="@drawable/ic_arrow_right_holo_light"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"/>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+			
+            <Button
+                android:id="@+id/btnPrivacyStatement"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="2" 
+                android:text="Privacy Statement"
+                android:gravity="left|center_vertical"
+                android:background="#ffffff"
+                android:drawableRight="@drawable/ic_arrow_right_holo_light"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"/>
+            
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            
+            <Button
+                android:id="@+id/btnAccount"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Account"
+                android:gravity="left|center_vertical"
+                android:layout_span="2"
+                android:background="#ffffff"
+                android:drawableRight="@drawable/ic_arrow_right_holo_light"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"/>
+            
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Push Notifications"
+                android:textSize="17dp"
+                android:layout_marginLeft="10dp" />
+
+            <Switch
+                android:id="@+id/switch1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text=""
+                android:paddingRight="10dp"/>
+
+        </TableRow>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Version 1.0.1 Build #123"
+            android:textSize="15dp"
+            android:layout_marginLeft="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"  />
+
+    </TableLayout>
+
+</RelativeLayout>
