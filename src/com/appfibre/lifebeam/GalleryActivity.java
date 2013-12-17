@@ -119,24 +119,43 @@ public class GalleryActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_gallery, menu);
 
-		SubMenu submenu = menu.addSubMenu(0, Menu.FIRST, Menu.NONE, "More");
-		submenu.add(0, R.id.menuInvite, Menu.NONE, "Invite Family");
-		submenu.add(0, R.id.menuSettings, Menu.NONE, "Settings");
-		submenu.add(0, R.id.menuHelp, Menu.NONE, "Help");
-		submenu.add(0, R.id.menuSignout, Menu.NONE, "Signout");
-		getMenuInflater().inflate(R.menu.menu_gallery, submenu);
-
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		
 		case R.id.menuCamera:
 			Log.v(TAG, "selected camera...");
 			captureImage();
 			break;
-
+			
+		case R.id.menuGallery:
+			Log.v(TAG, "selected gallery...");
+			Toast.makeText(this, "Menu Gallery selected", Toast.LENGTH_SHORT).show();
+			break;	
+			
+		case R.id.menuRefresh:
+			Log.v(TAG, "selected refresh...");
+			Toast.makeText(this, "Menu refresh selected", Toast.LENGTH_SHORT).show();
+			break;
+			
+		case R.id.menuInvite:
+			Log.v(TAG, "selected invite...");
+			Toast.makeText(this, "Menu Invite selected", Toast.LENGTH_SHORT).show();
+			break;
+			
+		case R.id.menuSettings:
+			Log.v(TAG, "selected settings...");
+			startActivity(new Intent(GalleryActivity.this,SettingsActivity.class));
+			break;
+			
+		case R.id.menuHelp:
+			Log.v(TAG, "selected help...");
+			Toast.makeText(this, "Menu Help selected", Toast.LENGTH_SHORT).show();
+			break;
+			
 		case R.id.menuSignout:
 			Log.v(TAG, "clicked logout...");
 			if (ParseFacebookUtils.getSession() != null) {

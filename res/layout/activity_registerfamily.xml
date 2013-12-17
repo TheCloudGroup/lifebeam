@@ -28,7 +28,7 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="21dp"
+            android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
             android:text="If you're joining an existing family account please enter the family name below otherwise create a new name family account."
             android:textSize="15dp"
@@ -56,7 +56,7 @@
             		android:textColor="#9f9f9f" />
 
                 <Switch
-                    android:id="@+id/switch1"
+                    android:id="@+id/switchFamily"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
@@ -88,10 +88,11 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/tableRow3"
+                android:id="@+id/tRPasscode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"  >
+                android:padding="10dp" 
+                android:visibility="gone" >
 
                 <TextView
                     android:id="@+id/textView5"
@@ -111,6 +112,90 @@
                     android:textSize="15dp" />
 
             </TableRow>
+            
+            <TableRow
+                android:id="@+id/tRPasscode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp" 
+                android:visibility="visible" >
+
+                <TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Passcode"
+                    android:textSize="15dp"
+            		android:textColor="#9f9f9f" />
+
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="123456"
+                    android:textColor="#3fc1c6"
+                    android:textSize="15dp" />
+
+            </TableRow>
+            
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/TLFamilyMembers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:visibility="gone">
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"  >
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YOUR LOVED ONES NAME"
+                    android:textSize="13dp"
+                    android:textColor="#3fc1c6" />
+
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Their Name"
+                    android:textSize="15dp"
+                    android:textColor="#9f9f9f" />
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:gravity="right"
+                    android:text="Dawn"
+                    android:textColor="#3fc1c6"
+                    android:textSize="15dp" />
+
+            </TableRow>
+            
         </TableLayout>
 
     </LinearLayout>

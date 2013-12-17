@@ -23,19 +23,39 @@
             android:id="@+id/login_status_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:ems="10"
+            android:textSize="18dp"
+            android:inputType="textPassword" 
+            android:hint="Password"
+
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif-light"
             android:text="@string/login_progress_signing_in"
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
+
     <!-- Login form -->
+
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_cornerskyblue"
+            android:text="Login"
+            android:textSize="17dp"
+            android:textColor="#ffffff" />
 
     <RelativeLayout
         android:id="@+id/login_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#FFFFFF" >
+
 
         <ImageView
             android:id="@+id/imageView1"
@@ -103,14 +123,25 @@
                 android:layout_marginTop="5dp"
                 android:background="@drawable/rounded_cornerskyblue"
                 android:text="Login"
-                android:textColor="#ffffff" />
+                android:textColor="#ffffff"
+                android:textSize="20dp" />
+
+            <CheckBox
+                android:id="@+id/checkBoxKeepLoggedIn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:text="Keep logged in"
+                android:textColor="#9f9f9f"
+                android:textSize="17dp" />
 
             <TextView
                 android:id="@+id/txtForgotPassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:text="Forgot Password?"
                 android:textColor="#9f9f9f"
                 android:textSize="20dp" />
