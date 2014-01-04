@@ -20,17 +20,20 @@
             android:minHeight="150dp"
             android:orientation="vertical" >
 
-            <TextView
+            <EditText
                 android:id="@+id/txtAboutUs"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:background="@null"
+                android:hint="Enter your message"
                 android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:paddingTop="15dp"
-                android:hint="Enter your message"
                 android:textSize="16sp"
                 android:visibility="visible" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -58,7 +61,7 @@
 
     <ImageView
         android:id="@+id/imgPhoto"
-        android:layout_width="fill_parent"
+        android:layout_width="300dp"
         android:layout_height="150dp"
         android:layout_gravity="top"
         android:scaleType="centerCrop"

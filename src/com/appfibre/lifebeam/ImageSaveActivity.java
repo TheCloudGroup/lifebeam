@@ -21,8 +21,11 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -32,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +44,34 @@ import android.widget.Toast;
  *
  */
 public class ImageSaveActivity extends Activity {
+	
+	private ImageView imgPhoto;
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onWindowFocusChanged(boolean)
+	 */
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		// TODO Auto-generated method stub
+		super.onWindowFocusChanged(hasFocus);
+		Log.v(TAG, "now in onWindowFocusChanged here ===================");
+		int width = imgPhoto.getWidth();
+        int height = imgPhoto.getHeight();
+        BitmapFactory.Options factoryOptions = new BitmapFactory.Options();
+        factoryOptions.inJustDecodeBounds = true; BitmapFactory.decodeFile(outputFileUri.getPath(),
+                factoryOptions);
+        int imageWidth = factoryOptions.outWidth; int imageHeight = factoryOptions.outHeight;
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(imageWidth/width, imageHeight/height);
+        // Decode the image file into a Bitmap sized to fill the View
+        factoryOptions.inJustDecodeBounds = false; factoryOptions.inSampleSize = scaleFactor; factoryOptions.inPurgeable = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(outputFileUri.getPath(),
+                factoryOptions);
+        imgPhoto.setImageBitmap(bitmap);
+	}
 
+	Uri outputFileUri;
+	
 	private String TAG = "ImageSaveActivity";
 	
 	@Override
@@ -54,6 +85,24 @@ public class ImageSaveActivity extends Activity {
 		ab.setDisplayShowTitleEnabled(true);
 		ab.setDisplayShowHomeEnabled(true);
 		
+		imgPhoto = (ImageView)findViewById(R.id.imgPhoto); 
+		
+		Bundle extras = getIntent().getExtras();
+
+		if (extras != null) {
+			String imgLink = extras.getString("imgLink");
+			outputFileUri = Uri.parse(imgLink);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		Log.v(TAG, "now in onStart method here =================");
 	}
 
 	@Override

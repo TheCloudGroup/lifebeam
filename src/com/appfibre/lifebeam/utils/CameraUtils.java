@@ -67,9 +67,13 @@ public class CameraUtils {
 		byte[] data = null;
 		ByteArrayOutputStream blob = null;
 		try {
+			
+			
+			BitmapFactory.Options options=new BitmapFactory.Options();
+			options.inSampleSize = 8;
 			ContentResolver cr = context.getContentResolver();
 			InputStream inputStream = cr.openInputStream(uri);
-			Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+			Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
 			data = baos.toByteArray();
