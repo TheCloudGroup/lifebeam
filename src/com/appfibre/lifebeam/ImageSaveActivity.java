@@ -29,7 +29,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,9 +46,11 @@ import android.widget.Toast;
  *
  */
 public class ImageSaveActivity extends Activity {
-	
+
 	private ImageView imgPhoto;
-	
+	private EditText edtPhotoDesc;
+	private TextView txtLength;
+
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onWindowFocusChanged(boolean)
 	 */
@@ -56,24 +60,24 @@ public class ImageSaveActivity extends Activity {
 		super.onWindowFocusChanged(hasFocus);
 		Log.v(TAG, "now in onWindowFocusChanged here ===================");
 		int width = imgPhoto.getWidth();
-        int height = imgPhoto.getHeight();
-        BitmapFactory.Options factoryOptions = new BitmapFactory.Options();
-        factoryOptions.inJustDecodeBounds = true; BitmapFactory.decodeFile(outputFileUri.getPath(),
-                factoryOptions);
-        int imageWidth = factoryOptions.outWidth; int imageHeight = factoryOptions.outHeight;
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(imageWidth/width, imageHeight/height);
-        // Decode the image file into a Bitmap sized to fill the View
-        factoryOptions.inJustDecodeBounds = false; factoryOptions.inSampleSize = scaleFactor; factoryOptions.inPurgeable = true;
-        Bitmap bitmap = BitmapFactory.decodeFile(outputFileUri.getPath(),
-                factoryOptions);
-        imgPhoto.setImageBitmap(bitmap);
+		int height = imgPhoto.getHeight();
+		BitmapFactory.Options factoryOptions = new BitmapFactory.Options();
+		factoryOptions.inJustDecodeBounds = true; BitmapFactory.decodeFile(outputFileUri.getPath(),
+				factoryOptions);
+		int imageWidth = factoryOptions.outWidth; int imageHeight = factoryOptions.outHeight;
+		// Determine how much to scale down the image
+		int scaleFactor = Math.min(imageWidth/width, imageHeight/height);
+		// Decode the image file into a Bitmap sized to fill the View
+		factoryOptions.inJustDecodeBounds = false; factoryOptions.inSampleSize = scaleFactor; factoryOptions.inPurgeable = true;
+		Bitmap bitmap = BitmapFactory.decodeFile(outputFileUri.getPath(),
+				factoryOptions);
+		imgPhoto.setImageBitmap(bitmap);
 	}
 
 	Uri outputFileUri;
-	
+
 	private String TAG = "ImageSaveActivity";
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -84,15 +88,35 @@ public class ImageSaveActivity extends Activity {
 		ab.setBackgroundDrawable(colorDrawable);
 		ab.setDisplayShowTitleEnabled(true);
 		ab.setDisplayShowHomeEnabled(true);
-		
+
 		imgPhoto = (ImageView)findViewById(R.id.imgPhoto); 
-		
+
 		Bundle extras = getIntent().getExtras();
 
 		if (extras != null) {
 			String imgLink = extras.getString("imgLink");
 			outputFileUri = Uri.parse(imgLink);
 		}
+
+		edtPhotoDesc = (EditText) findViewById(R.id.edtPhotoDesc);
+		txtLength = (TextView) findViewById(R.id.txtLength);
+
+		final TextWatcher mTextEditorWatcher = new TextWatcher() {
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				txtLength.setText(String.valueOf(200 - s.length()));
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+
+			}
+		};
+
+		edtPhotoDesc.addTextChangedListener(mTextEditorWatcher);
 	}
 
 	/* (non-Javadoc)

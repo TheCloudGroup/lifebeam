@@ -21,19 +21,19 @@
             android:orientation="vertical" >
 
             <EditText
-                android:id="@+id/txtAboutUs"
+                android:id="@+id/edtPhotoDesc"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
                 android:background="@null"
                 android:hint="Enter your message"
+                android:inputType="textMultiLine"
                 android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:paddingTop="15dp"
                 android:textSize="16sp"
+                android:maxLength="200"
                 android:visibility="visible" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -52,19 +52,27 @@
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:paddingTop="15dp"
-                android:text="0/200"
+                android:text="200"
                 android:textSize="12sp"
                 android:visibility="visible" />
-
         </LinearLayout>
     </FrameLayout>
 
-    <ImageView
-        android:id="@+id/imgPhoto"
-        android:layout_width="300dp"
-        android:layout_height="150dp"
-        android:layout_gravity="top"
-        android:scaleType="centerCrop"
-        android:visibility="visible" />
+    <LinearLayout
+        android:id="@+id/imgHolder"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" >
+
+        <ImageView
+            android:id="@+id/imgPhoto"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp"
+            android:scaleType="centerCrop"
+            android:visibility="visible" />
+
+    </LinearLayout>
 
 </LinearLayout>
