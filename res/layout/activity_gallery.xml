@@ -3,11 +3,27 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
+
     <ListView
-        android:id="@+id/listImages"
+        android:id="@+id/listEvents"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:divider="@color/Grey5"
+        android:dividerHeight="2dip"
         android:paddingLeft="@dimen/list_padding"
         android:paddingRight="@dimen/list_padding" />
- 
+
+    <TextView
+        android:id="@+id/txtEventsEmpty"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#ff555555"
+        android:gravity="center|top"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="20dp"
+        android:text="No Events Yet ;-)"
+        android:textColor="#ffececec"
+        android:textSize="17dp" />
+
 </LinearLayout>

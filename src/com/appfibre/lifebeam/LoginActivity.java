@@ -466,6 +466,7 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);	
 	} catch (Exception e) {
 		Log.e(TAG, "Error: " + e.getMessage());
+		Toast.makeText(LoginActivity.this, "We have trouble connecting to your facebook account.  Please try again later.", Toast.LENGTH_SHORT).show();
 	}
 
 }

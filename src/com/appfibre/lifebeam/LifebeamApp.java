@@ -2,7 +2,7 @@ package com.appfibre.lifebeam;
 
 import android.app.Application;
 
-import com.appfibre.lifebeam.classes.Activity;
+import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.classes.Family;
 import com.appfibre.lifebeam.classes.Invitee;
 import com.parse.Parse;
@@ -16,7 +16,7 @@ public class LifebeamApp extends Application{
 
 	public void onCreate() {
 		
-		ParseObject.registerSubclass(Activity.class);
+		ParseObject.registerSubclass(Event.class);
 		ParseObject.registerSubclass(Family.class);
 		ParseObject.registerSubclass(Invitee.class);
 		
