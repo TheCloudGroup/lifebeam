@@ -80,7 +80,7 @@ public class CameraUtils {
 
 			//resize it here
 			Bitmap original = BitmapFactory.decodeByteArray(data , 0, data.length);
-			Bitmap resized = Bitmap.createScaledBitmap(original, 128, 128, true);
+			Bitmap resized = Bitmap.createScaledBitmap(original, 200, 200, true);
 
 			blob = new ByteArrayOutputStream();
 			resized.compress(Bitmap.CompressFormat.JPEG, 100, blob);
