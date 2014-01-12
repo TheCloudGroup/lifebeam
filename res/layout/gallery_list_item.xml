@@ -12,13 +12,21 @@
         android:orientation="vertical"
         android:paddingTop="10dp" >
 
-        <ImageView
-            android:id="@+id/imgPix"
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_gravity="center"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_imggallery" />
+            android:background="@color/Grey3"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/imgPix"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_imggallery" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/llyGalleryItemContainer"
@@ -113,9 +121,8 @@
                     android:text="5"
                     android:textColor="@color/White"
                     android:textSize="10dp" />
-
             </LinearLayout>
-            
+
             <LinearLayout
                 android:id="@+id/llyListDetailHolder"
                 android:layout_width="wrap_content"
@@ -141,7 +148,6 @@
                     android:text="2"
                     android:textColor="@color/White"
                     android:textSize="10dp" />
-
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
