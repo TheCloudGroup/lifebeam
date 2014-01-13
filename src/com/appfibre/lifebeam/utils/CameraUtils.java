@@ -20,6 +20,7 @@ public class CameraUtils {
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
+	private static String TAG = "CameraUtils";
 
 	/** Create a file Uri for saving an image or video */
 	public static Uri getOutputMediaFileUri(int type, String packageName){
@@ -80,7 +81,25 @@ public class CameraUtils {
 
 			//resize it here
 			Bitmap original = BitmapFactory.decodeByteArray(data , 0, data.length);
-			Bitmap resized = Bitmap.createScaledBitmap(original, 200, 200, true);
+			Log.v(TAG, "original height = " + original.getHeight());
+			Log.v(TAG, "original width = " + original.getWidth());
+			
+			int REQUIRED_SIZE = 300; //either its width or height should be within this
+			int width_tmp=original.getWidth(), height_tmp=original.getHeight();
+            int scale=1;
+            while(true){
+                if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
+                    break;
+                width_tmp/=2;
+                height_tmp/=2;
+                scale*=2;
+            }
+			
+            Log.v(TAG, "height or width should not be less than 300 here unless it originally was");
+            Log.v(TAG, "new reduced height = " + height_tmp);
+			Log.v(TAG, "new reduced width = " + width_tmp);
+            
+			Bitmap resized = Bitmap.createScaledBitmap(original, width_tmp, height_tmp, true);
 
 			blob = new ByteArrayOutputStream();
 			resized.compress(Bitmap.CompressFormat.JPEG, 100, blob);
