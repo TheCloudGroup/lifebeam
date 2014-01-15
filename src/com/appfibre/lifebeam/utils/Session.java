@@ -10,6 +10,19 @@ public class Session {
 	private static String userName;
 	private static String userPassword;
 	private static String sessionId;
+	private static String sessionFamily;
+	/**
+	 * @return the sessionFamily
+	 */
+	public static String getSessionFamily() {
+		return sessionFamily;
+	}
+	/**
+	 * @param sessionFamily the sessionFamily to set
+	 */
+	public static void setSessionFamily(String sessionFamily) {
+		Session.sessionFamily = sessionFamily;
+	}
 	/**
 	 * @return the userName
 	 */
@@ -47,5 +60,15 @@ public class Session {
 		Session.sessionId = sessionId;
 	}
 	
+	/**
+	 * @param sessionId the sessionId to set
+	 */
+	
+	public static void reset() {
+		Session.setSessionId("");
+		Session.setUserName("");
+		Session.setUserPassword("");
+		Session.setSessionFamily("");
+	}
 	
 }

@@ -177,8 +177,7 @@ public class GalleryActivity extends Activity {
 
 		case R.id.menuCamera:
 			Log.v(TAG, "selected camera...");
-			Intent myIntent = new Intent(GalleryActivity.this, ImageSaveActivity.class);
-			startActivity(myIntent);
+			startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));
 			//captureImage();
 			break;
 
@@ -215,10 +214,8 @@ public class GalleryActivity extends Activity {
 			}
 			// Log the user out
 			ParseUser.logOut();
-
-			Session.setSessionId("");
-			Session.setUserName("");
-			Session.setUserPassword("");
+			
+			Session.reset();
 
 			// Go to the login view
 			startActivity(new Intent(GalleryActivity.this, LoginActivity.class));

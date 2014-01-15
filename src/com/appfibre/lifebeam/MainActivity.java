@@ -1,25 +1,21 @@
 package com.appfibre.lifebeam;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
+
 import com.parse.ParseAnalytics;
 
 public class MainActivity extends Activity {
 
 	private static final String TAG = "MainActivity";
+	private static final String APP_ID = "7e4f30dd5ccb0d568d1b1d1582b7db1d";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +58,18 @@ public class MainActivity extends Activity {
 				startActivity(new Intent(MainActivity.this,LoginActivity.class));
 			}
 		});
+		
+		checkForUpdates();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		checkForCrashes();
 	}
 
 	@Override
@@ -70,5 +78,14 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	 private void checkForCrashes() {
+		   CrashManager.register(this, APP_ID);
+		 }
+
+		 private void checkForUpdates() {
+		   // Remove this for store builds!
+		   UpdateManager.register(this, APP_ID);
+		 }
 
 }

@@ -6,6 +6,7 @@ package com.appfibre.lifebeam;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.Utils;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
@@ -102,8 +103,8 @@ public class RegistrationFormActivity extends Activity {
 		case R.id.menuNext:
 			Log.v(TAG, "do actual registration here");
 			attemptRegister();
-			startActivity(new Intent(RegistrationFormActivity.this,RegisterFamilyActivity.class));
-			finish();
+			//startActivity(new Intent(RegistrationFormActivity.this,RegisterFamilyActivity.class));
+			//finish();
 			break;
 
 		default:
@@ -234,6 +235,10 @@ public class RegistrationFormActivity extends Activity {
 								//showProgress(false);
 								//Intent myIntent = new Intent(RegisterActivity.this, DashboardFeedActivity.class);
 								//startActivity(myIntent);
+								Session.setSessionId(loggedInUser.getSessionToken());
+								Session.setUserName(mEmailAddress);
+								Session.setUserPassword(mPassword);
+								startActivity(new Intent(RegistrationFormActivity.this, RegisterFamilyActivity.class));
 								finish();
 							} else {
 								Log.v(TAG, "not successfully logged in");
