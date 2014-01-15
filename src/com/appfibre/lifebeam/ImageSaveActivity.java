@@ -51,7 +51,7 @@ public class ImageSaveActivity extends Activity {
 	private TextView txtLength;
 	private Event event;
 	private ParseFile file;
-	
+
 	private static final int CAPTURE_CAMERA_CODE  = 1337;
 	private Uri profileImageUri = null;
 
@@ -66,16 +66,18 @@ public class ImageSaveActivity extends Activity {
 		int width = imgPhoto.getWidth();
 		int height = imgPhoto.getHeight();
 		BitmapFactory.Options factoryOptions = new BitmapFactory.Options();
-		factoryOptions.inJustDecodeBounds = true; BitmapFactory.decodeFile(profileImageUri.getPath(),
-				factoryOptions);
-		int imageWidth = factoryOptions.outWidth; int imageHeight = factoryOptions.outHeight;
-		// Determine how much to scale down the image
-		int scaleFactor = Math.min(imageWidth/width, imageHeight/height);
-		// Decode the image file into a Bitmap sized to fill the View
-		factoryOptions.inJustDecodeBounds = false; factoryOptions.inSampleSize = scaleFactor; factoryOptions.inPurgeable = true;
-		Bitmap bitmap = BitmapFactory.decodeFile(profileImageUri.getPath(),
-				factoryOptions);
-		imgPhoto.setImageBitmap(bitmap);
+		if (profileImageUri != null) {
+			factoryOptions.inJustDecodeBounds = true; BitmapFactory.decodeFile(profileImageUri.getPath(),
+					factoryOptions);
+			int imageWidth = factoryOptions.outWidth; int imageHeight = factoryOptions.outHeight;
+			// Determine how much to scale down the image
+			int scaleFactor = Math.min(imageWidth/width, imageHeight/height);
+			// Decode the image file into a Bitmap sized to fill the View
+			factoryOptions.inJustDecodeBounds = false; factoryOptions.inSampleSize = scaleFactor; factoryOptions.inPurgeable = true;
+			Bitmap bitmap = BitmapFactory.decodeFile(profileImageUri.getPath(),
+					factoryOptions);
+			imgPhoto.setImageBitmap(bitmap);
+		}
 	}
 
 	Uri outputFileUri;
@@ -90,16 +92,16 @@ public class ImageSaveActivity extends Activity {
 		ActionBar ab = getActionBar();
 		ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#3fc1c6"));     
 		ab.setBackgroundDrawable(colorDrawable);
-        ab.setDisplayHomeAsUpEnabled(false);
-        ab.setDisplayShowHomeEnabled(false);
-        ab.setDisplayShowTitleEnabled(true);
-        ab.setDisplayUseLogoEnabled(false);
+		ab.setDisplayHomeAsUpEnabled(false);
+		ab.setDisplayShowHomeEnabled(false);
+		ab.setDisplayShowTitleEnabled(true);
+		ab.setDisplayUseLogoEnabled(false);
 
 		imgPhoto = (ImageView)findViewById(R.id.imgPhoto); 
 
 		//Bundle extras = getIntent().getExtras();
 
-/*		if (extras != null) {
+		/*		if (extras != null) {
 			String imgLink = extras.getString("imgLink");
 			outputFileUri = Uri.parse(imgLink);
 		}*/
@@ -123,7 +125,7 @@ public class ImageSaveActivity extends Activity {
 		};
 
 		edtPhotoDesc.addTextChangedListener(mTextEditorWatcher);
-		
+
 		captureImage();
 	}
 
@@ -165,7 +167,7 @@ public class ImageSaveActivity extends Activity {
 		return true;
 	}
 
-/*	private void saveFile() {
+	/*	private void saveFile() {
 		Utils.showProgressDialog(ImageSaveActivity.this, "Saving Image...");
 		File f = new File(outputFileUri.getPath());
 		byte[] reader = null;
@@ -175,10 +177,10 @@ public class ImageSaveActivity extends Activity {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		Log.v(TAG, "reader byte array size is = " + reader.length);
 		file = new ParseFile("eventImage", reader);
-		
+
 		file.saveInBackground((new SaveCallback() {
 
 			@Override
@@ -195,7 +197,7 @@ public class ImageSaveActivity extends Activity {
 			}
 		}));
 	}*/
-	
+
 	private void saveToParse() {
 		Utils.showProgressDialog(ImageSaveActivity.this, "Saving To Parse Now...");
 		ParseACL eventACL = new ParseACL(ParseUser.getCurrentUser());
@@ -206,7 +208,7 @@ public class ImageSaveActivity extends Activity {
 		event.setContent(edtPhotoDesc.getText().toString());
 		event.setImage(file);
 		event.setAuthor(ParseUser.getCurrentUser());
-		
+
 		event.saveInBackground(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
@@ -241,29 +243,29 @@ public class ImageSaveActivity extends Activity {
 			}
 		});
 	}
-	
+
 	private void captureImage(){
 		Log.v(TAG, "Now creating output file directory for image captured");
 		profileImageUri = CameraUtils.getOutputMediaFileUri(CameraUtils.MEDIA_TYPE_IMAGE, getPackageName());
-		
+
 		SharedPrefMgr.setString(getApplicationContext(), "profileImageUri", profileImageUri.toString());
-		
+
 		Log.v(TAG, "profileImageUri = " +  profileImageUri);
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, profileImageUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 		startActivityForResult(intent, ImageSaveActivity.CAPTURE_CAMERA_CODE);
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v(TAG, "onActivityResult=====>>>>>>>>>>");
 		Log.v(TAG, "requestCode = " + requestCode);
 		Log.v(TAG, "resultCode = " + resultCode);
-		
+
 		String strProfileImageUri = SharedPrefMgr.getString(getApplicationContext(), "profileImageUri");
 		profileImageUri = Uri.parse(strProfileImageUri);
-		
+
 		Log.v(TAG, "onActivityResult profileImageUri = " +  profileImageUri);
 
 		if (requestCode == ImageSaveActivity.CAPTURE_CAMERA_CODE) {
@@ -285,11 +287,11 @@ public class ImageSaveActivity extends Activity {
 							}
 
 						});
-						
+
 					} catch (Exception e) {
 						Log.e(TAG, "Error: " + e.getMessage());
 					}
-						
+
 				}
 				Log.v(TAG, "profileImageUri = " + profileImageUri);
 			} else {

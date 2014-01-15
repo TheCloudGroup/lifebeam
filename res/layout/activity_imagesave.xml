@@ -67,10 +67,11 @@
         <ImageView
             android:id="@+id/imgPhoto"
             android:layout_width="300dp"
-            android:layout_height="150dp"
+            android:layout_height="225dp"
             android:layout_gravity="center"
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
+            android:src="@drawable/no_image_avail"
             android:visibility="visible" />
 
     </LinearLayout>

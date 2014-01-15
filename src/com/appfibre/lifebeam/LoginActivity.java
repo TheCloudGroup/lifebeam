@@ -140,8 +140,7 @@ private void onFBLoginButtonClicked() {
 				Log.d(TAG, "User signed up and logged in through Facebook!");
 				Log.d(TAG, "Now try saving the user111!");
 				makeMeRequest(); //putting up the fbProfile object and other objects
-				Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-				startActivity(myIntent);
+				startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
 				finish();
 			} else {
 				Log.d(TAG, "User logged in through Facebook!");
@@ -336,8 +335,8 @@ public void attemptLogin(String uName, String pWord) {
 		public void done(ParseUser user, ParseException e) {
 			showProgress(false);
 			if (e == null) {
-				//Intent myIntent = new Intent(LoginActivity.this, HomeActivity.class);
-				//startActivity(myIntent);
+				Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+				startActivity(myIntent);
 			} else if (user == null){
 				switch (e.getCode()) {
 				case ParseException.TIMEOUT: 
