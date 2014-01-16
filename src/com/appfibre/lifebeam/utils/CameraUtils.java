@@ -12,6 +12,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -100,6 +101,13 @@ public class CameraUtils {
 			Log.v(TAG, "new reduced width = " + width_tmp);
             
 			Bitmap resized = Bitmap.createScaledBitmap(original, width_tmp, height_tmp, true);
+			
+			Log.v(TAG, "checking if it needs rotating");
+			if (width_tmp > height_tmp) {
+		        Matrix matrix = new Matrix();
+		        matrix.postRotate(90);
+		        resized = Bitmap.createBitmap(resized , 0, 0, width_tmp, height_tmp, matrix, true);
+		    }
 
 			blob = new ByteArrayOutputStream();
 			resized.compress(Bitmap.CompressFormat.JPEG, 100, blob);

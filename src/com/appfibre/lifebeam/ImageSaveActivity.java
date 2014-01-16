@@ -51,6 +51,7 @@ public class ImageSaveActivity extends Activity {
 	private TextView txtLength;
 	private Event event;
 	private ParseFile file;
+	private boolean hasNoImage;
 
 	private static final int CAPTURE_CAMERA_CODE  = 1337;
 	private Uri profileImageUri = null;
@@ -77,6 +78,9 @@ public class ImageSaveActivity extends Activity {
 			Bitmap bitmap = BitmapFactory.decodeFile(profileImageUri.getPath(),
 					factoryOptions);
 			imgPhoto.setImageBitmap(bitmap);
+			hasNoImage = false;
+		} else {
+			hasNoImage = true;
 		}
 	}
 
@@ -151,6 +155,11 @@ public class ImageSaveActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.menuPost:
 			Log.v(TAG, "Posts yeah");
+			if (hasNoImage) {
+				Toast.makeText(ImageSaveActivity.this, "You need to take an image to proceed with posting your event.", Toast.LENGTH_LONG).show();
+				finish();
+				return true;
+			}
 			saveToParse();
 			break;
 		case R.id.menuNext:
