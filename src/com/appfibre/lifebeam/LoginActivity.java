@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
@@ -59,7 +60,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		
+
 		Log.v(TAG, "Now in OnCreate ==========================================");
 
 		findViewById(R.id.btnRegisterUsingFacebook).setOnClickListener(this);
@@ -77,8 +78,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 		// and they are linked to a Facebook account.
 		currentUser = ParseUser.getCurrentUser();
 		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
-			new UserLoginTask().execute();
-			return;
+			Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+			startActivity(myIntent);
 		}
 
 		//check if there is a stored session login via normal and not FB
@@ -96,215 +97,249 @@ public class LoginActivity extends Activity implements OnClickListener{
 		} else {
 			Log.v(TAG, "no stored session whatsoever so do fresh login please");
 		}
-}
-
-@Override
-public boolean onCreateOptionsMenu(Menu menu) {
-	// Inflate the menu; this adds items to the action bar if it is present.
-	getMenuInflater().inflate(R.menu.main, menu);
-	return true;
-}
-
-@Override
-public void onClick(View v) {
-	switch (v.getId()) {
-	case R.id.btnRegisterUsingFacebook:
-		//Toast.makeText(getApplicationContext(), "Fb clicked", Toast.LENGTH_SHORT).show();
-		onFBLoginButtonClicked();
-		break;
-	case R.id.txtForgotPassword:
-		startActivity(new Intent(LoginActivity.this,LostPasswordActivity.class));
-		finish();
-		break;
-	case R.id.btnLogin:
-		attemptLogin();
-		break;
-	default:
-		break;
 	}
-}
 
-private void onFBLoginButtonClicked() {
-	LoginActivity.this.progressDialog = ProgressDialog.show(
-			LoginActivity.this, "", "Logging in...", true);
-	final List<String> permissions = Arrays.asList("basic_info", "user_about_me",
-			"email");
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
-	ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
-		@Override
-		public void done(ParseUser user, ParseException err) {
-			LoginActivity.this.progressDialog.dismiss();
-			if (user == null) {
-				Log.d(TAG, "Uh oh. The user cancelled the Facebook login.");
-			} else if (user.isNew()) {
-				Log.d(TAG, "User signed up and logged in through Facebook!");
-				Log.d(TAG, "Now try saving the user111!");
-				makeMeRequest(); //putting up the fbProfile object and other objects
-				startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
-				finish();
-			} else {
-				Log.d(TAG, "User logged in through Facebook!");
-				//Toast.makeText(getApplicationContext(), "User logged in through Facebook!", Toast.LENGTH_SHORT).show();
-				Log.d(TAG, "Now try saving the user222!");
-				makeMeRequest(); //displaying what has been extracted
-				Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-				startActivity(myIntent);
-				finish();
-			}
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.btnRegisterUsingFacebook:
+			//Toast.makeText(getApplicationContext(), "Fb clicked", Toast.LENGTH_SHORT).show();
+			onFBLoginButtonClicked();
+			break;
+		case R.id.txtForgotPassword:
+			startActivity(new Intent(LoginActivity.this,LostPasswordActivity.class));
+			finish();
+			break;
+		case R.id.btnLogin:
+			attemptLogin();
+			break;
+		default:
+			break;
 		}
-	});
-}
+	}
 
-private void makeMeRequest() {
-	Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
-			new Request.GraphUserCallback() {
+	private void onFBLoginButtonClicked() {
+		LoginActivity.this.progressDialog = ProgressDialog.show(
+				LoginActivity.this, "", "Logging in...", true);
+		final List<String> permissions = Arrays.asList("basic_info", "user_about_me",
+				"email");
 
-		@Override
-		public void onCompleted(GraphUser user, Response response) {
-			if (user != null) {
-				currentUser = ParseUser.getCurrentUser();
-				try {
-					if (user.getProperty("email") != null) {
-						currentUser.put("username", user.getProperty("email")); 
-						currentUser.put("email", user.getProperty("email")); 
-					}
-					currentUser.put("name", user.getName()); //string stored
-					currentUser.saveInBackground();
-
-				} catch (Exception e) {
-					Log.d(TAG, "Error parsing returned user data.  " + e.toString());
-				} 
-
-			} else if (response.getError() != null) {
-				if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY)
-						|| (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
-					Log.d(TAG, "The facebook session was invalidated.");
-					logout();
+		ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
+			@Override
+			public void done(ParseUser user, ParseException err) {
+				LoginActivity.this.progressDialog.dismiss();
+				if (user == null) {
+					Log.d(TAG, "Uh oh. The user cancelled the Facebook login.");
+				} else if (user.isNew()) {
+					Log.d(TAG, "User signed up and logged in through Facebook!");
+					Log.d(TAG, "Now try saving the user111!");
+					makeMeRequest(); //putting up the fbProfile object and other objects
+					startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+					finish();
 				} else {
-					Log.d(TAG, "Some other error: "
-							+ response.getError()
-							.getErrorMessage());
+					Log.d(TAG, "User logged in through Facebook!");
+					//Toast.makeText(getApplicationContext(), "User logged in through Facebook!", Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "Now try saving the user222!");
+					makeMeRequest(); //displaying what has been extracted
+					Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+					startActivity(myIntent);
+					finish();
 				}
 			}
+		});
+	}
 
-		}
-	});
-	request.executeAsync();
-}
+	private void makeMeRequest() {
+		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
+				new Request.GraphUserCallback() {
 
-public static byte[] bitmapToByteArray(Bitmap bmp) {
+			@Override
+			public void onCompleted(GraphUser user, Response response) {
+				if (user != null) {
+					currentUser = ParseUser.getCurrentUser();
+					try {
+						if (user.getProperty("email") != null) {
+							currentUser.put("username", user.getProperty("email")); 
+							currentUser.put("email", user.getProperty("email")); 
+						}
+						currentUser.put("name", user.getName()); //string stored
+						currentUser.saveInBackground();
 
-	/*ByteArrayOutputStream stream = new ByteArrayOutputStream();
+					} catch (Exception e) {
+						Log.d(TAG, "Error parsing returned user data.  " + e.toString());
+					} 
+
+				} else if (response.getError() != null) {
+					if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY)
+							|| (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
+						Log.d(TAG, "The facebook session was invalidated.");
+						logout();
+					} else {
+						Log.d(TAG, "Some other error: "
+								+ response.getError()
+								.getErrorMessage());
+					}
+				}
+
+			}
+		});
+		request.executeAsync();
+	}
+
+	public static byte[] bitmapToByteArray(Bitmap bmp) {
+
+		/*ByteArrayOutputStream stream = new ByteArrayOutputStream();
 	    bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
 	    byte[] byteArray = stream.toByteArray();
 	    return byteArray;*/
 
-	byte[] data = null;
-	try {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-		data = baos.toByteArray();
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-	return data;
-}
-
-private void logout() {
-	// Log the user out
-	if (ParseFacebookUtils.getSession() != null) {
-		Log.v(TAG, "Now clearing tokens as there is an FB sessions");
-		ParseFacebookUtils.getSession().closeAndClearTokenInformation();
-	}
-	ParseUser.logOut();
-
-	// Go to the login page
-	startLoginActivity();
-}
-
-private void startLoginActivity() {
-	Intent intent = new Intent(this, LoginActivity.class);
-	intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	startActivity(intent);
-}
-
-public void attemptLogin() {
-	// Reset errors.
-	clearErrors();
-
-	// Store values at the time of the login attempt.
-	mUsername = muserNameView.getText().toString();
-	mPassword = mPasswordView.getText().toString();
-
-	boolean cancel = false;
-	View focusView = null;
-
-	// Check for a valid password.
-	if (TextUtils.isEmpty(mPassword)) {
-		mPasswordView.setError(getString(R.string.error_field_required));
-		focusView = mPasswordView;
-		cancel = true;
-	} else if (mPassword.length() < 4) {
-		mPasswordView.setError(getString(R.string.error_invalid_password));
-		focusView = mPasswordView;
-		cancel = true;
+		byte[] data = null;
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+			data = baos.toByteArray();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return data;
 	}
 
-	// Check for a valid username.
-	if (TextUtils.isEmpty(mUsername)) {
-		muserNameView.setError(getString(R.string.error_field_required));
-		focusView = muserNameView;
-		cancel = true;
+	private void logout() {
+		// Log the user out
+		if (ParseFacebookUtils.getSession() != null) {
+			Log.v(TAG, "Now clearing tokens as there is an FB sessions");
+			ParseFacebookUtils.getSession().closeAndClearTokenInformation();
+		}
+		ParseUser.logOut();
+
+		// Go to the login page
+		startLoginActivity();
 	}
 
-	if (cancel) {
-		// There was an error; don't attempt login and focus the first
-		// form field with an error.
-		focusView.requestFocus();
-	} else {
+	private void startLoginActivity() {
+		Intent intent = new Intent(this, LoginActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
+	}
+
+	public void attemptLogin() {
+		// Reset errors.
+		clearErrors();
+
+		// Store values at the time of the login attempt.
+		mUsername = muserNameView.getText().toString();
+		mPassword = mPasswordView.getText().toString();
+
+		boolean cancel = false;
+		View focusView = null;
+
+		// Check for a valid password.
+		if (TextUtils.isEmpty(mPassword)) {
+			mPasswordView.setError(getString(R.string.error_field_required));
+			focusView = mPasswordView;
+			cancel = true;
+		} else if (mPassword.length() < 4) {
+			mPasswordView.setError(getString(R.string.error_invalid_password));
+			focusView = mPasswordView;
+			cancel = true;
+		}
+
+		// Check for a valid username.
+		if (TextUtils.isEmpty(mUsername)) {
+			muserNameView.setError(getString(R.string.error_field_required));
+			focusView = muserNameView;
+			cancel = true;
+		}
+
+		if (cancel) {
+			// There was an error; don't attempt login and focus the first
+			// form field with an error.
+			focusView.requestFocus();
+		} else {
+			// Show a progress spinner, and kick off a background task to
+			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
+			showProgress(true);
+
+			//removed softkeyboard
+			InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+			imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
+
+			Log.v ("log in","Signing in...");
+
+			// perform the user login attempt.
+			ParseUser.logInInBackground(mUsername, mPassword, new LogInCallback() {
+				@Override
+				public void done(ParseUser user, ParseException e) {
+					showProgress(false);
+					if (e == null) {
+						Session.setSessionId(user.getSessionToken());
+						Session.setUserName(mUsername);
+						Session.setUserPassword(mPassword);
+
+						Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+						startActivity(myIntent);
+					} else if (user == null){
+
+						switch (e.getCode()) {
+
+						case ParseException.OBJECT_NOT_FOUND:
+
+							showAlertDialog(LoginActivity.this,"Login", "Username or Password is invalid. Try again.", false);
+							break;
+
+						case ParseException.PASSWORD_MISSING:
+							mPasswordView.setError(getString(R.string.error_field_required));
+							mPasswordView.requestFocus();
+							break;
+
+						case ParseException.USERNAME_MISSING:
+							muserNameView.setError(getString(R.string.error_field_required));
+							muserNameView.requestFocus();
+							break;
+
+						case ParseException.TIMEOUT: 
+							Log.v(TAG, "There was a timeout");
+							Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
+							break;
+						default:
+							Log.v(TAG, "this error is untrapped");
+							Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
+							break;
+
+						}
+
+					}
+				}
+			});
+		}
+	}
+
+	public void attemptLogin(String uName, String pWord) {
+
 		// Show a progress spinner, and kick off a background task to
-		mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 		showProgress(true);
-
-		//removed softkeyboard
-		InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-		imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-
 
 		Log.v ("log in","Signing in...");
 
 		// perform the user login attempt.
-		ParseUser.logInInBackground(mUsername, mPassword, new LogInCallback() {
+		ParseUser.logInInBackground(uName, pWord, new LogInCallback() {
 			@Override
 			public void done(ParseUser user, ParseException e) {
 				showProgress(false);
 				if (e == null) {
-					Session.setSessionId(user.getSessionToken());
-					Session.setUserName(mUsername);
-					Session.setUserPassword(mPassword);
-
 					Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
 					startActivity(myIntent);
 				} else if (user == null){
-
 					switch (e.getCode()) {
-
-					case ParseException.OBJECT_NOT_FOUND:
-
-						showAlertDialog(LoginActivity.this,"Login", "Username or Password is invalid. Try again.", false);
-						break;
-
-					case ParseException.PASSWORD_MISSING:
-						mPasswordView.setError(getString(R.string.error_field_required));
-						mPasswordView.requestFocus();
-						break;
-
-					case ParseException.USERNAME_MISSING:
-						muserNameView.setError(getString(R.string.error_field_required));
-						muserNameView.requestFocus();
-						break;
-
 					case ParseException.TIMEOUT: 
 						Log.v(TAG, "There was a timeout");
 						Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
@@ -320,153 +355,124 @@ public void attemptLogin() {
 			}
 		});
 	}
-}
 
-public void attemptLogin(String uName, String pWord) {
+	private void clearErrors() {
+		muserNameView.setError(null);
+		mPasswordView.setError(null);
+	}
 
-	// Show a progress spinner, and kick off a background task to
-	showProgress(true);
+	/**
+	 * Shows the progress UI and hides the login form.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+	private void showProgress(final boolean show) {
+		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+		// for very easy animations. If available, use these APIs to fade-in
+		// the progress spinner.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			int shortAnimTime = getResources().getInteger(
+					android.R.integer.config_shortAnimTime);
 
-	Log.v ("log in","Signing in...");
-
-	// perform the user login attempt.
-	ParseUser.logInInBackground(uName, pWord, new LogInCallback() {
-		@Override
-		public void done(ParseUser user, ParseException e) {
-			showProgress(false);
-			if (e == null) {
-				Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-				startActivity(myIntent);
-			} else if (user == null){
-				switch (e.getCode()) {
-				case ParseException.TIMEOUT: 
-					Log.v(TAG, "There was a timeout");
-					Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
-					break;
-				default:
-					Log.v(TAG, "this error is untrapped");
-					Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
-					break;
-
+			mLoginStatusView.setVisibility(View.VISIBLE);
+			mLoginStatusView.animate().setDuration(shortAnimTime)
+			.alpha(show ? 1 : 0)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					mLoginStatusView.setVisibility(show ? View.VISIBLE: View.GONE);
 				}
+			});
 
-			}
+			mLoginFormView.setVisibility(View.VISIBLE);
+			mLoginFormView.animate().setDuration(shortAnimTime)
+			.alpha(show ? 0 : 1)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					mLoginFormView.setVisibility(show ? View.GONE: View.VISIBLE);
+				}
+			});
+		} else {
+			// The ViewPropertyAnimator APIs are not available, so simply show
+			// and hide the relevant UI components.
+			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
-	});
-}
-
-private void clearErrors() {
-	// TODO Auto-generated method stub
-	muserNameView.setError(null);
-	mPasswordView.setError(null);
-}
-
-/**
- * Shows the progress UI and hides the login form.
- */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-private void showProgress(final boolean show) {
-	// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-	// for very easy animations. If available, use these APIs to fade-in
-	// the progress spinner.
-	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-		int shortAnimTime = getResources().getInteger(
-				android.R.integer.config_shortAnimTime);
-
-		mLoginStatusView.setVisibility(View.VISIBLE);
-		mLoginStatusView.animate().setDuration(shortAnimTime)
-		.alpha(show ? 1 : 0)
-		.setListener(new AnimatorListenerAdapter() {
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				mLoginStatusView.setVisibility(show ? View.VISIBLE: View.GONE);
-			}
-		});
-
-		mLoginFormView.setVisibility(View.VISIBLE);
-		mLoginFormView.animate().setDuration(shortAnimTime)
-		.alpha(show ? 0 : 1)
-		.setListener(new AnimatorListenerAdapter() {
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				mLoginFormView.setVisibility(show ? View.GONE: View.VISIBLE);
-			}
-		});
-	} else {
-		// The ViewPropertyAnimator APIs are not available, so simply show
-		// and hide the relevant UI components.
-		mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-		mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 	}
-}
 
-@SuppressWarnings("deprecation")
-public void showAlertDialog(Context context, String title, String message, Boolean status) {
-	AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+	@SuppressWarnings("deprecation")
+	public void showAlertDialog(Context context, String title, String message, Boolean status) {
+		AlertDialog alertDialog = new AlertDialog.Builder(context).create();
 
-	// Setting Dialog Title
-	alertDialog.setTitle(title);
+		// Setting Dialog Title
+		alertDialog.setTitle(title);
 
-	// Setting Dialog Message
-	alertDialog.setMessage(message);
+		// Setting Dialog Message
+		alertDialog.setMessage(message);
 
-	// Setting alert dialog icon
-	alertDialog.setIcon(R.drawable.delete);
+		// Setting alert dialog icon
+		alertDialog.setIcon(R.drawable.delete);
 
-	// Setting OK Button
-	alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int which) {
+		// Setting OK Button
+		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+
+		// Showing Alert Message
+		alertDialog.show();
+	}
+
+	/**
+	 * Represents an asynchronous login/registration task used to authenticate
+	 * the user.
+	 */
+	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			showProgress(true);
+			try {
+				// Simulate network access.
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				return false;
+			}
+
+			return true;
 		}
-	});
 
-	// Showing Alert Message
-	alertDialog.show();
-}
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			showProgress(false);
+			Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
+			startActivity(myIntent);
+			finish();
+		}
 
-/**
- * Represents an asynchronous login/registration task used to authenticate
- * the user.
- */
-public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected void onCancelled() {
+			showProgress(false);
+		}
+	}
+
 	@Override
-	protected Boolean doInBackground(Void... params) {
-		// TODO: attempt authentication against a network service.
-		showProgress(true);
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Log.v(TAG, "onActivityResult=============================================");
 		try {
-			// Simulate network access.
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			return false;
+			Log.v(TAG, "onActivityResult -- Now calling parsefacebookutils.finishautentication=============================================");
+			ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);	
+		} catch (Exception e) {
+			Log.e(TAG, "Error: " + e.getMessage());
+			Toast.makeText(LoginActivity.this, "We have trouble connecting to your facebook account.  Please try again later.", Toast.LENGTH_SHORT).show();
 		}
 
-		return true;
 	}
-
+	
 	@Override
-	protected void onPostExecute(final Boolean success) {
-		showProgress(false);
-		Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-		startActivity(myIntent);
-		finish();
-	}
-
-	@Override
-	protected void onCancelled() {
-		showProgress(false);
-	}
-}
-
-@Override
-public void onActivityResult(int requestCode, int resultCode, Intent data) {
-	super.onActivityResult(requestCode, resultCode, data);
-	Log.v(TAG, "onActivityResult=============================================");
-	try {
-		Log.v(TAG, "onActivityResult -- Now calling parsefacebookutils.finishautentication=============================================");
-		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);	
-	} catch (Exception e) {
-		Log.e(TAG, "Error: " + e.getMessage());
-		Toast.makeText(LoginActivity.this, "We have trouble connecting to your facebook account.  Please try again later.", Toast.LENGTH_SHORT).show();
-	}
-
-}
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        return true;
+    }
 }
