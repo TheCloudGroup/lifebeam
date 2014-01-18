@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menuInvite"
+        android:icon="@drawable/ic_action_social_send_now"
+        android:orderInCategory="1"
+        android:showAsAction="always|withText"
+        android:title="@string/post"
+        android:titleCondensed="@string/post"
+        android:visible="true">
+    </item>
+
+</menu>

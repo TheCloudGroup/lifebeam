@@ -192,8 +192,9 @@ public class GalleryActivity extends Activity {
 			break;
 
 		case R.id.menuInvite:
-			Log.v(TAG, "selected invite...");
-			Toast.makeText(this, "Menu Invite selected", Toast.LENGTH_SHORT).show();
+			//Log.v(TAG, "selected invite...");
+			//Toast.makeText(this, "Menu Invite selected", Toast.LENGTH_SHORT).show();
+			startActivity(new Intent(GalleryActivity.this, InviteActivity.class));
 			break;
 
 		case R.id.menuSettings:
@@ -218,7 +219,7 @@ public class GalleryActivity extends Activity {
 			Session.reset();
 
 			// Go to the login view
-			startActivity(new Intent(GalleryActivity.this, LoginActivity.class));
+			startActivity(new Intent(GalleryActivity.this, MainActivity.class));
 			finish();
 			break;
 

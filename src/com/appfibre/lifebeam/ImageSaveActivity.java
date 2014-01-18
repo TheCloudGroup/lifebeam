@@ -5,6 +5,9 @@ package com.appfibre.lifebeam;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 import org.apache.commons.io.FileUtils;
 
@@ -22,6 +25,7 @@ import com.parse.SaveCallback;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,12 +33,17 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -44,7 +53,7 @@ import android.widget.Toast;
  * @author REBUCAS RENANTE
  *
  */
-public class ImageSaveActivity extends Activity {
+public class ImageSaveActivity extends Activity  implements OnClickListener{
 
 	private ImageView imgPhoto;
 	private EditText edtPhotoDesc;
@@ -112,7 +121,9 @@ public class ImageSaveActivity extends Activity {
 
 		edtPhotoDesc = (EditText) findViewById(R.id.edtPhotoDesc);
 		txtLength = (TextView) findViewById(R.id.txtLength);
-
+		
+		findViewById(R.id.txtForPhotoHolder).setOnClickListener(this);
+		
 		final TextWatcher mTextEditorWatcher = new TextWatcher() {
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 			}
@@ -308,4 +319,41 @@ public class ImageSaveActivity extends Activity {
 			}
 		}
 	}
+	
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.txtForPhotoHolder:
+			Log.v(TAG, "yes you clicked the txtphotoholder");
+			edtTextHasFocus();
+			break;
+
+		default:
+			Log.e("In ImageSaveActivity onClick method", "unimplemented click listener");
+			break;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		
+	}
+	
+	private void edtTextHasFocus() {
+		edtPhotoDesc.requestFocusFromTouch();
+        InputMethodManager lManager = (InputMethodManager)ImageSaveActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE); 
+        lManager.showSoftInput(edtPhotoDesc, 0);
+	}
+	
+	@Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        return true;
+    }
 }
