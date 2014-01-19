@@ -11,6 +11,23 @@
         android:orientation="horizontal" >
 
         <LinearLayout
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center_vertical"
+		        android:orientation="vertical">
+		
+		        <ImageView
+		            android:id="@+id/imgPhoto"
+		            android:layout_width="50dp"
+		            android:layout_height="50dp"
+		            android:layout_gravity="right"
+		            android:paddingLeft="5dp"
+		            android:paddingRight="0dp"
+		            android:src="@drawable/ic_action_profile" />
+
+		    </LinearLayout>
+        
+        <LinearLayout
             android:id="@+id/forLocationContainer3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -22,18 +39,18 @@
                 android:id="@+id/txtName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
                 android:text="Contact Name"
                 android:textColor="#CC0033"
                 android:textSize="18sp" />
+
              <TextView
-                android:id="@+id/txtNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:text="Contact Number"
-                android:textColor="#CC0033"
-                android:textSize="12sp" />
+                 android:id="@+id/txtNumber"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="Contact Number"
+                 android:textColor="#CC0033"
+                 android:textSize="12sp" />
+
         </LinearLayout>
 
         <LinearLayout

@@ -3,6 +3,7 @@
  */
 package com.appfibre.lifebeam;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,6 +21,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +43,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.parse.ParseUser;
 
 /**
  * @author REBUCAS RENANTE
@@ -150,11 +155,25 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 			}
 
+			ParseUser user = ParseUser.getCurrentUser();
+			String senderName = "";
+			
+			if (user.getString("firstName") != null && user.getString("lastName") != null) {
+				senderName = user.getString("firstName") + " " + user.getString("lastName");	
+			} else {
+				senderName = user.getString("name");
+			}
+			
 			sendEmail(InviteActivity.this, new String[]{recepient}, 
 					"Lifebeam Invitation", 	//title 
-					"You have just been invited to a Post in Lifebeam",  		//subject   
-					"Please download lifebeam in your smartphone or" +
-					"tablet and get connected.");       //body 
+					"Lifebeam Invitation",  		//subject   
+					"Hello, \n\n" +
+					senderName + " has sent you this invite to create a lifebeam account, so that you too can share moments with [   ]. " +
+					"\n\n" +
+					"Click this link : https://www.google.com" +
+					"\n\n" +
+					"If you have mistakenly received this email, please disregard it and have a lovely day. " +
+					"However, if you are Interested in finding out more what lifebeam is all about, then visit https://www.google.com");       //body 
 			break;
 
 		default:
@@ -240,7 +259,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			//String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1";
 
 			Cursor cursor = null;
-			Cursor phones = null;
+			Cursor photos = null;
 			Cursor emails = null;
 			//String phoneNumber = "";
 			//interest = new String[500];
@@ -270,23 +289,83 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 					}*/   
 
-					emails = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null); 
-					while (emails.moveToNext()) { 
-						// This would allow you get several email addresses 
-						String emailAddress = emails.getString( 
+					emails = getContentResolver().query(
+							ContactsContract.CommonDataKinds.Email.CONTENT_URI, 
+							null, 
+							ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, 
+							null, null); 
+
+					String emailAddress = "";
+					while (emails.moveToNext()) {
+						emailAddress = emails.getString( 
 								emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-						Log.v(TAG, "username = " + name + 
-								" emailAddress = " + emailAddress + 
-								" contactid = " + contactId);
-						MyContactItem3 contact = new MyContactItem3(name, emailAddress, contactId, !isSelected);
-						if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
-							publishProgress(contact);
-							iCountDisplayedListItems++;
+					}
+
+
+					Uri person = null;
+					Uri imageURI = null;
+					try {
+						Log.v(TAG, "An image URI trace for username = " + name);
+						photos = getContentResolver().query(
+								ContactsContract.Data.CONTENT_URI,
+								null,
+								ContactsContract.Data.CONTACT_ID + " = " + contactId + " AND "
+										+ ContactsContract.Data.MIMETYPE + "='"
+										+ ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE + "'", 
+										null, null);
+
+						if (photos != null) {
+							if (!photos.moveToFirst()) {
+								imageURI = null; // no photo
+							}
+							person = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long
+									.parseLong(contactId));
+							imageURI = Uri.withAppendedPath(person, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
+							Log.v(TAG, "An image URI trace for imageUri = " + imageURI);
 						} else {
-							iListPage = 1;
+							imageURI = null; // error in cursor process
 						}
-						ContactsHolder.add(contact);
-					} 
+					} catch (Exception e) {
+						e.printStackTrace();
+						imageURI = null;
+					}
+
+
+					/*					emails = getContentResolver().query(
+							ContactsContract.CommonDataKinds.Email.CONTENT_URI, 
+							null, 
+							ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, 
+							null, null); 
+					//photos = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null); 
+					photos = getContentResolver().query(
+							ContactsContract.Data.CONTENT_URI,
+							null,
+							ContactsContract.Data.CONTACT_ID + " = " + contactId + " AND "
+									+ ContactsContract.Data.MIMETYPE + "='"
+									+ ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE + "'", 
+									null, null);
+					if (emails != null) { 
+						emailAddress = emails.getString( 
+								emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+					}
+					if (photos != null) { 
+						imageURI = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long
+								.parseLong(contactId));
+					}*/
+
+
+					Log.v(TAG, "username = " + name + 
+							" emailAddress = " + emailAddress + 
+							" contactid = " + contactId +
+							" imageUri = " + imageURI);
+					MyContactItem3 contact = new MyContactItem3(name, emailAddress, contactId, imageURI, !isSelected);
+					if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
+						publishProgress(contact);
+						iCountDisplayedListItems++;
+					} else {
+						iListPage = 1;
+					}
+					ContactsHolder.add(contact);
 
 					/*phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId,null, null);
 					while (phones.moveToNext()) {               
@@ -311,12 +390,15 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			} catch (NullPointerException npe) {
 				Log.e(TAG, "Error trying to get Contacts.");
 			} finally {
-				if (phones != null) {
-					phones.close();
+				if (emails != null) {
+					emails.close();
 				}
 				if (cursor != null) {
 					cursor.close();
-				}           
+				}     
+				if (photos != null) {
+					photos.close();
+				}   
 			} 
 
 			Log.v(TAG, "Stored Contacts = " + ContactsHolder.size());
@@ -360,18 +442,12 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			this.contacts = contacts;
 		}
 
-
-		/*public MyContactsAdapter() {
-			// TODO Auto-generated constructor stub
-		}*/
-
-
 		/*private view holder class*/
 		private class ViewHolder {
 			CheckBox checkBox1;
 			TextView txtName;
 			TextView txtNumber;
-
+			ImageView imgPhoto;
 		}
 
 		public int getCheckedCount(){
@@ -428,6 +504,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 				holder.txtName = (TextView) convertView.findViewById(R.id.txtName);
 				holder.txtNumber = (TextView) convertView.findViewById(R.id.txtNumber);
 				holder.checkBox1 = (CheckBox) convertView.findViewById(R.id.checkBox1);
+				holder.imgPhoto = (ImageView) convertView.findViewById(R.id.imgPhoto);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
@@ -435,6 +512,9 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			final MyContactItem3 contactitem = (MyContactItem3) getItem(position);
 			holder.txtName.setText(contactitem.getContactName());
 			holder.txtNumber.setText(contactitem.getContactNumber());
+			if (contactitem.getContactImageURI() != null) {
+				holder.imgPhoto.setImageURI(contactitem.getContactImageURI());
+			}
 
 			holder.checkBox1.setOnClickListener(new OnClickListener() {
 				@Override
@@ -533,11 +613,11 @@ public class InviteActivity extends Activity  implements OnClickListener{
 						emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
 				Log.v(TAG, "emailAddress = " + emailAddress);
 			} 
-			emails.close();
+			emails.close();  
 		}
 		cursor.close(); 
 	}
-	
+
 	public static void sendEmail(Context context, String[] recipientList,
 			String title, String subject, String body) {
 		Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);

@@ -1,9 +1,12 @@
 package com.appfibre.lifebeam.utils;
 
+import android.net.Uri;
+
 public class MyContactItem3 {
 	private String contactName;
 	private String contactNumber;
 	private String contactId;
+	private Uri contactImageURI;
 	private boolean selected;
 
 	/**
@@ -16,10 +19,11 @@ public class MyContactItem3 {
 	 * 
 	 * @author Angel Abellanosa Jr
 	 */
-	public MyContactItem3(String contactName, String contactNumber, String contactId, boolean selected) {
+	public MyContactItem3(String contactName, String contactNumber, String contactId, Uri contactImageURI, boolean selected) {
 		this.contactName = contactName;
 		this.contactNumber = contactNumber;
 		this.contactId = contactId;
+		this.setContactImageURI(contactImageURI);
 		this.selected = selected;
 	}
 
@@ -77,5 +81,19 @@ public class MyContactItem3 {
 	 */
 	public void setContactNumber(String contactNumber) {
 		this.contactNumber = contactNumber;
+	}
+
+	/**
+	 * @return the contactImageURI
+	 */
+	public Uri getContactImageURI() {
+		return contactImageURI;
+	}
+
+	/**
+	 * @param contactImageURI the contactImageURI to set
+	 */
+	public void setContactImageURI(Uri contactImageURI) {
+		this.contactImageURI = contactImageURI;
 	}
 }
