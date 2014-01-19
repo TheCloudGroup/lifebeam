@@ -217,6 +217,7 @@ public class GalleryActivity extends Activity {
 			ParseUser.logOut();
 			
 			Session.reset();
+			SharedPrefMgr.setBool(GalleryActivity.this, "hasSetKeptLogin", false);
 
 			// Go to the login view
 			startActivity(new Intent(GalleryActivity.this, MainActivity.class));

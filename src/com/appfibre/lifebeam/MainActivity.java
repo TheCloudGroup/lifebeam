@@ -10,6 +10,7 @@ import android.widget.Button;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
+import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.parse.ParseAnalytics;
 
 public class MainActivity extends Activity {
@@ -37,6 +38,8 @@ public class MainActivity extends Activity {
 		}*/
 
 		ParseAnalytics.trackAppOpened(getIntent());
+		
+		checkForUpdates();
 
 		final Button btnRegister = (Button) findViewById(R.id.btnRegister);
 		final Button btnLogin = (Button) findViewById(R.id.btnLogin);
@@ -59,7 +62,9 @@ public class MainActivity extends Activity {
 			}
 		});
 		
-		checkForUpdates();
+		if (SharedPrefMgr.getBool(this, "hasSetKeptLogin")) {
+			btnLogin.performClick();
+		}
 	}
 
 	/* (non-Javadoc)

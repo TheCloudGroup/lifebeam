@@ -25,9 +25,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
@@ -66,6 +69,22 @@ public class LoginActivity extends Activity implements OnClickListener{
 		findViewById(R.id.btnRegisterUsingFacebook).setOnClickListener(this);
 		findViewById(R.id.btnLogin).setOnClickListener(this);
 		findViewById(R.id.txtForgotPassword).setOnClickListener(this);
+		CheckBox checkBoxKeepLoggedIn = (CheckBox) findViewById(R.id.checkBoxKeepLoggedIn);
+		
+		checkBoxKeepLoggedIn.setChecked(SharedPrefMgr.getBool(this, "hasSetKeptLogin"));
+		
+		checkBoxKeepLoggedIn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// TODO Auto-generated method stub
+				if(isChecked){
+					SharedPrefMgr.setBool(LoginActivity.this, "hasSetKeptLogin", true);
+				}else{
+					SharedPrefMgr.setBool(LoginActivity.this, "hasSetKeptLogin", false);
+				}
+			}
+		});
+		
 
 		muserNameView = (EditText) findViewById(R.id.muserNameView);
 		mPasswordView = (EditText) findViewById(R.id.mPasswordView);
@@ -120,6 +139,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 		case R.id.btnLogin:
 			attemptLogin();
 			break;
+			
 		default:
 			break;
 		}
