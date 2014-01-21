@@ -1,8 +1,11 @@
 package com.appfibre.lifebeam;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +40,17 @@ public class MainActivity extends Activity {
 			Log.e(TAG, "nosuch algorithm: " + e.toString());
 		}*/
 
+		/*Log.v(TAG, "run a separate service to load up contacts with emails");
+		Intent intent = new Intent(LoginActivity.this, DownloadOffersService.class);
+		// add infos for the service which file to download and where to store
+		//intent.putExtra(DownloadOffersService.SESSION_ID, sessionID);
+		//intent.putExtra(DownloadOffersService.PHONE_LAT, currentLat);
+		//intent.putExtra(DownloadOffersService.PHONE_LONG, currentLong);
+		//intent.putIntegerArrayListExtra(DownloadOffersService.CATEGORY_IDS, (ArrayList<Integer>) category_ids);
+
+		startService(intent);*/
+		
+		
 		ParseAnalytics.trackAppOpened(getIntent());
 		
 		checkForUpdates();

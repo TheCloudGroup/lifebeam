@@ -96,7 +96,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 		// Check if there is a currently logged in user
 		// and they are linked to a Facebook account.
 		currentUser = ParseUser.getCurrentUser();
-		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
+		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser) &&
+				SharedPrefMgr.getBool(LoginActivity.this, "hasSetKeptLogin")) {
 			Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
 			startActivity(myIntent);
 		}
@@ -107,7 +108,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 				!"".equalsIgnoreCase(Session.getUserPassword())&&
 				(Session.getSessionId() != null &&
 				(Session.getUserName() != null &&
-				(Session.getUserPassword() != null)))){
+				(Session.getUserPassword() != null)) &&
+				SharedPrefMgr.getBool(LoginActivity.this, "hasSetKeptLogin"))){
 			Log.v(TAG, "There is a valid session auto login please");
 			Log.v(TAG, "Session.getSessionId() =" + Session.getSessionId());
 			Log.v(TAG, "Session.getUserName() =" + Session.getUserName());

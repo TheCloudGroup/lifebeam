@@ -130,40 +130,32 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			String recepient = "";
 
 			//email now
-			if (adapter.getCheckedCount() == 0) {
+			if (adapter.getCheckedPositions() == 0) {
 				Toast.makeText(InviteActivity.this, "You need to select a contact to invite.", Toast.LENGTH_LONG).show();
 				return true;
 			} else {
 				Log.v(TAG, "loop thru recepients here");
-				int iPosition = 0;
-				for (Boolean checkState : adapter.checkboxstate) {
-					if(checkState) {
-						Log.v(TAG, "now used this position = " + iPosition + " for tagging contacts");
-						MyContactItem3 contact = (MyContactItem3) adapter.getItem(iPosition);
-
+				for(int i=0; i<adapter.getCount(); i++){
+					MyContactItem3 contactitem = (MyContactItem3) adapter.getItem(i);
+					if(contactitem.isSelected()){
 						if ("".equals(recepient)) {
-							recepient = contact.getContactNumber();
+							recepient = contactitem.getContactNumber();
 						} else {
-							recepient += "," + contact.getContactNumber();	
+							recepient += "," + contactitem.getContactNumber();	
 						}
 					}
-					iPosition++;
 				}
-
-				//Toast.makeText(InviteActivity.this, "You are about to invite: " + recepient,
-				//		Toast.LENGTH_LONG).show();
-
 			}
 
 			ParseUser user = ParseUser.getCurrentUser();
 			String senderName = "";
-			
+
 			if (user.getString("firstName") != null && user.getString("lastName") != null) {
 				senderName = user.getString("firstName") + " " + user.getString("lastName");	
 			} else {
 				senderName = user.getString("name");
 			}
-			
+
 			sendEmail(InviteActivity.this, new String[]{recepient}, 
 					"Lifebeam Invitation", 	//title 
 					"Lifebeam Invitation",  		//subject   
@@ -329,36 +321,12 @@ public class InviteActivity extends Activity  implements OnClickListener{
 						e.printStackTrace();
 						imageURI = null;
 					}
-
-
-					/*					emails = getContentResolver().query(
-							ContactsContract.CommonDataKinds.Email.CONTENT_URI, 
-							null, 
-							ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, 
-							null, null); 
-					//photos = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null); 
-					photos = getContentResolver().query(
-							ContactsContract.Data.CONTENT_URI,
-							null,
-							ContactsContract.Data.CONTACT_ID + " = " + contactId + " AND "
-									+ ContactsContract.Data.MIMETYPE + "='"
-									+ ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE + "'", 
-									null, null);
-					if (emails != null) { 
-						emailAddress = emails.getString( 
-								emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-					}
-					if (photos != null) { 
-						imageURI = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long
-								.parseLong(contactId));
-					}*/
-
-
+					
 					Log.v(TAG, "username = " + name + 
 							" emailAddress = " + emailAddress + 
 							" contactid = " + contactId +
 							" imageUri = " + imageURI);
-					MyContactItem3 contact = new MyContactItem3(name, emailAddress, contactId, imageURI, !isSelected);
+					MyContactItem3 contact = new MyContactItem3(name, emailAddress, contactId, imageURI, isSelected);
 					if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
 						publishProgress(contact);
 						iCountDisplayedListItems++;
@@ -366,26 +334,6 @@ public class InviteActivity extends Activity  implements OnClickListener{
 						iListPage = 1;
 					}
 					ContactsHolder.add(contact);
-
-					/*phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId,null, null);
-					while (phones.moveToNext()) {               
-						phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
-						phoneNumber = phoneNumber.replaceAll("\\s", "");
-						Log.v(TAG, "username = " + name + 
-								" mobilephone = " + phoneNumber + 
-								" contactid = " + contactId);
-						MyContactItem3 contact = new MyContactItem3(name, emailAddress, contactId, !isSelected);
-						if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
-							publishProgress(contact);
-							iCountDisplayedListItems++;
-						} else {
-							iListPage = 1;
-						}
-						ContactsHolder.add(contact);
-
-					}*/
-
-
 				}  
 			} catch (NullPointerException npe) {
 				Log.e(TAG, "Error trying to get Contacts.");
@@ -404,7 +352,6 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			Log.v(TAG, "Stored Contacts = " + ContactsHolder.size());
 			Log.v(TAG, "getcount of contactsize = " + adapter.getCount());
 			Log.v(TAG, "resetting all checkbox states here");
-			adapter.resetCheckBoxesState();
 			return null;
 		}
 
@@ -450,33 +397,18 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			ImageView imgPhoto;
 		}
 
-		public int getCheckedCount(){
-			int iCount = 0;
-			for (Boolean checkState : checkboxstate) {
-				if(checkState) {
-					iCount++;
+		public int getCheckedPositions(){
+
+			int numberOfCheckedItems = 0;
+
+			for(int i=0; i < getCount(); i++){
+				MyContactItem3 contactitem = (MyContactItem3) getItem(i);
+				if(contactitem.isSelected()){
+					numberOfCheckedItems++;
 				}
 			}
-			return iCount;
-		}
-
-		public List<Integer> getCheckedPositions(){
-			checkedPositions = new ArrayList<Integer>();
-
-			Log.v(TAG, "getting the positions of checked contact here");
-			int iPosition = 0;
-
-			for (Boolean checkState : checkboxstate) {
-				if(checkState) {
-					Log.v(TAG, "now used this position = " + iPosition + " for tagging contacts");
-					//checkedContacts.add((MyContactItem) this.getItem(iPosition));
-					checkedPositions.add(iPosition);
-					//Log.v(TAG, )
-				}
-				iPosition++;
-			}
-
-			return checkedPositions;
+			
+			return numberOfCheckedItems;
 		}
 
 		@Override
@@ -496,6 +428,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			ViewHolder holder = null;
+			Log.v("ConvertView", String.valueOf(position));
 
 			LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 			if (convertView == null) {
@@ -506,33 +439,49 @@ public class InviteActivity extends Activity  implements OnClickListener{
 				holder.checkBox1 = (CheckBox) convertView.findViewById(R.id.checkBox1);
 				holder.imgPhoto = (ImageView) convertView.findViewById(R.id.imgPhoto);
 				convertView.setTag(holder);
+
+				holder.checkBox1.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						CheckBox cb = (CheckBox) v ; 
+						MyContactItem3 contact = (MyContactItem3) cb.getTag();
+						
+						contact.setSelected(cb.isChecked());
+
+						/*Toast.makeText(getApplicationContext(),
+								"Clicked on Checkbox: " + contact.getContactName() +
+								" is " + cb.isChecked(),
+								Toast.LENGTH_LONG).show();*/
+
+						/*StringBuffer responseText = new StringBuffer();
+						responseText.append("The following were selected...\n");
+
+						for(int i=0; i<adapter.getCount(); i++){
+							MyContactItem3 contactitem = (MyContactItem3) getItem(i);
+							if(contactitem.isSelected()){
+								responseText.append("\n" + contactitem.getContactName());
+							}
+						}
+
+						Toast.makeText(getApplicationContext(),
+								responseText, Toast.LENGTH_LONG).show();*/
+
+					}
+				});
+
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			final MyContactItem3 contactitem = (MyContactItem3) getItem(position);
+
+			MyContactItem3 contactitem = (MyContactItem3) getItem(position);
 			holder.txtName.setText(contactitem.getContactName());
 			holder.txtNumber.setText(contactitem.getContactNumber());
 			if (contactitem.getContactImageURI() != null) {
 				holder.imgPhoto.setImageURI(contactitem.getContactImageURI());
 			}
+			holder.checkBox1.setChecked(contactitem.isSelected());
+			holder.checkBox1.setTag(contactitem);
 
-			holder.checkBox1.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					if(((CheckBox)v).isChecked()){
-						checkboxstate.set(position,true);
-						Log.v(TAG, "you checked " + contactitem.getContactName().toString());
-						Log.v(TAG, "with email " + contactitem.getContactNumber().toString());
-						contactitem.setSelected(true);
-					}else{
-						checkboxstate.set(position,false);
-						contactitem.setSelected(false);
-					}
-					Log.v(TAG, "selected total = " + adapter.getCheckedCount());
-					Log.v(TAG, "selected total = " + adapter.getCheckedPositions().size());
-				}
-			});
 			return convertView;
 		}
 
@@ -555,14 +504,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 					adapter.add(ContactsHolder.get(i));
 				}	
 				iListPage++;
-				adapter.resetCheckBoxesState();
-			}
-		}
-
-		public void resetCheckBoxesState() {
-			checkboxstate = new ArrayList<Boolean>();
-			for (int i = 0; i < getCount(); i++) {
-				checkboxstate.add(i, false);
+				//adapter.resetCheckBoxesState();
 			}
 		}
 
