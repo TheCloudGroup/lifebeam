@@ -10,40 +10,72 @@
     tools:context=".MainActivity" >
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
+        android:id="@+id/llyMainButtonHolder"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal" >
 
-        <Button
-            android:id="@+id/btnRegister"
-            android:layout_width="140dp"
-            android:layout_height="40dp"
-            android:background="@drawable/style_btnregister"
-            android:text="Register"
-            android:textColor="#FFFFFF"
-            android:textSize="15dp"
-             />
+        <LinearLayout
+            android:id="@+id/llyMobileMain"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="visible" >
 
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="140dp"
-            android:layout_height="40dp"
-          	android:background="@drawable/style_btnlogin"
-            android:text="Login"
-            android:textColor="#FFFFFF"
-            android:textSize="15dp" />
+            <Button
+                android:id="@+id/btnRegister"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
+                android:background="@drawable/style_btnregister"
+                android:text="Register"
+                android:textColor="#FFFFFF"
+                android:textSize="15dp" />
 
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
+                android:background="@drawable/style_btnlogin"
+                android:text="Login"
+                android:textColor="#FFFFFF"
+                android:textSize="15dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llyTabletMain"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btnLogin2"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
+                android:background="@drawable/style_btnlogin"
+                android:text="Login"
+                android:textColor="#FFFFFF"
+                android:textSize="15dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+        </LinearLayout>
     </LinearLayout>
 
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/linearLayout1"
+        android:layout_above="@+id/llyMainButtonHolder"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="18dp"
         android:contentDescription="@string/testImage"

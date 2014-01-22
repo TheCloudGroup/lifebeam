@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import net.hockeyapp.android.CrashManager;
@@ -16,7 +17,7 @@ import net.hockeyapp.android.UpdateManager;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.parse.ParseAnalytics;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener{
 
 	private static final String TAG = "MainActivity";
 	private static final String APP_ID = "7e4f30dd5ccb0d568d1b1d1582b7db1d";
@@ -49,24 +50,28 @@ public class MainActivity extends Activity {
 		//intent.putIntegerArrayListExtra(DownloadOffersService.CATEGORY_IDS, (ArrayList<Integer>) category_ids);
 
 		startService(intent);*/
-		
-		
+
+
 		ParseAnalytics.trackAppOpened(getIntent());
-		
+
 		checkForUpdates();
 
-		final Button btnRegister = (Button) findViewById(R.id.btnRegister);
+		boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
+		if (tabletSize) {
+			findViewById(R.id.llyTabletMain).setVisibility(View.VISIBLE);
+			findViewById(R.id.llyMobileMain).setVisibility(View.GONE);
+		} else {
+			findViewById(R.id.llyTabletMain).setVisibility(View.GONE);
+			findViewById(R.id.llyMobileMain).setVisibility(View.VISIBLE);
+		}
+
+		findViewById(R.id.btnRegister).setOnClickListener(this);
+		findViewById(R.id.btnLogin).setOnClickListener(this);
+		findViewById(R.id.btnLogin2).setOnClickListener(this);
+
 		final Button btnLogin = (Button) findViewById(R.id.btnLogin);
-
-		btnRegister.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				startActivity(new Intent(MainActivity.this,RegisterActivity.class));
-			}
-		});
-
+		
+		
 		btnLogin.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -75,7 +80,7 @@ public class MainActivity extends Activity {
 				startActivity(new Intent(MainActivity.this,LoginActivity.class));
 			}
 		});
-		
+
 		if (SharedPrefMgr.getBool(this, "hasSetKeptLogin")) {
 			btnLogin.performClick();
 		}
@@ -97,14 +102,32 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
-	 private void checkForCrashes() {
-		   CrashManager.register(this, APP_ID);
-		 }
 
-		 private void checkForUpdates() {
-		   // Remove this for store builds!
-		   UpdateManager.register(this, APP_ID);
-		 }
+	private void checkForCrashes() {
+		CrashManager.register(this, APP_ID);
+	}
+
+	private void checkForUpdates() {
+		// Remove this for store builds!
+		UpdateManager.register(this, APP_ID);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.btnRegister:
+			startActivity(new Intent(MainActivity.this,RegisterActivity.class));
+			break;
+
+		case R.id.btnLogin:
+		case R.id.btnLogin2:
+			startActivity(new Intent(MainActivity.this,LoginActivity.class));
+			break;
+
+		default:
+			Log.v("In ImageSaveActivity onClick method", "unimplemented click listener");
+			break;
+		}
+	}
 
 }

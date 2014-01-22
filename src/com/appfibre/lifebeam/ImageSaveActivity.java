@@ -3,6 +3,7 @@
  */
 package com.appfibre.lifebeam;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -29,7 +30,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,6 +49,7 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +64,7 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 	private TextView txtLength;
 	private Event event;
 	private ParseFile file;
+	private Bitmap origbitmap, origbitmapResized;
 	private boolean hasNoImage;
 
 	private static final int CAPTURE_CAMERA_CODE  = 1337;
@@ -85,6 +90,8 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 			// Decode the image file into a Bitmap sized to fill the View
 			factoryOptions.inJustDecodeBounds = false; factoryOptions.inSampleSize = scaleFactor; factoryOptions.inPurgeable = true;
 			Bitmap bitmap = BitmapFactory.decodeFile(profileImageUri.getPath(),
+					factoryOptions);
+			origbitmap = BitmapFactory.decodeFile(profileImageUri.getPath(),
 					factoryOptions);
 			imgPhoto.setImageBitmap(bitmap);
 			hasNoImage = false;
@@ -121,9 +128,10 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 
 		edtPhotoDesc = (EditText) findViewById(R.id.edtPhotoDesc);
 		txtLength = (TextView) findViewById(R.id.txtLength);
-		
+
+		findViewById(R.id.imgRotatePhoto).setOnClickListener(this);
 		findViewById(R.id.txtForPhotoHolder).setOnClickListener(this);
-		
+
 		final TextWatcher mTextEditorWatcher = new TextWatcher() {
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 			}
@@ -171,7 +179,8 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 				finish();
 				return true;
 			}
-			saveToParse();
+			//saveToParse();
+			saveApprovedRotatedImage();
 			break;
 		case R.id.menuNext:
 			/*Log.v(TAG, "do actual registration here");
@@ -219,7 +228,7 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 	}*/
 
 	private void saveToParse() {
-		Utils.showProgressDialog(ImageSaveActivity.this, "Saving To Parse Now...");
+		Utils.showProgressDialog(ImageSaveActivity.this, "Posting Event... ");
 		ParseACL eventACL = new ParseACL(ParseUser.getCurrentUser());
 		eventACL.setPublicReadAccess(true);
 
@@ -291,7 +300,9 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		if (requestCode == ImageSaveActivity.CAPTURE_CAMERA_CODE) {
 			if (resultCode == RESULT_OK) {
 				Toast.makeText(ImageSaveActivity.this, "Image Confirmed!", Toast.LENGTH_SHORT).show();
-				if (profileImageUri != null) {
+				Log.v(TAG, "defere saving of file to parse until image is rotate confirmed");
+				
+/*				if (profileImageUri != null) {
 					try {
 						file = new ParseFile( "file.jpg", CameraUtils.convertUriToBytes(ImageSaveActivity.this, profileImageUri));
 						file.saveInBackground(new SaveCallback() {
@@ -312,20 +323,25 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 						Log.e(TAG, "Error: " + e.getMessage());
 					}
 
-				}
+				}*/
+				
 				Log.v(TAG, "profileImageUri = " + profileImageUri);
 			} else {
 				profileImageUri = null;
 			}
 		}
 	}
-	
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.txtForPhotoHolder:
 			Log.v(TAG, "yes you clicked the txtphotoholder");
 			edtTextHasFocus();
+			break;
+
+		case R.id.imgRotatePhoto:
+			rotateImageView();
 			break;
 
 		default:
@@ -341,19 +357,101 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		
+
 	}
-	
+
 	private void edtTextHasFocus() {
 		edtPhotoDesc.requestFocusFromTouch();
-        InputMethodManager lManager = (InputMethodManager)ImageSaveActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE); 
-        lManager.showSoftInput(edtPhotoDesc, 0);
+		InputMethodManager lManager = (InputMethodManager)ImageSaveActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE); 
+		lManager.showSoftInput(edtPhotoDesc, 0);
 	}
-	
+
 	@Override
-    public boolean onTouchEvent(MotionEvent event) {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        return true;
-    }
+	public boolean onTouchEvent(MotionEvent event) {
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		return true;
+	}
+
+	private void rotateImageView() {
+		//Create object of new Matrix.
+		Matrix matrix = new Matrix();
+
+		//set image rotation value to 90 degrees in matrix.
+		matrix.postRotate(90);
+
+		//Create bitmap with new values.
+		Bitmap bMapRotate = Bitmap.createBitmap(origbitmap, 0, 0, 
+				origbitmap.getWidth(), origbitmap.getHeight(), matrix, true);
+
+		origbitmap = bMapRotate;
+
+		//put rotated image in ImageView.
+		imgPhoto.setImageBitmap(bMapRotate);
+	}
+
+	private void saveApprovedRotatedImage() {
+		Log.v(TAG, "scale image first");
+		scaleImage();
+		
+		try {
+			Utils.showProgressDialog(ImageSaveActivity.this, "Saving Photo ...");
+			Log.v(TAG, "convert bmp to byte array");
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			origbitmapResized.compress(Bitmap.CompressFormat.PNG, 100, stream);
+			byte[] byteArray = stream.toByteArray();
+			
+			file = new ParseFile( "file.jpg", byteArray);
+			file.saveInBackground(new SaveCallback() {
+
+				@Override
+				public void done(com.parse.ParseException e) {
+					Utils.hideProgressDialog();
+					if (e == null) {
+						Log.v(TAG, "now ready to save event huzzah!!!!");
+						saveToParse();
+					} else {
+						Log.v(TAG, "Error saving user with new group : " + e.toString());
+					}
+				}
+
+			});
+
+		} catch (Exception e) {
+			Log.e(TAG, "Error: " + e.getMessage());
+		}
+		
+
+	}
+
+	private void scaleImage() {
+		Log.v(TAG, "original height = " + origbitmap.getHeight());
+		Log.v(TAG, "original width = " + origbitmap.getWidth());
+		
+		int REQUIRED_SIZE = 300; //either its width or height should be within this
+		int width_tmp=origbitmap.getWidth(), height_tmp=origbitmap.getHeight();
+        int scale=1;
+        while(true){
+            if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
+                break;
+            width_tmp/=2;
+            height_tmp/=2;
+            scale*=2;
+        }
+		
+        Log.v(TAG, "height or width should not be less than 300 here unless it originally was");
+        Log.v(TAG, "new reduced height = " + height_tmp);
+		Log.v(TAG, "new reduced width = " + width_tmp);
+        
+		origbitmapResized = Bitmap.createScaledBitmap(origbitmap, width_tmp, height_tmp, true);
+
+	}
+
+	public static Bitmap loadBitmapFromView(View v) {
+		Bitmap b = Bitmap.createBitmap( v.getLayoutParams().width, v.getLayoutParams().height, Bitmap.Config.ARGB_8888);                
+		Canvas c = new Canvas(b);
+		v.layout(0, 0, v.getLayoutParams().width, v.getLayoutParams().height);
+		v.draw(c);
+		return b;
+	}
 }
