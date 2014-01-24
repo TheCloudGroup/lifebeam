@@ -428,7 +428,7 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		Log.v(TAG, "original height = " + origbitmap.getHeight());
 		Log.v(TAG, "original width = " + origbitmap.getWidth());
 		
-		int REQUIRED_SIZE = 300; //either its width or height should be within this
+		int REQUIRED_SIZE = 150; //either its width or height should be within twice of this
 		int width_tmp=origbitmap.getWidth(), height_tmp=origbitmap.getHeight();
         int scale=1;
         while(true){

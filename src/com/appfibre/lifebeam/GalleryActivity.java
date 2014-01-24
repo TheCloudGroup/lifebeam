@@ -12,7 +12,9 @@ import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -26,7 +28,9 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,6 +39,7 @@ import android.widget.Toast;
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.utils.CameraUtils;
 import com.appfibre.lifebeam.utils.ImageLoader2;
+import com.appfibre.lifebeam.utils.MyContactItem3;
 import com.appfibre.lifebeam.utils.MyImageItem;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
@@ -43,7 +48,9 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -61,7 +68,13 @@ public class GalleryActivity extends Activity {
 	private ArrayList<Event> EventS;
 
 	private ParseFile file;
-	private ParseUser user;
+	private ParseUser currentUser;
+	private ParseRelation<ParseObject> myEvents;
+	private List<ParseObject> ScratchMyEvents;
+	private int selectedIndex;
+	private ListView mainListView;
+	
+	private String eventIdToDelete;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -116,10 +129,10 @@ public class GalleryActivity extends Activity {
 		///////////////////--------------------- now softcoded?? hehe
 
 		EventS = new ArrayList<Event>();
-		user = ParseUser.getCurrentUser();
+		currentUser = ParseUser.getCurrentUser();
 		String userId = "";
-		if (user.getObjectId() != null &&  !"".equals(user.getObjectId())) {
-			userId = user.getObjectId();
+		if (currentUser.getObjectId() != null &&  !"".equals(currentUser.getObjectId())) {
+			userId = currentUser.getObjectId();
 		}
 
 		Log.v(TAG, "and the userid is = " + userId);
@@ -253,12 +266,14 @@ public class GalleryActivity extends Activity {
 		/*private view holder class*/
 		private class ViewHolder {
 			ImageView imgPix;
+			ImageView imgClose;
 			TextView txtOwner;
 			TextView txtDate;
 			TextView txtTime;
 			TextView txtMessage;
 			TextView txtMessageCount;
 			TextView txtLikedCount;
+			
 
 		}
 
@@ -286,6 +301,7 @@ public class GalleryActivity extends Activity {
 				convertView = mInflater.inflate(R.layout.gallery_list_item, null);
 				holder = new ViewHolder();
 				holder.imgPix = (ImageView) convertView.findViewById(R.id.imgPix);
+				holder.imgClose = (ImageView) convertView.findViewById(R.id.imgClose);
 				holder.txtOwner = (TextView) convertView.findViewById(R.id.txtOwner);
 				holder.txtDate = (TextView) convertView.findViewById(R.id.txtDate);
 				holder.txtTime = (TextView) convertView.findViewById(R.id.txtTime);
@@ -293,6 +309,40 @@ public class GalleryActivity extends Activity {
 				holder.txtMessageCount = (TextView) convertView.findViewById(R.id.txtMessageCount);
 				holder.txtLikedCount = (TextView) convertView.findViewById(R.id.txtLikedCount);
 				convertView.setTag(holder);
+				
+				holder.imgClose.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						ImageView imgClose = (ImageView) v ; 
+						eventIdToDelete = (String) imgClose.getTag();
+						selectedIndex = position;
+						
+						//Toast.makeText(getApplicationContext(),
+						//		"You selected for deletion = " + eventIdToDelete, Toast.LENGTH_LONG).show();
+						
+						AlertDialog.Builder alertDialog = new AlertDialog.Builder(GalleryActivity.this);
+						alertDialog.setTitle("Confirm Delete...");
+						alertDialog.setMessage("Are you sure you want to delete this event?");
+						alertDialog.setIcon(R.drawable.delete);
+
+						alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,int which) {
+								dialog.cancel();
+								resetParseUserEvents();
+								//resetListView(item, position -1,REMOVE_AS_USER_INTEREST);
+								//hasInformedRemoveOnce = true;
+							}
+						});
+
+						alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+							}
+						});
+						alertDialog.show();
+					}
+				});
+				
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
@@ -308,6 +358,8 @@ public class GalleryActivity extends Activity {
 
 			holder.imgPix.setTag(image.getURL());
 			imageLoader.DisplayImage(image.getURL(), holder.imgPix);
+			
+			holder.imgClose.setTag(image.getId());
 
 
 			return convertView;
@@ -384,7 +436,7 @@ public class GalleryActivity extends Activity {
 		Log.v(TAG, "Eventsize here = " + EventS.size());
 
 		// Find the ListView resource.
-		ListView mainListView = (ListView) findViewById(R.id.listEvents);
+		mainListView = (ListView) findViewById(R.id.listEvents);
 		mainListView.setEmptyView(findViewById(R.id.txtEventsEmpty));
 		//((TextView) findViewById(R.id.lstInvitesEmpty)).setText("You currently have no recorded farts yet.");
 
@@ -397,10 +449,10 @@ public class GalleryActivity extends Activity {
 			
 			String owner = "";
 			
-			Log.v(TAG, "authdata =" + user.getString("authData"));
+			Log.v(TAG, "authdata =" + currentUser.getString("authData"));
 			
-			owner = (user.getString("name") == null || "".equals(user.getString("name"))) ? 
-					user.getString("firstName") + " " + user.getString("lastName") : user.getString("name");
+			owner = (currentUser.getString("name") == null || "".equals(currentUser.getString("name"))) ? 
+					currentUser.getString("firstName") + " " + currentUser.getString("lastName") : currentUser.getString("name");
 			
 			String family = ""; //hardcoded for now
 			
@@ -424,5 +476,39 @@ public class GalleryActivity extends Activity {
 		MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
 		mainListView.setAdapter(adapter);
 
+	}
+	
+	private void resetParseUserEvents() {
+		Utils.showProgressDialog(GalleryActivity.this, "Deleting this event in server...");
+		myEvents = currentUser.getRelation("events");
+		myEvents.getQuery().findInBackground(new FindCallback<ParseObject>() {
+			@Override
+			public void done(List<ParseObject> MyEvents, ParseException e) {
+				if (e == null) {
+					deleteEvent(eventIdToDelete);
+					Images.remove(selectedIndex);
+					MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
+					mainListView.setAdapter(adapter);
+				} else {
+					Log.e(TAG, "There was an error trying to query MyInterests: " + e.getMessage());
+				}
+				Utils.hideProgressDialog();
+			}
+		});
+	}
+	
+	private void deleteEvent(String selectedId) {
+		//attempt to delete now:
+		ParseObject.createWithoutData("Event", selectedId).deleteEventually();
+/*		for (ParseObject myEvent : ScratchMyEvents) {
+			if (selectedId.equalsIgnoreCase(myEvent.getObjectId().toString())){
+				myEvents = currentUser.getRelation("events");
+				myEvents.remove(myEvent);
+				currentUser.saveEventually();
+				Log.v(TAG, "removed an view.getTag() = " + selectedId);
+			} else {
+				Log.v(TAG, "not this one = " + myEvent.getString("content").toString());
+			}
+		}*/
 	}
 }

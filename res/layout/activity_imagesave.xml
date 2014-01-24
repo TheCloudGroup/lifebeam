@@ -22,17 +22,17 @@
 
             <EditText
                 android:id="@+id/edtPhotoDesc"
+                style="@android:style/TextAppearance.Small"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:hint="Enter your message"
                 android:inputType="textMultiLine"
+                android:maxLength="200"
                 android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:paddingTop="15dp"
-                android:textSize="16sp"
-                android:maxLength="200"
                 android:visibility="visible" />
         </LinearLayout>
 
@@ -74,7 +74,7 @@
             android:scaleType="centerCrop"
             android:src="@drawable/no_image_avail"
             android:visibility="visible" />
-        
+
         <ImageView
             android:id="@+id/imgRotatePhoto"
             android:layout_width="wrap_content"
@@ -82,9 +82,8 @@
             android:layout_gravity="center"
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_action_images_rotate_left"
+            android:src="@drawable/ic_action_images_rotate_right"
             android:visibility="visible" />
-
     </LinearLayout>
 
 </LinearLayout>

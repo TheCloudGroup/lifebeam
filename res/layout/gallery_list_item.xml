@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:paddingTop="10dp" >
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:background="@color/Grey3"
@@ -26,7 +26,14 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_imggallery" />
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/imgClose"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="top|right"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_close_dialog" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/llyGalleryItemContainer"
@@ -36,19 +43,19 @@
 
             <TextView
                 android:id="@+id/txtOwner"
+                style="@android:style/TextAppearance.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/icon"
                 android:background="@color/lifebeamBlue"
                 android:padding="5dp"
                 android:text="Renante Rebucas"
-                android:textColor="@color/White"
-                android:textSize="12sp" />
+                android:textColor="@color/White" />
 
             <LinearLayout
                 android:id="@+id/llyDateHolder"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_toRightOf="@+id/icon"
                 android:gravity="right|center_vertical"
                 android:orientation="horizontal" >
@@ -59,8 +66,8 @@
                     android:layout_height="wrap_content"
                     android:padding="5dp"
                     android:text="November 27\, 1968"
-                    android:textColor="@color/lifebeamBlue"
-                    android:textSize="10dp" />
+                    android:textColor="@color/lifebeamBlue" 
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/txtTime"
@@ -69,7 +76,7 @@
                     android:padding="5dp"
                     android:text="06:0 am"
                     android:textColor="@color/lifebeamBlue"
-                    android:textSize="10dp" />
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -82,11 +89,11 @@
 
         <TextView
             android:id="@+id/txtMessage"
+            style="@android:style/TextAppearance.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Beach with the Family"
-            android:textSize="10dp" />
+            android:text="Beach with the Family" />
 
         <LinearLayout
             android:id="@+id/llyItemRateContainer"
@@ -113,14 +120,14 @@
 
                 <TextView
                     android:id="@+id/txtMessageCount"
+                    style="@android:style/TextAppearance.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="5dp"
                     android:paddingRight="5dp"
                     android:paddingTop="5dp"
                     android:text="5"
-                    android:textColor="@color/White"
-                    android:textSize="10dp" />
+                    android:textColor="@color/White" />
             </LinearLayout>
 
             <LinearLayout
@@ -140,14 +147,14 @@
 
                 <TextView
                     android:id="@+id/txtLikedCount"
+                    style="@android:style/TextAppearance.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="5dp"
                     android:paddingRight="5dp"
                     android:paddingTop="5dp"
                     android:text="2"
-                    android:textColor="@color/White"
-                    android:textSize="10dp" />
+                    android:textColor="@color/White" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
