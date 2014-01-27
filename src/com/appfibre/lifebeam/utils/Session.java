@@ -9,8 +9,37 @@ public class Session {
 
 	private static String userName;
 	private static String userPassword;
+	private static String userFamilyAccount;
+	private static String userPasscode;
 	private static String sessionId;
 	private static String sessionFamily;
+	
+	
+	/**
+	 * @return the userFamilyAccount
+	 */
+	public static String getUserFamilyAccount() {
+		return userFamilyAccount;
+	}
+	/**
+	 * @param userFamilyAccount the userFamilyAccount to set
+	 */
+	public static void setUserFamilyAccount(String userFamilyAccount) {
+		Session.userFamilyAccount = userFamilyAccount;
+	}
+	/**
+	 * @return the userPasscode
+	 */
+	public static String getUserPasscode() {
+		return userPasscode;
+	}
+	/**
+	 * @param userPasscode the userPasscode to set
+	 */
+	public static void setUserPasscode(String userPasscode) {
+		Session.userPasscode = userPasscode;
+	}
+
 	/**
 	 * @return the sessionFamily
 	 */

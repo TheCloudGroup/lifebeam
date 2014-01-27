@@ -1,7 +1,9 @@
 package com.appfibre.lifebeam;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.animation.Animator;
@@ -10,11 +12,11 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,20 +29,23 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.appfibre.lifebeam.classes.Event;
+import com.appfibre.lifebeam.classes.Family;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
-import com.facebook.FacebookRequestError;
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.model.GraphUser;
+import com.appfibre.lifebeam.utils.Utils;
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 public class LoginActivityTablet extends Activity implements OnClickListener{
@@ -49,72 +54,63 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 	private static final String TAG = "LoginActivity";
 	private ParseUser currentUser;
 
-	private String mUsername = "";
-	private String mPassword = "";
-	private EditText muserNameView;
-	private EditText mPasswordView;
+	private String mFamilyAccount = "";
+	private String mPasscode = "";
+	private EditText edtFamilyAccount;
+	private EditText edtPasscode;
 
 	private View mLoginFormView;
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
+	private ArrayList<Bitmap> eventBmaps = new ArrayList<Bitmap>();
+	private List<String> eventImageUrls = new ArrayList<String>();
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_login);
+		setContentView(R.layout.activity_login_tablet);
 
 		Log.v(TAG, "Now in OnCreate ==========================================");
 
-		findViewById(R.id.btnRegisterUsingFacebook).setOnClickListener(this);
+		ParseUser.enableAutomaticUser();
+
 		findViewById(R.id.btnLogin).setOnClickListener(this);
 		findViewById(R.id.txtForgotPassword).setOnClickListener(this);
 		CheckBox checkBoxKeepLoggedIn = (CheckBox) findViewById(R.id.checkBoxKeepLoggedIn);
-		
-		checkBoxKeepLoggedIn.setChecked(SharedPrefMgr.getBool(this, "hasSetKeptLogin"));
-		
+
+		checkBoxKeepLoggedIn.setChecked(SharedPrefMgr.getBool(this, "hasSetKeptLoginTablet"));
+
 		checkBoxKeepLoggedIn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				// TODO Auto-generated method stub
 				if(isChecked){
-					SharedPrefMgr.setBool(LoginActivityTablet.this, "hasSetKeptLogin", true);
+					SharedPrefMgr.setBool(LoginActivityTablet.this, "hasSetKeptLoginTablet", true);
 				}else{
-					SharedPrefMgr.setBool(LoginActivityTablet.this, "hasSetKeptLogin", false);
+					SharedPrefMgr.setBool(LoginActivityTablet.this, "hasSetKeptLoginTablet", false);
 				}
 			}
 		});
-		
 
-		muserNameView = (EditText) findViewById(R.id.muserNameView);
-		mPasswordView = (EditText) findViewById(R.id.mPasswordView);
+
+		edtFamilyAccount = (EditText) findViewById(R.id.edtFamilyAccount);
+		edtPasscode = (EditText) findViewById(R.id.edtPassCode);
 
 		mLoginFormView = findViewById(R.id.login_form);
 		mLoginStatusView = findViewById(R.id.login_status);
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
-		// Check if there is a currently logged in user
-		// and they are linked to a Facebook account.
-		currentUser = ParseUser.getCurrentUser();
-		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser) &&
-				SharedPrefMgr.getBool(LoginActivityTablet.this, "hasSetKeptLogin")) {
-			Intent myIntent = new Intent(LoginActivityTablet.this, GalleryActivity.class);
-			startActivity(myIntent);
-		}
-
 		//check if there is a stored session login via normal and not FB
-		if (!"".equalsIgnoreCase(Session.getSessionId()) &&
-				!"".equalsIgnoreCase(Session.getUserName()) &&
-				!"".equalsIgnoreCase(Session.getUserPassword())&&
-				(Session.getSessionId() != null &&
-				(Session.getUserName() != null &&
-				(Session.getUserPassword() != null)) &&
-				SharedPrefMgr.getBool(LoginActivityTablet.this, "hasSetKeptLogin"))){
-			Log.v(TAG, "There is a valid session auto login please");
-			Log.v(TAG, "Session.getSessionId() =" + Session.getSessionId());
-			Log.v(TAG, "Session.getUserName() =" + Session.getUserName());
-			Log.v(TAG, "Session.getUserPassword() =" + Session.getUserPassword());
-			attemptLogin(Session.getUserName(), Session.getUserPassword());
+		if (!"".equalsIgnoreCase(Session.getUserFamilyAccount()) &&
+				!"".equalsIgnoreCase(Session.getUserPasscode()) &&
+				(Session.getUserFamilyAccount() != null &&
+				(Session.getUserPasscode() != null &&
+				SharedPrefMgr.getBool(LoginActivityTablet.this, "hasSetKeptLoginTablet")))){
+			Log.v(TAG, "There is a checked keep me logged in auto login please");
+			Log.v(TAG, "Session.getUserFamilyAccount() =" + Session.getUserFamilyAccount());
+			Log.v(TAG, "Session.getUserPasscode() =" + Session.getUserPasscode());
+			attemptLogin(Session.getUserFamilyAccount(), Session.getUserPasscode());
 		} else {
 			Log.v(TAG, "no stored session whatsoever so do fresh login please");
 		}
@@ -130,10 +126,6 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.btnRegisterUsingFacebook:
-			//Toast.makeText(getApplicationContext(), "Fb clicked", Toast.LENGTH_SHORT).show();
-			onFBLoginButtonClicked();
-			break;
 		case R.id.txtForgotPassword:
 			startActivity(new Intent(LoginActivityTablet.this,LostPasswordActivity.class));
 			finish();
@@ -141,78 +133,10 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 		case R.id.btnLogin:
 			attemptLogin();
 			break;
-			
+
 		default:
 			break;
 		}
-	}
-
-	private void onFBLoginButtonClicked() {
-		LoginActivityTablet.this.progressDialog = ProgressDialog.show(
-				LoginActivityTablet.this, "", "Logging in...", true);
-		final List<String> permissions = Arrays.asList("basic_info", "user_about_me",
-				"email");
-
-		ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
-			@Override
-			public void done(ParseUser user, ParseException err) {
-				LoginActivityTablet.this.progressDialog.dismiss();
-				if (user == null) {
-					Log.d(TAG, "Uh oh. The user cancelled the Facebook login.");
-				} else if (user.isNew()) {
-					Log.d(TAG, "User signed up and logged in through Facebook!");
-					Log.d(TAG, "Now try saving the user111!");
-					makeMeRequest(); //putting up the fbProfile object and other objects
-					startActivity(new Intent(LoginActivityTablet.this, GalleryActivity.class));
-					finish();
-				} else {
-					Log.d(TAG, "User logged in through Facebook!");
-					//Toast.makeText(getApplicationContext(), "User logged in through Facebook!", Toast.LENGTH_SHORT).show();
-					Log.d(TAG, "Now try saving the user222!");
-					makeMeRequest(); //displaying what has been extracted
-					Intent myIntent = new Intent(LoginActivityTablet.this, GalleryActivity.class);
-					startActivity(myIntent);
-					finish();
-				}
-			}
-		});
-	}
-
-	private void makeMeRequest() {
-		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
-				new Request.GraphUserCallback() {
-
-			@Override
-			public void onCompleted(GraphUser user, Response response) {
-				if (user != null) {
-					currentUser = ParseUser.getCurrentUser();
-					try {
-						if (user.getProperty("email") != null) {
-							currentUser.put("username", user.getProperty("email")); 
-							currentUser.put("email", user.getProperty("email")); 
-						}
-						currentUser.put("name", user.getName()); //string stored
-						currentUser.saveInBackground();
-
-					} catch (Exception e) {
-						Log.d(TAG, "Error parsing returned user data.  " + e.toString());
-					} 
-
-				} else if (response.getError() != null) {
-					if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY)
-							|| (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
-						Log.d(TAG, "The facebook session was invalidated.");
-						logout();
-					} else {
-						Log.d(TAG, "Some other error: "
-								+ response.getError()
-								.getErrorMessage());
-					}
-				}
-
-			}
-		});
-		request.executeAsync();
 	}
 
 	public static byte[] bitmapToByteArray(Bitmap bmp) {
@@ -234,19 +158,13 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 	}
 
 	private void logout() {
-		// Log the user out
-		if (ParseFacebookUtils.getSession() != null) {
-			Log.v(TAG, "Now clearing tokens as there is an FB sessions");
-			ParseFacebookUtils.getSession().closeAndClearTokenInformation();
-		}
-		ParseUser.logOut();
-
+		ParseUser.getCurrentUser().logOut();
 		// Go to the login page
 		startLoginActivity();
 	}
 
 	private void startLoginActivity() {
-		Intent intent = new Intent(this, LoginActivity.class);
+		Intent intent = new Intent(this, LoginActivityTablet.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
@@ -257,27 +175,27 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 		clearErrors();
 
 		// Store values at the time of the login attempt.
-		mUsername = muserNameView.getText().toString();
-		mPassword = mPasswordView.getText().toString();
+		mFamilyAccount = edtFamilyAccount.getText().toString();
+		mPasscode = edtPasscode.getText().toString();
 
 		boolean cancel = false;
 		View focusView = null;
 
 		// Check for a valid password.
-		if (TextUtils.isEmpty(mPassword)) {
-			mPasswordView.setError(getString(R.string.error_field_required));
-			focusView = mPasswordView;
+		if (TextUtils.isEmpty(mPasscode)) {
+			edtPasscode.setError(getString(R.string.error_field_required));
+			focusView = edtPasscode;
 			cancel = true;
-		} else if (mPassword.length() < 4) {
-			mPasswordView.setError(getString(R.string.error_invalid_password));
-			focusView = mPasswordView;
+		} else if (mPasscode.length() < 4) {
+			edtPasscode.setError(getString(R.string.error_invalid_password));
+			focusView = edtPasscode;
 			cancel = true;
 		}
 
 		// Check for a valid username.
-		if (TextUtils.isEmpty(mUsername)) {
-			muserNameView.setError(getString(R.string.error_field_required));
-			focusView = muserNameView;
+		if (TextUtils.isEmpty(mFamilyAccount)) {
+			edtFamilyAccount.setError(getString(R.string.error_field_required));
+			focusView = edtFamilyAccount;
 			cancel = true;
 		}
 
@@ -297,51 +215,35 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 
 			Log.v ("log in","Signing in...");
 
-			// perform the user login attempt.
-			ParseUser.logInInBackground(mUsername, mPassword, new LogInCallback() {
-				@Override
-				public void done(ParseUser user, ParseException e) {
+			// query the Events table here with family matchinng
+
+			//final ParseQuery<ParseUser> innerQuery = ParseUser.getQuery();
+			//innerQuery.whereEqualTo("objectId", userId);
+
+			ParseQuery<Family> queryFamily = new ParseQuery<Family>("Family");
+			queryFamily.whereEqualTo("name", mFamilyAccount);
+			queryFamily.whereEqualTo("passCode", mPasscode);
+			queryFamily.findInBackground(new FindCallback<Family>() {
+				public void done(List<Family> Families, ParseException e) {
 					showProgress(false);
 					if (e == null) {
-						Session.setSessionId(user.getSessionToken());
-						Session.setUserName(mUsername);
-						Session.setUserPassword(mPassword);
-
-						Intent myIntent = new Intent(LoginActivityTablet.this, GalleryActivity.class);
-						startActivity(myIntent);
-					} else if (user == null){
-
-						switch (e.getCode()) {
-
-						case ParseException.OBJECT_NOT_FOUND:
-
-							showAlertDialog(LoginActivityTablet.this,"Login", "Username or Password is invalid. Try again.", false);
-							break;
-
-						case ParseException.PASSWORD_MISSING:
-							mPasswordView.setError(getString(R.string.error_field_required));
-							mPasswordView.requestFocus();
-							break;
-
-						case ParseException.USERNAME_MISSING:
-							muserNameView.setError(getString(R.string.error_field_required));
-							muserNameView.requestFocus();
-							break;
-
-						case ParseException.TIMEOUT: 
-							Log.v(TAG, "There was a timeout");
-							Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
-							break;
-						default:
-							Log.v(TAG, "this error is untrapped");
-							Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
-							break;
-
+						if (Families.size() == 0) {
+							Toast.makeText(getApplicationContext(),
+									"Either your Family Account or Passcode is not correct", Toast.LENGTH_LONG)
+									.show();
+						} else {
+							Log.v(TAG, "just printing contents of events here content = " + Families.get(0).getName());
+							extractEvents(mFamilyAccount);
 						}
-
+					} else {
+						Toast.makeText(getApplicationContext(),
+								"Error: " + e.getMessage(), Toast.LENGTH_LONG)
+								.show();
+						Log.v(TAG, "Error: " + e.getMessage());
 					}
 				}
-			});
+			});	
+
 		}
 	}
 
@@ -379,8 +281,8 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 	}
 
 	private void clearErrors() {
-		muserNameView.setError(null);
-		mPasswordView.setError(null);
+		edtFamilyAccount.setError(null);
+		edtPasscode.setError(null);
 	}
 
 	/**
@@ -490,11 +392,46 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 		}
 
 	}
-	
+
 	@Override
-    public boolean onTouchEvent(MotionEvent event) {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        return true;
-    }
+	public boolean onTouchEvent(MotionEvent event) {
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		return true;
+	}
+
+	private void extractEvents(String familyAccount) {
+		Utils.showProgressDialog(LoginActivityTablet.this, "Extracting events.");
+		Log.v(TAG, "how many events for this family ?????????????? " + familyAccount);
+		ParseQuery<Event> queryEvent = new ParseQuery<Event>("Event");
+		queryEvent.whereEqualTo("family", familyAccount);
+		queryEvent.findInBackground(new FindCallback<Event>() {
+			public void done(List<Event> Events, ParseException e) {
+				Utils.hideProgressDialog();
+				if (e == null) {
+					Log.v(TAG, "number of events here = " + Events.size());
+					for (Event event : Events) {
+						Log.v(TAG, "just printing contents of events image here  = " + event.getImage().getUrl());
+						eventImageUrls.add(event.getImage().getUrl());
+					}
+					Log.v(TAG, "saved imageurls here = " + eventImageUrls.size());
+					if (eventImageUrls.size() == 0) {
+						Toast.makeText(getApplicationContext(),
+								"There are no events associated with this family account.", Toast.LENGTH_LONG)
+								.show();
+					} else {
+						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity.class);
+						myIntent.putStringArrayListExtra("eventImageUrls", (ArrayList<String>) eventImageUrls);
+						startActivity(myIntent);	
+					}
+				} else {
+					Toast.makeText(getApplicationContext(),
+							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
+							.show();
+					Log.v(TAG, "Error: " + e.getMessage());
+				}
+			}
+		});	
+		
+	}
 }

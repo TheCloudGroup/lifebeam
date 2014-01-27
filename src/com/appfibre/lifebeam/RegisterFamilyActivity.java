@@ -162,6 +162,7 @@ public class RegisterFamilyActivity extends Activity {
 					ParseUser user = ParseUser.getCurrentUser();
 					ParseRelation<ParseObject> families = user.getRelation("families");
 					families.add(family);
+					user.add("family", edtFamilyName.getText().toString());
 					user.saveInBackground(new SaveCallback() {
 						@Override
 						public void done(ParseException e) {
@@ -188,6 +189,31 @@ public class RegisterFamilyActivity extends Activity {
 
 		// Show a progress spinner, and kick off a background task to
 		Utils.showProgressDialog(this, "Looking up your Family Account...");
+		
+		ParseQuery<Family> queryFamily = new ParseQuery<Family>("Family");
+		queryFamily.whereEqualTo("name", edtFamilyName.getText().toString());
+		queryFamily.whereEqualTo("passCode", edtPassCode.getText().toString());
+		queryFamily.findInBackground(new FindCallback<Family>() {
+			public void done(List<Family> Families, ParseException e) {
+				Utils.hideProgressDialog();
+				if (e == null) {
+					if (Families.size() == 0) {
+						Toast.makeText(getApplicationContext(),
+								"Either your Family Account or Passcode is not correct", Toast.LENGTH_LONG)
+								.show();
+					} else {
+						ParseUser.getCurrentUser().add("family", edtFamilyName.getText().toString());
+					}
+				} else {
+					Toast.makeText(getApplicationContext(),
+							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
+							.show();
+					Log.v(TAG, "Error: " + e.getMessage());
+				}
+			}
+		});	
+		
+		
 
 		ParseQuery<Family> queryFamilies = new ParseQuery<Family>("Family");
 		//queryFamilies.whereMatchesQuery("author", innerQuery);
@@ -203,7 +229,8 @@ public class RegisterFamilyActivity extends Activity {
 						if(edtPassCode.getText().toString().equals(family.getPassCode().toString())) {
 							Log.v(TAG, "verified existing family associating it now--> How???");
 							//should create a separate column for family in user???? or session
-							Session.setSessionFamily(family.getName());
+							ParseUser.getCurrentUser().add("family", family.getName());
+							//Session.setSessionFamily(family.getName());
 							Log.v(TAG, "now go to login page....");
 							startActivity(new Intent(RegisterFamilyActivity.this, LoginActivity.class));
 							break;

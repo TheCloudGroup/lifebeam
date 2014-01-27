@@ -237,6 +237,7 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		event.setContent(edtPhotoDesc.getText().toString());
 		event.setImage(file);
 		event.setAuthor(ParseUser.getCurrentUser());
+		event.setFamily(ParseUser.getCurrentUser().getString("family"));
 
 		event.saveInBackground(new SaveCallback() {
 			@Override
@@ -253,7 +254,8 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 							Utils.hideProgressDialog();
 							if (e == null) {
 								Log.v(TAG, "successfully added event here");
-								Log.v(TAG, "Now we call library after saving and display all saved farts");
+								Log.v(TAG, "now add this event to a family account");
+								addEventToFamily();
 								Bundle bundle = new Bundle();
 								bundle.putString("parentActivity", TAG); 
 								Intent myIntent = new Intent(ImageSaveActivity.this, GalleryActivity.class);
@@ -453,5 +455,12 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		v.layout(0, 0, v.getLayoutParams().width, v.getLayoutParams().height);
 		v.draw(c);
 		return b;
+	}
+	
+	private void addEventToFamily() {
+		ParseObject family = new ParseObject("Family");
+		ParseRelation<ParseObject> relation = family.getRelation("events");
+		relation.add(event);
+		family.saveInBackground();
 	}
 }

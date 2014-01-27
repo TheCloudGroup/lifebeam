@@ -39,12 +39,12 @@ public class Family extends ParseObject{
 		put("invitees", invitees);
 	}
 	
-	public ParseRelation<Family> getActivities() {
-		return getRelation("activities");
+	public ParseRelation<Event> getEvents() {
+		return getRelation("events");
 	}
 	
-	public void setActivities(ParseRelation<Family> activities) {
-		put("activities", activities);
+	public void setEvents(ParseRelation<Event> events) {
+		put("events", events);
 	}
 
 }

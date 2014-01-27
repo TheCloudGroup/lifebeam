@@ -21,6 +21,8 @@ public class MainActivity extends Activity implements OnClickListener{
 
 	private static final String TAG = "MainActivity";
 	private static final String APP_ID = "7e4f30dd5ccb0d568d1b1d1582b7db1d";
+	
+	private boolean isTablet;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +58,8 @@ public class MainActivity extends Activity implements OnClickListener{
 
 		checkForUpdates();
 
-		boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
-		if (tabletSize) {
+		isTablet = getResources().getBoolean(R.bool.isTablet);
+		if (isTablet) {
 			findViewById(R.id.llyTabletMain).setVisibility(View.VISIBLE);
 			findViewById(R.id.llyMobileMain).setVisibility(View.GONE);
 		} else {
@@ -121,7 +123,12 @@ public class MainActivity extends Activity implements OnClickListener{
 
 		case R.id.btnLogin:
 		case R.id.btnLogin2:
-			startActivity(new Intent(MainActivity.this,LoginActivity.class));
+			if (isTablet) {
+				startActivity(new Intent(MainActivity.this,LoginActivityTablet.class));
+			} else {
+				startActivity(new Intent(MainActivity.this,LoginActivity.class));	
+			}
+			
 			break;
 
 		default:

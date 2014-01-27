@@ -78,29 +78,34 @@
             android:padding="10dp" >
 
             <EditText
-                android:id="@+id/muserNameView"
+                android:id="@+id/edtFamilyAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
+                android:layout_marginLeft="250dp"
+                android:layout_marginRight="250dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
                 android:gravity="center"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
+                android:hint="Family Account Name"
+                android:inputType="textCapSentences"
                 android:textColor="#34bdc2"
                 android:textColorHint="#34bdc2"
                 android:textSize="18dp" >
+
             </EditText>
 
             <EditText
-                android:id="@+id/mPasswordView"
+                android:id="@+id/edtPassCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
+                android:layout_marginLeft="250dp"
+                android:layout_marginRight="250dp"
                 android:layout_marginTop="5dp"
                 android:ems="10"
                 android:gravity="center"
-                android:hint="Password"
+                android:hint="Passcode"
                 android:inputType="textPassword"
                 android:textColor="#34bdc2"
                 android:textColorHint="#34bdc2"
@@ -108,13 +113,15 @@
 
             <Button
                 android:id="@+id/btnLogin"
+                style="@android:style/TextAppearance.Medium"
                 android:layout_width="fill_parent"
                 android:layout_height="40dp"
+                android:layout_marginLeft="250dp"
+                android:layout_marginRight="250dp"
                 android:layout_marginTop="5dp"
                 android:background="@drawable/rounded_cornerskyblue"
                 android:text="Login"
-                android:textColor="#ffffff"
-                android:textSize="20dp" />
+                android:textColor="#ffffff" />
 
             <CheckBox
                 android:id="@+id/checkBoxKeepLoggedIn"

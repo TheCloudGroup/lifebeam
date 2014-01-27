@@ -1,5 +1,6 @@
 package com.appfibre.lifebeam.classes;
 
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -53,6 +54,14 @@ public class Event extends ParseObject{
 
 	public void setImage(ParseFile image) {
 		put("image", image);
+	}
+	
+	public String getFamily() {
+		return getString("family");
+	}
+
+	public void setFamily(String family) {
+		put("family", family);
 	}
 
 }

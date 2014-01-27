@@ -33,7 +33,7 @@
                 android:background="@drawable/style_btnregister"
                 android:text="Register"
                 android:textColor="#FFFFFF"
-                android:textSize="15dp" />
+                android:textSize="16dp" />
 
             <Button
                 android:id="@+id/btnLogin"
@@ -42,7 +42,7 @@
                 android:background="@drawable/style_btnlogin"
                 android:text="Login"
                 android:textColor="#FFFFFF"
-                android:textSize="15dp" />
+                android:textSize="16dp" />
         </LinearLayout>
 
         <LinearLayout
