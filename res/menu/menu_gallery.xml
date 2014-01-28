@@ -11,7 +11,7 @@
         android:visible="true">
     </item>
     
-    <item
+<!--     <item
         android:id="@+id/menuGallery"
         android:icon="@drawable/ic_action_content_picture"
         android:orderInCategory="2"
@@ -19,7 +19,7 @@
         android:title="@string/gallery"
         android:titleCondensed="@string/gallery"
         android:visible="true">
-    </item>
+    </item> -->
 	
    	<item android:id="@+id/menuRefresh" 
           android:orderInCategory="3" 

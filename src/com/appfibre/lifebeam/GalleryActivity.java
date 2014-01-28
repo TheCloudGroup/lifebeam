@@ -194,10 +194,10 @@ public class GalleryActivity extends Activity {
 			//captureImage();
 			break;
 
-		case R.id.menuGallery:
+/*		case R.id.menuGallery:
 			Log.v(TAG, "selected gallery...");
 			Toast.makeText(this, "Menu Gallery selected", Toast.LENGTH_SHORT).show();
-			break;	
+			break;	*/
 
 		case R.id.menuRefresh:
 			Log.v(TAG, "selected refresh...");
@@ -212,7 +212,7 @@ public class GalleryActivity extends Activity {
 
 		case R.id.menuSettings:
 			Log.v(TAG, "selected settings...");
-			startActivity(new Intent(GalleryActivity.this,SettingsActivity.class));
+			startActivity(new Intent(GalleryActivity.this,SettingsActivity2.class));
 			break;
 
 		case R.id.menuHelp:
