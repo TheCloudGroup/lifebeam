@@ -13,6 +13,7 @@ import java.net.URLConnection;
 import org.apache.commons.io.FileUtils;
 
 import com.appfibre.lifebeam.classes.Event;
+import com.appfibre.lifebeam.classes.Family;
 import com.appfibre.lifebeam.utils.CameraUtils;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.appfibre.lifebeam.utils.Utils;
@@ -26,7 +27,9 @@ import com.parse.SaveCallback;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,14 +44,18 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +73,12 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 	private ParseFile file;
 	private Bitmap origbitmap, origbitmapResized;
 	private boolean hasNoImage;
+	private String strFamily;
+	
+	private boolean isCreateNewAccount;
+	private TextView txtFamilyLabel;
+	private EditText edtFamilyName;
+	private EditText edtPassCode;
 
 	private static final int CAPTURE_CAMERA_CODE  = 1337;
 	private Uri profileImageUri = null;
@@ -95,8 +108,10 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 					factoryOptions);
 			imgPhoto.setImageBitmap(bitmap);
 			hasNoImage = false;
+			findViewById(R.id.imgRotatePhoto).setVisibility(View.VISIBLE);
 		} else {
 			hasNoImage = true;
+			findViewById(R.id.imgRotatePhoto).setVisibility(View.GONE);
 		}
 	}
 
@@ -196,48 +211,27 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		return true;
 	}
 
-	/*	private void saveFile() {
-		Utils.showProgressDialog(ImageSaveActivity.this, "Saving Image...");
-		File f = new File(outputFileUri.getPath());
-		byte[] reader = null;
-		try {
-			reader = FileUtils.readFileToByteArray(f);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		Log.v(TAG, "reader byte array size is = " + reader.length);
-		file = new ParseFile("eventImage", reader);
-
-		file.saveInBackground((new SaveCallback() {
-
-			@Override
-			public void done(ParseException e) {
-				Utils.hideProgressDialog();	
-				// TODO Auto-generated method stub
-				if (e == null) {
-					Log.v(TAG, "audiofile save as parsefile proceeding to savetoparse now");
-					saveToParse();
-				} else {
-					Log.v(TAG, "Error saving soundfile: " + e.toString());
-					Toast.makeText(ImageSaveActivity.this, "Error saving image. Please try again later.", Toast.LENGTH_LONG).show();
-				}
-			}
-		}));
-	}*/
-
 	private void saveToParse() {
+		Log.v(TAG, "reconfirm that there is an associated family for this user");
+		strFamily = ParseUser.getCurrentUser().getString("family");
+		if (strFamily == null) {
+			Toast.makeText(ImageSaveActivity.this, "It is required that you be associated with a " +
+					" Family Account before you can share events.  Please set the same in your" +
+					" Settings", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		Utils.showProgressDialog(ImageSaveActivity.this, "Posting Event... ");
 		ParseACL eventACL = new ParseACL(ParseUser.getCurrentUser());
 		eventACL.setPublicReadAccess(true);
+		eventACL.setPublicWriteAccess(true); //This is to accomodate splendid/razzledazzle/smiley updates for anonymous users in Tablet Version
 
 		event = new Event();
 		event.setACL(eventACL);
 		event.setContent(edtPhotoDesc.getText().toString());
 		event.setImage(file);
 		event.setAuthor(ParseUser.getCurrentUser());
-		event.setFamily(ParseUser.getCurrentUser().getString("family"));
+		event.setFamily(strFamily);
 
 		event.saveInBackground(new SaveCallback() {
 			@Override
@@ -303,8 +297,8 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 			if (resultCode == RESULT_OK) {
 				Toast.makeText(ImageSaveActivity.this, "Image Confirmed!", Toast.LENGTH_SHORT).show();
 				Log.v(TAG, "defere saving of file to parse until image is rotate confirmed");
-				
-/*				if (profileImageUri != null) {
+
+				/*				if (profileImageUri != null) {
 					try {
 						file = new ParseFile( "file.jpg", CameraUtils.convertUriToBytes(ImageSaveActivity.this, profileImageUri));
 						file.saveInBackground(new SaveCallback() {
@@ -326,7 +320,7 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 					}
 
 				}*/
-				
+
 				Log.v(TAG, "profileImageUri = " + profileImageUri);
 			} else {
 				profileImageUri = null;
@@ -395,14 +389,14 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 	private void saveApprovedRotatedImage() {
 		Log.v(TAG, "scale image first");
 		scaleImage();
-		
+
 		try {
 			Utils.showProgressDialog(ImageSaveActivity.this, "Saving Photo ...");
 			Log.v(TAG, "convert bmp to byte array");
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			origbitmapResized.compress(Bitmap.CompressFormat.PNG, 100, stream);
 			byte[] byteArray = stream.toByteArray();
-			
+
 			file = new ParseFile( "file.jpg", byteArray);
 			file.saveInBackground(new SaveCallback() {
 
@@ -422,29 +416,29 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		} catch (Exception e) {
 			Log.e(TAG, "Error: " + e.getMessage());
 		}
-		
+
 
 	}
 
 	private void scaleImage() {
 		Log.v(TAG, "original height = " + origbitmap.getHeight());
 		Log.v(TAG, "original width = " + origbitmap.getWidth());
-		
+
 		int REQUIRED_SIZE = 150; //either its width or height should be within twice of this
 		int width_tmp=origbitmap.getWidth(), height_tmp=origbitmap.getHeight();
-        int scale=1;
-        while(true){
-            if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
-                break;
-            width_tmp/=2;
-            height_tmp/=2;
-            scale*=2;
-        }
-		
-        Log.v(TAG, "height or width should not be less than 300 here unless it originally was");
-        Log.v(TAG, "new reduced height = " + height_tmp);
+		int scale=1;
+		while(true){
+			if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
+				break;
+			width_tmp/=2;
+			height_tmp/=2;
+			scale*=2;
+		}
+
+		Log.v(TAG, "height or width should not be less than 300 here unless it originally was");
+		Log.v(TAG, "new reduced height = " + height_tmp);
 		Log.v(TAG, "new reduced width = " + width_tmp);
-        
+
 		origbitmapResized = Bitmap.createScaledBitmap(origbitmap, width_tmp, height_tmp, true);
 
 	}
@@ -456,11 +450,103 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		v.draw(c);
 		return b;
 	}
-	
+
 	private void addEventToFamily() {
-		ParseObject family = new ParseObject("Family");
+		Family family = new Family();
 		ParseRelation<ParseObject> relation = family.getRelation("events");
 		relation.add(event);
 		family.saveInBackground();
+	}
+
+	public String attemptToGetFamily() {
+		String familyAccount = " ";
+		showDialog();
+		return familyAccount; 
+	
+	}
+	
+	public void showDialog() {
+		LayoutInflater li = LayoutInflater.from(ImageSaveActivity.this);
+		View promptsView = li.inflate(R.layout.dialog_create_family, null);
+		final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ImageSaveActivity.this);
+		alertDialogBuilder.setView(promptsView);
+
+		
+		edtFamilyName = (EditText) promptsView
+				.findViewById(R.id.edtFamilyName);
+		edtPassCode = (EditText) promptsView
+				.findViewById(R.id.edtPassCode);
+		txtFamilyLabel = (TextView) promptsView
+				.findViewById(R.id.txtFamilyLabel);
+		final Switch switchFamily = (Switch) promptsView
+				.findViewById(R.id.switchFamily);
+		
+		switchFamily.setChecked(false);
+		switchFamily.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked){
+					txtFamilyLabel.setText("Family Account to Create");
+					isCreateNewAccount = true;
+				}else{
+					txtFamilyLabel.setText("Family Account to Join");
+					isCreateNewAccount = false;
+				}
+
+			}
+		});
+
+
+		// set dialog message
+		alertDialogBuilder
+		.setCancelable(false)
+		.setNegativeButton("Go",
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog,int id) {
+				/** DO THE METHOD HERE WHEN PROCEED IS CLICKED*//*
+				String user_text = (userInput.getText()).toString();
+
+				*//** CHECK FOR USER'S INPUT **//*
+				if (user_text.equals("oeg"))
+				{
+					Log.d(user_text, "HELLO THIS IS THE MESSAGE CAUGHT :)");
+					Search_Tips(user_text); 
+
+				}
+				else{
+					Log.d(user_text,"string is empty");
+					String message = "The password you have entered is incorrect." + " \n \n" + "Please try again!";
+					AlertDialog.Builder builder = new AlertDialog.Builder(context);
+					builder.setTitle("Error");
+					builder.setMessage(message);
+					builder.setPositiveButton("Cancel", null);
+					builder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							showDialog();
+						}
+					});
+					builder.create().show();
+
+				}*/
+			}
+		})
+		.setPositiveButton("Cancel",
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog,int id) {
+				dialog.dismiss();
+			}
+
+		}
+
+				);
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
+
 	}
 }

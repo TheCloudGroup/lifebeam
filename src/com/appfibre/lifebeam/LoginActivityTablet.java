@@ -44,6 +44,7 @@ import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
@@ -405,23 +406,23 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 		Log.v(TAG, "how many events for this family ?????????????? " + familyAccount);
 		ParseQuery<Event> queryEvent = new ParseQuery<Event>("Event");
 		queryEvent.whereEqualTo("family", familyAccount);
+		queryEvent.include("author");
 		queryEvent.findInBackground(new FindCallback<Event>() {
 			public void done(List<Event> Events, ParseException e) {
 				Utils.hideProgressDialog();
+				ParseObject user = new ParseObject("User");
 				if (e == null) {
-					Log.v(TAG, "number of events here = " + Events.size());
-					for (Event event : Events) {
-						Log.v(TAG, "just printing contents of events image here  = " + event.getImage().getUrl());
-						eventImageUrls.add(event.getImage().getUrl());
-					}
-					Log.v(TAG, "saved imageurls here = " + eventImageUrls.size());
-					if (eventImageUrls.size() == 0) {
+					
+					if (Events.size() == 0) {
 						Toast.makeText(getApplicationContext(),
 								"There are no events associated with this family account.", Toast.LENGTH_LONG)
 								.show();
 					} else {
+						Log.v(TAG, "hook up a global variable here for the events loading in slideshowactivity");
+						LifebeamApp globalVars = ((LifebeamApp)getApplication());
+						globalVars.setEvents(Events); 
 						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity.class);
-						myIntent.putStringArrayListExtra("eventImageUrls", (ArrayList<String>) eventImageUrls);
+						//myIntent.putStringArrayListExtra("eventImageUrls", (ArrayList<String>) eventImageUrls);
 						startActivity(myIntent);	
 					}
 				} else {

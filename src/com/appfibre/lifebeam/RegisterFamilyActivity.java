@@ -203,6 +203,8 @@ public class RegisterFamilyActivity extends Activity {
 								.show();
 					} else {
 						ParseUser.getCurrentUser().add("family", edtFamilyName.getText().toString());
+						startActivity(new Intent(RegisterFamilyActivity.this, LoginActivity.class));
+						finish();
 					}
 				} else {
 					Toast.makeText(getApplicationContext(),
@@ -212,39 +214,6 @@ public class RegisterFamilyActivity extends Activity {
 				}
 			}
 		});	
-		
-		
-
-		ParseQuery<Family> queryFamilies = new ParseQuery<Family>("Family");
-		//queryFamilies.whereMatchesQuery("author", innerQuery);
-		//queryFamilies.orderByAscending("createdAt");
-		//queryFamilies.include("author");
-		queryFamilies.findInBackground(new FindCallback<Family>() {
-			public void done(List<Family> Families, ParseException e) {
-				Utils.hideProgressDialog();
-				if (e == null) {
-					for (Family family : Families) {
-						Log.v(TAG, "just printing contents of events here content = " + family.getName());
-						//FamilY.add(family);
-						if(edtPassCode.getText().toString().equals(family.getPassCode().toString())) {
-							Log.v(TAG, "verified existing family associating it now--> How???");
-							//should create a separate column for family in user???? or session
-							ParseUser.getCurrentUser().add("family", family.getName());
-							//Session.setSessionFamily(family.getName());
-							Log.v(TAG, "now go to login page....");
-							startActivity(new Intent(RegisterFamilyActivity.this, LoginActivity.class));
-							break;
-						}
-					}
-				} else {
-					Toast.makeText(getApplicationContext(),
-							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
-							.show();
-					Log.v(TAG, "Error: " + e.getMessage());
-				}
-			}
-		});	
-
 	} 
 	
 	@Override

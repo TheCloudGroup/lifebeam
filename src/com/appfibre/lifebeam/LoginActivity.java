@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,6 +43,7 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 
 public class LoginActivity extends Activity implements OnClickListener{
 
@@ -49,14 +51,18 @@ public class LoginActivity extends Activity implements OnClickListener{
 	private static final String TAG = "LoginActivity";
 	private ParseUser currentUser;
 
+	private EditText email;
+
 	private String mUsername = "";
 	private String mPassword = "";
+	private String mEmail = "";
 	private EditText muserNameView;
 	private EditText mPasswordView;
 
 	private View mLoginFormView;
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
+	private CheckBox checkBoxKeepLoggedIn;
 
 
 	@Override
@@ -69,10 +75,10 @@ public class LoginActivity extends Activity implements OnClickListener{
 		findViewById(R.id.btnRegisterUsingFacebook).setOnClickListener(this);
 		findViewById(R.id.btnLogin).setOnClickListener(this);
 		findViewById(R.id.txtForgotPassword).setOnClickListener(this);
-		CheckBox checkBoxKeepLoggedIn = (CheckBox) findViewById(R.id.checkBoxKeepLoggedIn);
-		
+		checkBoxKeepLoggedIn = (CheckBox) findViewById(R.id.checkBoxKeepLoggedIn);
+
 		checkBoxKeepLoggedIn.setChecked(SharedPrefMgr.getBool(this, "hasSetKeptLogin"));
-		
+
 		checkBoxKeepLoggedIn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -84,7 +90,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 				}
 			}
 		});
-		
+
 
 		muserNameView = (EditText) findViewById(R.id.muserNameView);
 		mPasswordView = (EditText) findViewById(R.id.mPasswordView);
@@ -98,8 +104,14 @@ public class LoginActivity extends Activity implements OnClickListener{
 		currentUser = ParseUser.getCurrentUser();
 		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser) &&
 				SharedPrefMgr.getBool(LoginActivity.this, "hasSetKeptLogin")) {
-			Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-			startActivity(myIntent);
+			Log.v(TAG, "reconfirm that there is an associated family for this user");
+			String strFamily = ParseUser.getCurrentUser().getString("family");
+			if (strFamily == null) {
+				attemptToAssociateFamily();	
+			} else {
+				startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+				finish();
+			}
 		}
 
 		//check if there is a stored session login via normal and not FB
@@ -132,16 +144,21 @@ public class LoginActivity extends Activity implements OnClickListener{
 		switch (v.getId()) {
 		case R.id.btnRegisterUsingFacebook:
 			//Toast.makeText(getApplicationContext(), "Fb clicked", Toast.LENGTH_SHORT).show();
-			onFBLoginButtonClicked();
+			Log.v(TAG, "reconfirm that there is an associated family for this user");
+			String strFamily = ParseUser.getCurrentUser().getString("family");
+			if (strFamily == null) {
+				attemptToAssociateFamily();	
+			} else {
+				onFBLoginButtonClicked();
+			}
 			break;
 		case R.id.txtForgotPassword:
-			startActivity(new Intent(LoginActivity.this,LostPasswordActivity.class));
-			finish();
+			showMenuAlertDialog(LoginActivity.this,"Change Password", false);
 			break;
 		case R.id.btnLogin:
 			attemptLogin();
 			break;
-			
+
 		default:
 			break;
 		}
@@ -163,15 +180,28 @@ public class LoginActivity extends Activity implements OnClickListener{
 					Log.d(TAG, "User signed up and logged in through Facebook!");
 					Log.d(TAG, "Now try saving the user111!");
 					makeMeRequest(); //putting up the fbProfile object and other objects
-					startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+					Log.v(TAG, "reconfirm that there is an associated family for this user");
+					String strFamily = ParseUser.getCurrentUser().getString("family");
+					if (strFamily == null) {
+						attemptToAssociateFamily();	
+					} else {
+						startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+						finish();
+					}
 					finish();
 				} else {
 					Log.d(TAG, "User logged in through Facebook!");
 					//Toast.makeText(getApplicationContext(), "User logged in through Facebook!", Toast.LENGTH_SHORT).show();
 					Log.d(TAG, "Now try saving the user222!");
 					makeMeRequest(); //displaying what has been extracted
-					Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-					startActivity(myIntent);
+					Log.v(TAG, "reconfirm that there is an associated family for this user");
+					String strFamily = ParseUser.getCurrentUser().getString("family");
+					if (strFamily == null) {
+						attemptToAssociateFamily();	
+					} else {
+						startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+						finish();
+					}
 					finish();
 				}
 			}
@@ -306,9 +336,14 @@ public class LoginActivity extends Activity implements OnClickListener{
 						Session.setSessionId(user.getSessionToken());
 						Session.setUserName(mUsername);
 						Session.setUserPassword(mPassword);
-
-						Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-						startActivity(myIntent);
+						Log.v(TAG, "reconfirm that there is an associated family for this user");
+						String strFamily = ParseUser.getCurrentUser().getString("family");
+						if (strFamily == null) {
+							attemptToAssociateFamily();	
+						} else {
+							startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+							finish();
+						}
 					} else if (user == null){
 
 						switch (e.getCode()) {
@@ -358,8 +393,14 @@ public class LoginActivity extends Activity implements OnClickListener{
 			public void done(ParseUser user, ParseException e) {
 				showProgress(false);
 				if (e == null) {
-					Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-					startActivity(myIntent);
+					Log.v(TAG, "reconfirm that there is an associated family for this user");
+					String strFamily = ParseUser.getCurrentUser().getString("family");
+					if (strFamily == null) {
+						attemptToAssociateFamily();	
+					} else {
+						startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+						finish();
+					}
 				} else if (user == null){
 					switch (e.getCode()) {
 					case ParseException.TIMEOUT: 
@@ -466,8 +507,14 @@ public class LoginActivity extends Activity implements OnClickListener{
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			showProgress(false);
-			Intent myIntent = new Intent(LoginActivity.this, GalleryActivity.class);
-			startActivity(myIntent);
+			Log.v(TAG, "reconfirm that there is an associated family for this user");
+			String strFamily = ParseUser.getCurrentUser().getString("family");
+			if (strFamily == null) {
+				attemptToAssociateFamily();	
+			} else {
+				startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
+				finish();
+			}
 			finish();
 		}
 
@@ -490,11 +537,100 @@ public class LoginActivity extends Activity implements OnClickListener{
 		}
 
 	}
-	
+
 	@Override
-    public boolean onTouchEvent(MotionEvent event) {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        return true;
-    }
+	public boolean onTouchEvent(MotionEvent event) {
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		return true;
+	}
+
+	private void forgotPassword() {
+		mEmail = email.getText().toString();
+		showProgress(true);
+		ParseUser.requestPasswordResetInBackground(mEmail, new RequestPasswordResetCallback() {
+			public void done(ParseException e) {
+				showProgress(false);
+				if (e == null) {
+					requestedSuccessfully();
+				} else {
+					requestDidNotSucceed();
+				}
+			}
+
+		});
+	}
+
+	protected void requestDidNotSucceed() {
+		Toast toast =Toast.makeText(this, "An error has occured. Please try again.", Toast.LENGTH_LONG);
+		toast.show();
+	}
+
+	protected void requestedSuccessfully() {
+		Toast toast =Toast.makeText(this, "A password reset email has been sent.", Toast.LENGTH_LONG);
+		toast.show();
+	}
+
+	public void showMenuAlertDialog(Context context, String title, Boolean status) {	
+		// get prompts.xml view
+
+		LayoutInflater layoutInflater = LayoutInflater.from(context);
+
+		View promptView = layoutInflater.inflate(R.layout.dialog_forgot_password, null);
+
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+		// set prompts.xml to be the layout file of the alertdialog builder
+		alertDialogBuilder.setView(promptView);
+		alertDialogBuilder.setTitle(title);
+		// Setting alert dialog icon
+		alertDialogBuilder.setIcon(R.drawable.password);
+		email = (EditText) promptView.findViewById(R.id.etEmail);
+
+		// setup a dialog window
+		alertDialogBuilder
+		.setCancelable(false)
+		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				// get user input and set it to result
+				forgotPassword();
+			}
+		})
+		.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.cancel();
+			}
+		});
+
+		// create an alert dialog
+		AlertDialog alertD = alertDialogBuilder.create();
+
+		alertD.show();
+	}
+
+	private void attemptToAssociateFamily() {
+		AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(LoginActivity.this);
+
+		dlgAlert.setMessage("To start sharing events you need to be associated to a " +
+				" Family Account.  \n\nPlease join or create your own Family Account.");
+		dlgAlert.setTitle("No Associated Family Account");
+		dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog,int id) {
+				startActivity(new Intent(LoginActivity.this, AssociateFamilyActivity.class));
+			}});
+		dlgAlert.setCancelable(true);
+		dlgAlert.create().show();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		checkBoxKeepLoggedIn.setChecked(SharedPrefMgr.getBool(this, "hasSetKeptLogin"));
+		
+	}
 }

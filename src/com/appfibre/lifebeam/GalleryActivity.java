@@ -5,9 +5,7 @@ package com.appfibre.lifebeam;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -25,12 +23,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -39,7 +35,6 @@ import android.widget.Toast;
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.utils.CameraUtils;
 import com.appfibre.lifebeam.utils.ImageLoader2;
-import com.appfibre.lifebeam.utils.MyContactItem3;
 import com.appfibre.lifebeam.utils.MyImageItem;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
@@ -87,46 +82,6 @@ public class GalleryActivity extends Activity {
 		ab.setDisplayShowTitleEnabled(false);
 		ab.setDisplayShowHomeEnabled(false);
 		//ab.setDisplayUseLogoEnabled(false);
-
-
-/*		Images = new ArrayList<MyImageItem>();
-
-		Log.v(TAG, "hardcoding data initially");
-		String URL = "http://cdn01.cdnwp.celebuzz.com/kourtney-kardashian/wp-content/blogs.dir/313/files/2012/11/27/Kourtney-Kardashian-Family-Beach-Day-Mason-Penelope-Scott-Disick-001.jpg";
-		String Id = "123";
-		String family = "Rebucas";
-		String owner = "Renante Rebucas";
-		Date today = Calendar.getInstance().getTime();
-		SimpleDateFormat dfDate = new SimpleDateFormat("MM/dd/yyyy");
-		SimpleDateFormat dfTime = new SimpleDateFormat("HH:mm:ss");
-		String date = dfDate.format(today);
-		String time = dfTime.format(today);
-		String message = "Family Time at the Beach";
-		int messageCount = 3;
-		int likedCount = 2;
-
-		MyImageItem image = new MyImageItem(Id, URL, message, owner, family, date, time,
-				messageCount, likedCount);
-		Images.add(image);
-
-		URL = "http://4.bp.blogspot.com/-KrTorCPO8oQ/Th5CwulB8AI/AAAAAAAAFsE/ZnpskzXkNXw/s1600/Family%2BBeach_First%2BTrip%2Bto%2BOcean%2B2.jpg";
-		Id = "123";
-		family = "Rebucas";
-		owner = "Renante Rebucas";
-		date = dfDate.format(today);
-		time = dfTime.format(today);
-		message = "Family Time at the Beach";
-		messageCount = 3;
-		likedCount = 2;
-
-		image = new MyImageItem(Id, URL, message, owner, family, date, time,
-				messageCount, likedCount);
-		Images.add(image);
-
-
-		Log.v(TAG, "size of Images arraylist = " + Images.size());*/
-
-		///////////////////--------------------- now softcoded?? hehe
 
 		EventS = new ArrayList<Event>();
 		currentUser = ParseUser.getCurrentUser();
@@ -189,8 +144,26 @@ public class GalleryActivity extends Activity {
 		switch (item.getItemId()) {
 
 		case R.id.menuCamera:
-			Log.v(TAG, "selected camera...");
-			startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));
+			Log.v(TAG, "reconfirm that there is an associated family for this user");
+			String strFamily = ParseUser.getCurrentUser().getString("family");
+			if (strFamily == null) {
+				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(GalleryActivity.this);
+
+				dlgAlert.setMessage("To start sharing events you need to be associated to a " +
+						" Family Account.  Please join or create your own Family Account in" +
+						" your Application Settings.");
+				dlgAlert.setTitle("No Associated Family Account");
+				dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						startActivity(new Intent(GalleryActivity.this, SettingsActivity2.class));
+					}});
+				dlgAlert.setCancelable(true);
+				dlgAlert.create().show();
+				return true;
+			} else {
+				startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));	
+			}
+			
 			//captureImage();
 			break;
 
@@ -271,8 +244,8 @@ public class GalleryActivity extends Activity {
 			TextView txtDate;
 			TextView txtTime;
 			TextView txtMessage;
-			TextView txtMessageCount;
-			TextView txtLikedCount;
+			TextView txtRazzleCount;
+			TextView txtSplendidCount;
 			
 
 		}
@@ -306,8 +279,8 @@ public class GalleryActivity extends Activity {
 				holder.txtDate = (TextView) convertView.findViewById(R.id.txtDate);
 				holder.txtTime = (TextView) convertView.findViewById(R.id.txtTime);
 				holder.txtMessage = (TextView) convertView.findViewById(R.id.txtMessage);
-				holder.txtMessageCount = (TextView) convertView.findViewById(R.id.txtMessageCount);
-				holder.txtLikedCount = (TextView) convertView.findViewById(R.id.txtLikedCount);
+				holder.txtRazzleCount = (TextView) convertView.findViewById(R.id.txtRazzleCount);
+				holder.txtSplendidCount = (TextView) convertView.findViewById(R.id.txtSplendidCount);
 				convertView.setTag(holder);
 				
 				holder.imgClose.setOnClickListener(new OnClickListener() {
@@ -353,8 +326,8 @@ public class GalleryActivity extends Activity {
 			holder.txtDate.setText(image.getDate());
 			holder.txtTime.setText(image.getTime());
 			holder.txtMessage.setText(image.getMessage());
-			holder.txtMessageCount.setText(String.valueOf(image.getMessagecount()));
-			holder.txtLikedCount.setText(String.valueOf(image.getLiked()));
+			holder.txtRazzleCount.setText(String.valueOf(image.getMessagecount()));
+			holder.txtSplendidCount.setText(String.valueOf(image.getLiked()));
 
 			holder.imgPix.setTag(image.getURL());
 			imageLoader.DisplayImage(image.getURL(), holder.imgPix);
@@ -462,11 +435,25 @@ public class GalleryActivity extends Activity {
 			String date = dfDate.format(datE);
 			String time = dfTime.format(datE);
 			
-			int messageCount = 2;
-			int likedCount = 1;
+			int razzleCount = 0;
+			try {
+				razzleCount = Integer.parseInt(event.getRazzleCount());
+			} catch (Exception e) {
+				Log.v(TAG, "Error in extracting razzeCount: " + e.getMessage());
+			}
+			
+			int splendidCount = 0;
+			try {
+				splendidCount = Integer.parseInt(event.getRazzleCount());
+			} catch (Exception e) {
+				Log.v(TAG, "Error in extracting splendidCount: " + e.getMessage());
+			}
+			
+			
+			
 			
 			MyImageItem image = new MyImageItem(Id, URL, message, owner, family, date, time,
-					messageCount, likedCount);
+					razzleCount, splendidCount);
 					
 			Images.add(image);
 			

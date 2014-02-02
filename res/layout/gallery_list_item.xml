@@ -116,10 +116,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:scaleType="center"
-                    android:src="@drawable/ic_list" />
+                    android:src="@drawable/razzledazzle" />
 
                 <TextView
-                    android:id="@+id/txtMessageCount"
+                    android:id="@+id/txtRazzleCount"
                     style="@android:style/TextAppearance.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -143,10 +143,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:scaleType="center"
-                    android:src="@drawable/ic_love" />
+                    android:src="@drawable/splendid" />
 
                 <TextView
-                    android:id="@+id/txtLikedCount"
+                    android:id="@+id/txtSplendidCount"
                     style="@android:style/TextAppearance.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -40,11 +40,11 @@ public class Event extends ParseObject{
 		put("content", content);
 	}
 	
-	public ParseUser getAuthor() {
-		return getParseUser(getId());
+	public ParseObject getAuthor() {
+		return getParseObject("author");
 	}
 
-	public void setAuthor(ParseUser author) {
+	public void setAuthor(ParseObject author) {
 		put("author", author);
 	}	
 	
@@ -62,6 +62,30 @@ public class Event extends ParseObject{
 
 	public void setFamily(String family) {
 		put("family", family);
+	}
+	
+	public String getSplendidCount() {
+		return getString("splendidCount");
+	}
+
+	public void setSplendidCount(String splendidCount) {
+		put("splendidCount", splendidCount);
+	}
+	
+	public String getRazzleCount() {
+		return getString("razzleCount");
+	}
+
+	public void setRazzleCount(String razzleCount) {
+		put("razzleCount", razzleCount);
+	}
+	
+	public String getSmileyCount() {
+		return getString("smileyCount");
+	}
+
+	public void setSmileyCount(String smileyCount) {
+		put("smileyCount", smileyCount);
 	}
 
 }
