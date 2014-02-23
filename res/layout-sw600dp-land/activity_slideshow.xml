@@ -15,19 +15,17 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:visibility="gone" >
+            android:visibility="visible" >
 
             <ImageView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
                 android:src="@drawable/pix1" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="15dp"
                 android:layout_marginLeft="15dp"
@@ -48,7 +46,8 @@
                         android:paddingTop="10dp"
                         android:text="Peter"
                         android:textColor="@color/lifebeamBlue"
-                        android:textSize="20sp" />
+                        android:textSize="50sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/eventTitle"
@@ -59,7 +58,7 @@
                         android:paddingTop="5dp"
                         android:text="Title Sample Here"
                         android:textColor="@color/Grey5"
-                        android:textSize="20sp" />
+                        android:textSize="50sp" />
                 </LinearLayout>
 
                 <View

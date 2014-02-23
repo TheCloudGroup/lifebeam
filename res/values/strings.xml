@@ -28,6 +28,6 @@
     <color name="listbg">#FFf0f0f0</color>
     <color name="White">#FFFFFFFF</color>
     <color name="Grey3">#FFa8a8a8</color>
-    <color name="Grey5">#FF8c8c8c</color>
+    <color name="Grey5">#000000</color>
 
 </resources>

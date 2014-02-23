@@ -438,8 +438,9 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		Log.v(TAG, "height or width should not be less than 300 here unless it originally was");
 		Log.v(TAG, "new reduced height = " + height_tmp);
 		Log.v(TAG, "new reduced width = " + width_tmp);
+		origbitmapResized = Bitmap.createBitmap(origbitmap);
 
-		origbitmapResized = Bitmap.createScaledBitmap(origbitmap, width_tmp, height_tmp, true);
+//		origbitmapResized = Bitmap.createScaledBitmap(origbitmap, width_tmp, height_tmp, true);
 
 	}
 
