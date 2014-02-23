@@ -5,14 +5,14 @@ package com.appfibre.lifebeam;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -23,8 +23,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -43,7 +43,9 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -61,7 +63,13 @@ public class GalleryActivity extends Activity {
 	private ArrayList<Event> EventS;
 
 	private ParseFile file;
-	private ParseUser user;
+	private ParseUser currentUser;
+	private ParseRelation<ParseObject> myEvents;
+	private List<ParseObject> ScratchMyEvents;
+	private int selectedIndex;
+	private ListView mainListView;
+	
+	private String eventIdToDelete;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,51 +83,11 @@ public class GalleryActivity extends Activity {
 		ab.setDisplayShowHomeEnabled(false);
 		//ab.setDisplayUseLogoEnabled(false);
 
-
-/*		Images = new ArrayList<MyImageItem>();
-
-		Log.v(TAG, "hardcoding data initially");
-		String URL = "http://cdn01.cdnwp.celebuzz.com/kourtney-kardashian/wp-content/blogs.dir/313/files/2012/11/27/Kourtney-Kardashian-Family-Beach-Day-Mason-Penelope-Scott-Disick-001.jpg";
-		String Id = "123";
-		String family = "Rebucas";
-		String owner = "Renante Rebucas";
-		Date today = Calendar.getInstance().getTime();
-		SimpleDateFormat dfDate = new SimpleDateFormat("MM/dd/yyyy");
-		SimpleDateFormat dfTime = new SimpleDateFormat("HH:mm:ss");
-		String date = dfDate.format(today);
-		String time = dfTime.format(today);
-		String message = "Family Time at the Beach";
-		int messageCount = 3;
-		int likedCount = 2;
-
-		MyImageItem image = new MyImageItem(Id, URL, message, owner, family, date, time,
-				messageCount, likedCount);
-		Images.add(image);
-
-		URL = "http://4.bp.blogspot.com/-KrTorCPO8oQ/Th5CwulB8AI/AAAAAAAAFsE/ZnpskzXkNXw/s1600/Family%2BBeach_First%2BTrip%2Bto%2BOcean%2B2.jpg";
-		Id = "123";
-		family = "Rebucas";
-		owner = "Renante Rebucas";
-		date = dfDate.format(today);
-		time = dfTime.format(today);
-		message = "Family Time at the Beach";
-		messageCount = 3;
-		likedCount = 2;
-
-		image = new MyImageItem(Id, URL, message, owner, family, date, time,
-				messageCount, likedCount);
-		Images.add(image);
-
-
-		Log.v(TAG, "size of Images arraylist = " + Images.size());*/
-
-		///////////////////--------------------- now softcoded?? hehe
-
 		EventS = new ArrayList<Event>();
-		user = ParseUser.getCurrentUser();
+		currentUser = ParseUser.getCurrentUser();
 		String userId = "";
-		if (user.getObjectId() != null &&  !"".equals(user.getObjectId())) {
-			userId = user.getObjectId();
+		if (currentUser.getObjectId() != null &&  !"".equals(currentUser.getObjectId())) {
+			userId = currentUser.getObjectId();
 		}
 
 		Log.v(TAG, "and the userid is = " + userId);
@@ -176,15 +144,33 @@ public class GalleryActivity extends Activity {
 		switch (item.getItemId()) {
 
 		case R.id.menuCamera:
-			Log.v(TAG, "selected camera...");
-			startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));
+			Log.v(TAG, "reconfirm that there is an associated family for this user");
+			String strFamily = ParseUser.getCurrentUser().getString("family");
+			if (strFamily == null) {
+				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(GalleryActivity.this);
+
+				dlgAlert.setMessage("To start sharing events you need to be associated to a " +
+						" Family Account.  Please join or create your own Family Account in" +
+						" your Application Settings.");
+				dlgAlert.setTitle("No Associated Family Account");
+				dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						startActivity(new Intent(GalleryActivity.this, SettingsActivity2.class));
+					}});
+				dlgAlert.setCancelable(true);
+				dlgAlert.create().show();
+				return true;
+			} else {
+				startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));	
+			}
+			
 			//captureImage();
 			break;
 
-		case R.id.menuGallery:
+/*		case R.id.menuGallery:
 			Log.v(TAG, "selected gallery...");
 			Toast.makeText(this, "Menu Gallery selected", Toast.LENGTH_SHORT).show();
-			break;	
+			break;	*/
 
 		case R.id.menuRefresh:
 			Log.v(TAG, "selected refresh...");
@@ -199,7 +185,7 @@ public class GalleryActivity extends Activity {
 
 		case R.id.menuSettings:
 			Log.v(TAG, "selected settings...");
-			startActivity(new Intent(GalleryActivity.this,SettingsActivity.class));
+			startActivity(new Intent(GalleryActivity.this,SettingsActivity2.class));
 			break;
 
 		case R.id.menuHelp:
@@ -217,6 +203,7 @@ public class GalleryActivity extends Activity {
 			ParseUser.logOut();
 			
 			Session.reset();
+			SharedPrefMgr.setBool(GalleryActivity.this, "hasSetKeptLogin", false);
 
 			// Go to the login view
 			startActivity(new Intent(GalleryActivity.this, MainActivity.class));
@@ -252,12 +239,14 @@ public class GalleryActivity extends Activity {
 		/*private view holder class*/
 		private class ViewHolder {
 			ImageView imgPix;
+			ImageView imgClose;
 			TextView txtOwner;
 			TextView txtDate;
 			TextView txtTime;
 			TextView txtMessage;
-			TextView txtMessageCount;
-			TextView txtLikedCount;
+			TextView txtRazzleCount;
+			TextView txtSplendidCount;
+			
 
 		}
 
@@ -285,13 +274,48 @@ public class GalleryActivity extends Activity {
 				convertView = mInflater.inflate(R.layout.gallery_list_item, null);
 				holder = new ViewHolder();
 				holder.imgPix = (ImageView) convertView.findViewById(R.id.imgPix);
+				holder.imgClose = (ImageView) convertView.findViewById(R.id.imgClose);
 				holder.txtOwner = (TextView) convertView.findViewById(R.id.txtOwner);
 				holder.txtDate = (TextView) convertView.findViewById(R.id.txtDate);
 				holder.txtTime = (TextView) convertView.findViewById(R.id.txtTime);
 				holder.txtMessage = (TextView) convertView.findViewById(R.id.txtMessage);
-				holder.txtMessageCount = (TextView) convertView.findViewById(R.id.txtMessageCount);
-				holder.txtLikedCount = (TextView) convertView.findViewById(R.id.txtLikedCount);
+				holder.txtRazzleCount = (TextView) convertView.findViewById(R.id.txtRazzleCount);
+				holder.txtSplendidCount = (TextView) convertView.findViewById(R.id.txtSplendidCount);
 				convertView.setTag(holder);
+				
+				holder.imgClose.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						ImageView imgClose = (ImageView) v ; 
+						eventIdToDelete = (String) imgClose.getTag();
+						selectedIndex = position;
+						
+						//Toast.makeText(getApplicationContext(),
+						//		"You selected for deletion = " + eventIdToDelete, Toast.LENGTH_LONG).show();
+						
+						AlertDialog.Builder alertDialog = new AlertDialog.Builder(GalleryActivity.this);
+						alertDialog.setTitle("Confirm Delete...");
+						alertDialog.setMessage("Are you sure you want to delete this event?");
+						alertDialog.setIcon(R.drawable.delete);
+
+						alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,int which) {
+								dialog.cancel();
+								resetParseUserEvents();
+								//resetListView(item, position -1,REMOVE_AS_USER_INTEREST);
+								//hasInformedRemoveOnce = true;
+							}
+						});
+
+						alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+							}
+						});
+						alertDialog.show();
+					}
+				});
+				
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
@@ -302,11 +326,13 @@ public class GalleryActivity extends Activity {
 			holder.txtDate.setText(image.getDate());
 			holder.txtTime.setText(image.getTime());
 			holder.txtMessage.setText(image.getMessage());
-			holder.txtMessageCount.setText(String.valueOf(image.getMessagecount()));
-			holder.txtLikedCount.setText(String.valueOf(image.getLiked()));
+			holder.txtRazzleCount.setText(String.valueOf(image.getMessagecount()));
+			holder.txtSplendidCount.setText(String.valueOf(image.getLiked()));
 
 			holder.imgPix.setTag(image.getURL());
 			imageLoader.DisplayImage(image.getURL(), holder.imgPix);
+			
+			holder.imgClose.setTag(image.getId());
 
 
 			return convertView;
@@ -383,7 +409,7 @@ public class GalleryActivity extends Activity {
 		Log.v(TAG, "Eventsize here = " + EventS.size());
 
 		// Find the ListView resource.
-		ListView mainListView = (ListView) findViewById(R.id.listEvents);
+		mainListView = (ListView) findViewById(R.id.listEvents);
 		mainListView.setEmptyView(findViewById(R.id.txtEventsEmpty));
 		//((TextView) findViewById(R.id.lstInvitesEmpty)).setText("You currently have no recorded farts yet.");
 
@@ -396,10 +422,10 @@ public class GalleryActivity extends Activity {
 			
 			String owner = "";
 			
-			Log.v(TAG, "authdata =" + user.getString("authData"));
+			Log.v(TAG, "authdata =" + currentUser.getString("authData"));
 			
-			owner = (user.getString("name") == null || "".equals(user.getString("name"))) ? 
-					user.getString("firstName") + " " + user.getString("lastName") : user.getString("name");
+			owner = (currentUser.getString("name") == null || "".equals(currentUser.getString("name"))) ? 
+					currentUser.getString("firstName") + " " + currentUser.getString("lastName") : currentUser.getString("name");
 			
 			String family = ""; //hardcoded for now
 			
@@ -409,11 +435,25 @@ public class GalleryActivity extends Activity {
 			String date = dfDate.format(datE);
 			String time = dfTime.format(datE);
 			
-			int messageCount = 2;
-			int likedCount = 1;
+			int razzleCount = 0;
+			try {
+				razzleCount = Integer.parseInt(event.getRazzleCount());
+			} catch (Exception e) {
+				Log.v(TAG, "Error in extracting razzeCount: " + e.getMessage());
+			}
+			
+			int splendidCount = 0;
+			try {
+				splendidCount = Integer.parseInt(event.getRazzleCount());
+			} catch (Exception e) {
+				Log.v(TAG, "Error in extracting splendidCount: " + e.getMessage());
+			}
+			
+			
+			
 			
 			MyImageItem image = new MyImageItem(Id, URL, message, owner, family, date, time,
-					messageCount, likedCount);
+					razzleCount, splendidCount);
 					
 			Images.add(image);
 			
@@ -423,5 +463,39 @@ public class GalleryActivity extends Activity {
 		MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
 		mainListView.setAdapter(adapter);
 
+	}
+	
+	private void resetParseUserEvents() {
+		Utils.showProgressDialog(GalleryActivity.this, "Deleting this event in server...");
+		myEvents = currentUser.getRelation("events");
+		myEvents.getQuery().findInBackground(new FindCallback<ParseObject>() {
+			@Override
+			public void done(List<ParseObject> MyEvents, ParseException e) {
+				if (e == null) {
+					deleteEvent(eventIdToDelete);
+					Images.remove(selectedIndex);
+					MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
+					mainListView.setAdapter(adapter);
+				} else {
+					Log.e(TAG, "There was an error trying to query MyInterests: " + e.getMessage());
+				}
+				Utils.hideProgressDialog();
+			}
+		});
+	}
+	
+	private void deleteEvent(String selectedId) {
+		//attempt to delete now:
+		ParseObject.createWithoutData("Event", selectedId).deleteEventually();
+/*		for (ParseObject myEvent : ScratchMyEvents) {
+			if (selectedId.equalsIgnoreCase(myEvent.getObjectId().toString())){
+				myEvents = currentUser.getRelation("events");
+				myEvents.remove(myEvent);
+				currentUser.saveEventually();
+				Log.v(TAG, "removed an view.getTag() = " + selectedId);
+			} else {
+				Log.v(TAG, "not this one = " + myEvent.getString("content").toString());
+			}
+		}*/
 	}
 }
