@@ -101,7 +101,7 @@ public class GalleryActivity extends Activity {
 
 		ParseQuery<Event> queryEvents = new ParseQuery<Event>("Event");
 		queryEvents.whereMatchesQuery("author", innerQuery);
-		queryEvents.orderByAscending("createdAt");
+		queryEvents.orderByDescending("createdAt");
 		queryEvents.include("author");
 		queryEvents.findInBackground(new FindCallback<Event>() {
 			public void done(List<Event> Events, ParseException e) {
