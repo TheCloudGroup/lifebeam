@@ -94,7 +94,7 @@ public class GalleryActivity extends Activity {
 
 
 		final ParseQuery<ParseUser> innerQuery = ParseUser.getQuery();
-		innerQuery.whereEqualTo("objectId", userId);
+		innerQuery.whereEqualTo("family", currentUser.get("family"));
 
 		// Show a progress spinner, and kick off a background task to
 		Utils.showProgressDialog(this, "Loading...");
@@ -424,8 +424,11 @@ public class GalleryActivity extends Activity {
 			
 			Log.v(TAG, "authdata =" + currentUser.getString("authData"));
 			
-			owner = (currentUser.getString("name") == null || "".equals(currentUser.getString("name"))) ? 
-					currentUser.getString("firstName") + " " + currentUser.getString("lastName") : currentUser.getString("name");
+			//owner = (currentUser.getString("name") == null || "".equals(currentUser.getString("name"))) ? 
+			//		currentUser.getString("firstName") + " " + currentUser.getString("lastName") : currentUser.getString("name");
+
+			ParseObject author = event.getAuthor();
+			owner = author.getString("firstName") + " " + author.getString("lastName");
 			
 			String family = ""; //hardcoded for now
 			
