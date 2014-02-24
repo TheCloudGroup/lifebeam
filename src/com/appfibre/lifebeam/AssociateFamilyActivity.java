@@ -88,7 +88,7 @@ public class AssociateFamilyActivity extends Activity implements OnClickListener
 					ParseUser user = ParseUser.getCurrentUser();
 					ParseRelation<ParseObject> families = user.getRelation("families");
 					families.add(family);
-					user.add("family", edtFamilyName.getText().toString());
+					user.put("family", edtFamilyName.getText().toString());
 					user.saveInBackground(new SaveCallback() {
 						@Override
 						public void done(ParseException e) {
