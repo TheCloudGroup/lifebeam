@@ -58,7 +58,7 @@
                         android:paddingTop="5dp"
                         android:text="Title Sample Here"
                         android:textColor="@color/Grey5"
-                        android:textSize="50sp" />
+                        android:textSize="65sp" />
                 </LinearLayout>
 
                 <View
