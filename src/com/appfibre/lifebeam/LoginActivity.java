@@ -63,22 +63,20 @@ public class LoginActivity extends Activity implements OnClickListener{
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
 	private CheckBox checkBoxKeepLoggedIn;
-
+	private boolean isTablet;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-
+		isTablet = getResources().getBoolean(R.bool.isTablet);
 		Log.v(TAG, "Now in OnCreate ==========================================");
 
 		findViewById(R.id.btnRegisterUsingFacebook).setOnClickListener(this);
 		findViewById(R.id.btnLogin).setOnClickListener(this);
 		findViewById(R.id.txtForgotPassword).setOnClickListener(this);
-		checkBoxKeepLoggedIn = (CheckBox) findViewById(R.id.checkBoxKeepLoggedIn);
-
+		checkBoxKeepLoggedIn = (CheckBox) findViewById(R.id.checkBoxKeepLoggedIn);		
 		checkBoxKeepLoggedIn.setChecked(SharedPrefMgr.getBool(this, "hasSetKeptLogin"));
-
 		checkBoxKeepLoggedIn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -90,6 +88,9 @@ public class LoginActivity extends Activity implements OnClickListener{
 				}
 			}
 		});
+		
+
+		
 
 
 		muserNameView = (EditText) findViewById(R.id.muserNameView);
@@ -115,20 +116,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 		}
 
 		//check if there is a stored session login via normal and not FB
-		if (!"".equalsIgnoreCase(Session.getSessionId()) &&
-				!"".equalsIgnoreCase(Session.getUserName()) &&
-				!"".equalsIgnoreCase(Session.getUserPassword())&&
-				(Session.getSessionId() != null &&
-				(Session.getUserName() != null &&
-				(Session.getUserPassword() != null)) &&
-				SharedPrefMgr.getBool(LoginActivity.this, "hasSetKeptLogin"))){
-			Log.v(TAG, "There is a valid session auto login please");
-			Log.v(TAG, "Session.getSessionId() =" + Session.getSessionId());
-			Log.v(TAG, "Session.getUserName() =" + Session.getUserName());
-			Log.v(TAG, "Session.getUserPassword() =" + Session.getUserPassword());
-			attemptLogin(Session.getUserName(), Session.getUserPassword());
-		} else {
-			Log.v(TAG, "no stored session whatsoever so do fresh login please");
+		if ( Session.getSessionId() != null  && SharedPrefMgr.getBool(LoginActivity.this, "hasSetKeptLogin")) {
+			doLogin(Session.getUserName(), Session.getUserPassword());
 		}
 	}
 
@@ -156,7 +145,9 @@ public class LoginActivity extends Activity implements OnClickListener{
 			showMenuAlertDialog(LoginActivity.this,"Change Password", false);
 			break;
 		case R.id.btnLogin:
-			attemptLogin();
+			if(isValidForLogin()){
+				doLogin(mUsername, mPassword);
+			}
 			break;
 
 		default:
@@ -272,6 +263,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 		ParseUser.logOut();
 
 		// Go to the login page
+		Session.reset();
 		startLoginActivity();
 	}
 
@@ -282,117 +274,19 @@ public class LoginActivity extends Activity implements OnClickListener{
 		startActivity(intent);
 	}
 
-	public void attemptLogin() {
-		// Reset errors.
-		clearErrors();
-
-		// Store values at the time of the login attempt.
-		mUsername = muserNameView.getText().toString();
-		mPassword = mPasswordView.getText().toString();
-
-		boolean cancel = false;
-		View focusView = null;
-
-		// Check for a valid password.
-		if (TextUtils.isEmpty(mPassword)) {
-			mPasswordView.setError(getString(R.string.error_field_required));
-			focusView = mPasswordView;
-			cancel = true;
-		} else if (mPassword.length() < 4) {
-			mPasswordView.setError(getString(R.string.error_invalid_password));
-			focusView = mPasswordView;
-			cancel = true;
-		}
-
-		// Check for a valid username.
-		if (TextUtils.isEmpty(mUsername)) {
-			muserNameView.setError(getString(R.string.error_field_required));
-			focusView = muserNameView;
-			cancel = true;
-		}
-
-		if (cancel) {
-			// There was an error; don't attempt login and focus the first
-			// form field with an error.
-			focusView.requestFocus();
-		} else {
-			// Show a progress spinner, and kick off a background task to
-			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
-			showProgress(true);
-
-			//removed softkeyboard
-			InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-			imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-
-
-			Log.v ("log in","Signing in...");
-
-			// perform the user login attempt.
-			ParseUser.logInInBackground(mUsername, mPassword, new LogInCallback() {
-				@Override
-				public void done(ParseUser user, ParseException e) {
-					showProgress(false);
-					if (e == null) {
-						Session.setSessionId(user.getSessionToken());
-						Session.setUserName(mUsername);
-						Session.setUserPassword(mPassword);
-						Log.v(TAG, "reconfirm that there is an associated family for this user");
-						String strFamily = ParseUser.getCurrentUser().getString("family");
-						if (strFamily == null) {
-							attemptToAssociateFamily();	
-						} else {
-							startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
-							finish();
-						}
-					} else if (user == null){
-
-						switch (e.getCode()) {
-
-						case ParseException.OBJECT_NOT_FOUND:
-
-							showAlertDialog(LoginActivity.this,"Login", "Username or Password is invalid. Try again.", false);
-							break;
-
-						case ParseException.PASSWORD_MISSING:
-							mPasswordView.setError(getString(R.string.error_field_required));
-							mPasswordView.requestFocus();
-							break;
-
-						case ParseException.USERNAME_MISSING:
-							muserNameView.setError(getString(R.string.error_field_required));
-							muserNameView.requestFocus();
-							break;
-
-						case ParseException.TIMEOUT: 
-							Log.v(TAG, "There was a timeout");
-							Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
-							break;
-						default:
-							Log.v(TAG, "this error is untrapped");
-							Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
-							break;
-
-						}
-
-					}
-				}
-			});
-		}
-	}
-
-	public void attemptLogin(String uName, String pWord) {
-
+	public void doLogin(final String username, final String password) {
 		// Show a progress spinner, and kick off a background task to
+		mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 		showProgress(true);
-
-		Log.v ("log in","Signing in...");
-
-		// perform the user login attempt.
-		ParseUser.logInInBackground(uName, pWord, new LogInCallback() {
+		
+		ParseUser.logInInBackground(username, password, new LogInCallback() {
 			@Override
 			public void done(ParseUser user, ParseException e) {
 				showProgress(false);
 				if (e == null) {
+					Session.setSessionId(user.getSessionToken());
+					Session.setUserName(username);
+					Session.setUserPassword(password);
 					Log.v(TAG, "reconfirm that there is an associated family for this user");
 					String strFamily = ParseUser.getCurrentUser().getString("family");
 					if (strFamily == null) {
@@ -402,7 +296,24 @@ public class LoginActivity extends Activity implements OnClickListener{
 						finish();
 					}
 				} else if (user == null){
+
 					switch (e.getCode()) {
+
+					case ParseException.OBJECT_NOT_FOUND:
+
+						showAlertDialog(LoginActivity.this,"Login", "Username or Password is invalid. Try again.", false);
+						break;
+
+					case ParseException.PASSWORD_MISSING:
+						mPasswordView.setError(getString(R.string.error_field_required));
+						mPasswordView.requestFocus();
+						break;
+
+					case ParseException.USERNAME_MISSING:
+						muserNameView.setError(getString(R.string.error_field_required));
+						muserNameView.requestFocus();
+						break;
+
 					case ParseException.TIMEOUT: 
 						Log.v(TAG, "There was a timeout");
 						Toast.makeText(getApplicationContext(), "We currently could not log you in.  Please try again in a few minutes... ", Toast.LENGTH_SHORT).show();
@@ -417,6 +328,46 @@ public class LoginActivity extends Activity implements OnClickListener{
 				}
 			}
 		});
+	}
+	
+	public boolean isValidForLogin() {
+		// Reset errors.
+		clearErrors();
+
+		// Store values at the time of the login attempt.
+		mUsername = muserNameView.getText().toString();
+		mPassword = mPasswordView.getText().toString();
+
+		boolean valid = true;
+		View focusView = null;
+
+		// Check for a valid password.
+		if (TextUtils.isEmpty(mPassword)) {
+			mPasswordView.setError(getString(R.string.error_field_required));
+			focusView = mPasswordView;
+			valid = false;
+		} else if (mPassword.length() < 4) {
+			mPasswordView.setError(getString(R.string.error_invalid_password));
+			focusView = mPasswordView;
+			valid = false;
+		}
+
+		// Check for a valid username.
+		if (TextUtils.isEmpty(mUsername)) {
+			muserNameView.setError(getString(R.string.error_field_required));
+			focusView = muserNameView;
+			valid = false;
+		}
+
+		if (!valid) {
+			focusView.requestFocus();
+		} else {
+			//removed softkeyboard
+			InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+			imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+		}
+		
+		return valid;
 	}
 
 	private void clearErrors() {
@@ -484,44 +435,6 @@ public class LoginActivity extends Activity implements OnClickListener{
 
 		// Showing Alert Message
 		alertDialog.show();
-	}
-
-	/**
-	 * Represents an asynchronous login/registration task used to authenticate
-	 * the user.
-	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected Boolean doInBackground(Void... params) {
-			showProgress(true);
-			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		protected void onPostExecute(final Boolean success) {
-			showProgress(false);
-			Log.v(TAG, "reconfirm that there is an associated family for this user");
-			String strFamily = ParseUser.getCurrentUser().getString("family");
-			if (strFamily == null) {
-				attemptToAssociateFamily();	
-			} else {
-				startActivity(new Intent(LoginActivity.this, GalleryActivity.class));
-				finish();
-			}
-			finish();
-		}
-
-		@Override
-		protected void onCancelled() {
-			showProgress(false);
-		}
 	}
 
 	@Override

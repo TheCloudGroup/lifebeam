@@ -123,16 +123,6 @@
                 android:text="Login"
                 android:textColor="#ffffff" />
 
-            <CheckBox
-                android:id="@+id/checkBoxKeepLoggedIn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:text="Keep logged in"
-                android:textColor="#9f9f9f"
-                android:textSize="17dp" />
-
             <TextView
                 android:id="@+id/txtForgotPassword"
                 android:layout_width="wrap_content"

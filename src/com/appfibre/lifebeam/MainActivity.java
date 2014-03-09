@@ -114,6 +114,9 @@ public class MainActivity extends Activity implements OnClickListener{
 		UpdateManager.register(this, APP_ID);
 	}
 
+	private void checkIsLoggedIn(){
+		
+	}
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

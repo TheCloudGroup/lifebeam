@@ -94,10 +94,10 @@ public class Session {
 	 */
 	
 	public static void reset() {
-		Session.setSessionId("");
-		Session.setUserName("");
-		Session.setUserPassword("");
-		Session.setSessionFamily("");
+		Session.setSessionId(null);
+		Session.setUserName(null);
+		Session.setUserPassword(null);
+		Session.setSessionFamily(null);
 	}
 	
 }
