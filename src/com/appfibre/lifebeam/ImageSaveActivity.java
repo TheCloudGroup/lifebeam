@@ -81,6 +81,7 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 	private EditText edtPassCode;
 
 	private static final int CAPTURE_CAMERA_CODE  = 1337;
+	private static final int GALLERY_CODE  = 1338;
 	private Uri profileImageUri = null;
 
 	/* (non-Javadoc)
@@ -163,8 +164,13 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		};
 
 		edtPhotoDesc.addTextChangedListener(mTextEditorWatcher);
-
-		captureImage();
+		Intent i = getIntent();
+        boolean isGallery = i.getBooleanExtra("isGallery", false);
+        if(!isGallery){
+        	captureImage();
+        } else {
+        	getGalleryImage();
+        }
 	}
 
 	/* (non-Javadoc)
@@ -281,49 +287,38 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 		startActivityForResult(intent, ImageSaveActivity.CAPTURE_CAMERA_CODE);
 	}
+	
+	private void getGalleryImage(){
+		Log.v(TAG, "Now creating output file directory for image captured");
+		profileImageUri = CameraUtils.getOutputMediaFileUri(CameraUtils.MEDIA_TYPE_IMAGE, getPackageName());
+
+		SharedPrefMgr.setString(getApplicationContext(), "profileImageUri", profileImageUri.toString());
+
+		Log.v(TAG, "profileImageUri = " +  profileImageUri);
+		Intent pictureIntent = new Intent();
+        pictureIntent.setType("image/*");
+        pictureIntent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(pictureIntent,
+                "Select Picture"), ImageSaveActivity.GALLERY_CODE);
+	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.v(TAG, "onActivityResult=====>>>>>>>>>>");
-		Log.v(TAG, "requestCode = " + requestCode);
-		Log.v(TAG, "resultCode = " + resultCode);
-
-		String strProfileImageUri = SharedPrefMgr.getString(getApplicationContext(), "profileImageUri");
-		profileImageUri = Uri.parse(strProfileImageUri);
-
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {		
 		Log.v(TAG, "onActivityResult profileImageUri = " +  profileImageUri);
-
-		if (requestCode == ImageSaveActivity.CAPTURE_CAMERA_CODE) {
-			if (resultCode == RESULT_OK) {
-				Toast.makeText(ImageSaveActivity.this, "Image Confirmed!", Toast.LENGTH_SHORT).show();
-				Log.v(TAG, "defere saving of file to parse until image is rotate confirmed");
-
-				/*				if (profileImageUri != null) {
-					try {
-						file = new ParseFile( "file.jpg", CameraUtils.convertUriToBytes(ImageSaveActivity.this, profileImageUri));
-						file.saveInBackground(new SaveCallback() {
-
-							@Override
-							public void done(com.parse.ParseException e) {
-								if (e == null) {
-									Log.v(TAG, "now ready to save event huzzah!!!!");
-									//saveToParse();
-								} else {
-									Log.v(TAG, "Error saving user with new group : " + e.toString());
-								}
-							}
-
-						});
-
-					} catch (Exception e) {
-						Log.e(TAG, "Error: " + e.getMessage());
-					}
-
-				}*/
-
-				Log.v(TAG, "profileImageUri = " + profileImageUri);
-			} else {
-				profileImageUri = null;
+		profileImageUri = null;
+		if(resultCode == RESULT_OK){
+			switch(requestCode) {
+				case ImageSaveActivity.CAPTURE_CAMERA_CODE:
+					String strProfileImageUri = SharedPrefMgr.getString(getApplicationContext(), "profileImageUri");
+					profileImageUri = Uri.parse(strProfileImageUri);
+					break;
+				case ImageSaveActivity.GALLERY_CODE:
+					Uri selectedImageUri = data.getData();
+					String photoPath = CameraUtils.getPath(ImageSaveActivity.this,selectedImageUri);
+					profileImageUri = Uri.parse(photoPath);
+					break;
+				default:
+					break;
 			}
 		}
 	}

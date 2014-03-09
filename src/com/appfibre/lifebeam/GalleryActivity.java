@@ -141,77 +141,92 @@ public class GalleryActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		String strFamily;
 		switch (item.getItemId()) {
-
-		case R.id.menuCamera:
-			Log.v(TAG, "reconfirm that there is an associated family for this user");
-			String strFamily = ParseUser.getCurrentUser().getString("family");
-			if (strFamily == null) {
-				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(GalleryActivity.this);
-
-				dlgAlert.setMessage("To start sharing events you need to be associated to a " +
-						" Family Account.  Please join or create your own Family Account in" +
-						" your Application Settings.");
-				dlgAlert.setTitle("No Associated Family Account");
-				dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,int id) {
-						startActivity(new Intent(GalleryActivity.this, SettingsActivity2.class));
-					}});
-				dlgAlert.setCancelable(true);
-				dlgAlert.create().show();
-				return true;
-			} else {
-				startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));	
-			}
-			
-			//captureImage();
-			break;
-
-/*		case R.id.menuGallery:
-			Log.v(TAG, "selected gallery...");
-			Toast.makeText(this, "Menu Gallery selected", Toast.LENGTH_SHORT).show();
-			break;	*/
-
-		case R.id.menuRefresh:
-			Log.v(TAG, "selected refresh...");
-			Toast.makeText(this, "Menu refresh selected", Toast.LENGTH_SHORT).show();
-			break;
-
-		case R.id.menuInvite:
-			//Log.v(TAG, "selected invite...");
-			//Toast.makeText(this, "Menu Invite selected", Toast.LENGTH_SHORT).show();
-			startActivity(new Intent(GalleryActivity.this, InviteActivity.class));
-			break;
-
-		case R.id.menuSettings:
-			Log.v(TAG, "selected settings...");
-			startActivity(new Intent(GalleryActivity.this,SettingsActivity2.class));
-			break;
-
-		case R.id.menuHelp:
-			Log.v(TAG, "selected help...");
-			Toast.makeText(this, "Menu Help selected", Toast.LENGTH_SHORT).show();
-			break;
-
-		case R.id.menuSignout:
-			Log.v(TAG, "clicked logout...");
-			if (ParseFacebookUtils.getSession() != null) {
-				Log.v(TAG, "Now clearing tokens as there is an FB sessions");
-				ParseFacebookUtils.getSession().closeAndClearTokenInformation();
-			}
-			// Log the user out
-			ParseUser.logOut();
-			
-			Session.reset();
-			SharedPrefMgr.setBool(GalleryActivity.this, "hasSetKeptLogin", false);
-
-			// Go to the login view
-			startActivity(new Intent(GalleryActivity.this, MainActivity.class));
-			finish();
-			break;
-
-		default:
-			break;
+			case R.id.menuCamera:
+				Log.v(TAG, "reconfirm that there is an associated family for this user");
+				strFamily = ParseUser.getCurrentUser().getString("family");
+				if (strFamily == null) {
+					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(GalleryActivity.this);
+	
+					dlgAlert.setMessage("To start sharing events you need to be associated to a " +
+							" Family Account.  Please join or create your own Family Account in" +
+							" your Application Settings.");
+					dlgAlert.setTitle("No Associated Family Account");
+					dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,int id) {
+							startActivity(new Intent(GalleryActivity.this, SettingsActivity2.class));
+						}});
+					dlgAlert.setCancelable(true);
+					dlgAlert.create().show();
+					return true;
+				} else {
+					startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));	
+				}
+				break;
+	
+			case R.id.menuGallery:
+				Log.v(TAG, "reconfirm that there is an associated family for this user");
+				strFamily = ParseUser.getCurrentUser().getString("family");
+				if (strFamily == null) {
+					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(GalleryActivity.this);
+	
+					dlgAlert.setMessage("To start sharing events you need to be associated to a " +
+							" Family Account.  Please join or create your own Family Account in" +
+							" your Application Settings.");
+					dlgAlert.setTitle("No Associated Family Account");
+					dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,int id) {
+							startActivity(new Intent(GalleryActivity.this, SettingsActivity2.class));
+						}});
+					dlgAlert.setCancelable(true);
+					dlgAlert.create().show();
+					return true;
+				} else {
+					Intent i = new Intent(GalleryActivity.this, ImageSaveActivity.class);
+					i.putExtra("isGallery", true);
+					startActivity(i);	
+				}
+				break;	
+	
+			case R.id.menuRefresh:
+				Log.v(TAG, "selected refresh...");
+				Toast.makeText(this, "Menu refresh selected", Toast.LENGTH_SHORT).show();
+				break;
+	
+			case R.id.menuInvite:
+				startActivity(new Intent(GalleryActivity.this, InviteActivity.class));
+				break;
+	
+			case R.id.menuSettings:
+				Log.v(TAG, "selected settings...");
+				startActivity(new Intent(GalleryActivity.this,SettingsActivity2.class));
+				break;
+	
+			case R.id.menuHelp:
+				Log.v(TAG, "selected help...");
+				Toast.makeText(this, "Menu Help selected", Toast.LENGTH_SHORT).show();
+				break;
+	
+			case R.id.menuSignout:
+				Log.v(TAG, "clicked logout...");
+				if (ParseFacebookUtils.getSession() != null) {
+					Log.v(TAG, "Now clearing tokens as there is an FB sessions");
+					ParseFacebookUtils.getSession().closeAndClearTokenInformation();
+				}
+				// Log the user out
+				ParseUser.logOut();
+				
+				Session.reset();
+				SharedPrefMgr.setBool(GalleryActivity.this, "hasSetKeptLogin", false);
+	
+				// Go to the login view
+				startActivity(new Intent(GalleryActivity.this, MainActivity.class));
+				finish();
+				break;
+	
+			default:
+				break;
 		}
 
 		return true;
