@@ -55,7 +55,7 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 	private TextView mLoginStatusMessageView;
 	private ArrayList<Bitmap> eventBmaps = new ArrayList<Bitmap>();
 	private List<String> eventImageUrls = new ArrayList<String>();
-
+    private Session session = Session.getInstance();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,13 +77,13 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
 		//check if there is a stored session login via normal and not FB
-		String familyAccount = Session.getUserFamilyAccount();
-		String passCode = Session.getUserPasscode();
+		String familyAccount = session.getUserFamilyAccount(getApplicationContext());
+		String passCode = session.getUserPasscode(getApplicationContext());
 		
 		if ( familyAccount!= null && familyAccount.length() > 0 && 
 			 passCode !=null &&  passCode.length() > 0 ) {
 			//attemptLogin(Session.getUserFamilyAccount(), Session.getUserPasscode());
-			doLogin(Session.getUserFamilyAccount(), Session.getUserPasscode());
+			doLogin(familyAccount,passCode);
 		}
 		
 	}
@@ -91,13 +91,13 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 	@Override
 	protected void onResume() {
 		super.onResume();		
-		String familyAccount = Session.getUserFamilyAccount();
-		String passCode = Session.getUserPasscode();
+		String familyAccount = session.getUserFamilyAccount(getApplicationContext());
+		String passCode = session.getUserPasscode(getApplicationContext());
 		
 		if ( familyAccount!= null && familyAccount.length() > 0 && 
 			 passCode !=null &&  passCode.length() > 0 ) {
 			//attemptLogin(Session.getUserFamilyAccount(), Session.getUserPasscode());
-			doLogin(Session.getUserFamilyAccount(), Session.getUserPasscode());
+			doLogin(familyAccount,passCode);
 		}
 	}
 	@Override
@@ -207,10 +207,10 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 								.show();
 					} else {
 						Log.v(TAG, "just printing contents of events here content = " + Families.get(0).getName());
-						Session.setUserFamilyAccount(familyAccountName);
-						Session.setUserPasscode(passcode);
-						Session.setSessionId(ParseUser.getCurrentUser().getSessionToken());
-						extractEvents(mFamilyAccount);
+						session.setUserFamilyAccount(getApplicationContext(), familyAccountName);
+						session.setUserPasscode(getApplicationContext(), passcode);
+						session.setSessionId(getApplicationContext(), ParseUser.getCurrentUser().getSessionToken());
+						extractEvents(familyAccountName);
 					}
 				} else {
 					Toast.makeText(getApplicationContext(),

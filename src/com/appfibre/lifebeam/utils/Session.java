@@ -1,103 +1,129 @@
 package com.appfibre.lifebeam.utils;
 
+import android.content.Context;
+
 /**
  * This class maintains the session of the App.
+ * 
  * @author Angel Abellanosa
- *
+ * 
  */
 public class Session {
+	private final String USERNAME_KEY = "username";
+	private final String USERPASSWORD_KEY = "password";
+	private final String USER_FAMILY_ACCOUNT_KEY = "user_family_account";
+	private final String USER_PASSCODE_KEY = "user_passcode";
+	private final String SESSION_ID_KEY = "session_id";
+	private final String SESSION_FAMILY_KEY = "session_family";
+	private static final Session INSTANCE = new Session();
 
-	private static String userName;
-	private static String userPassword;
-	private static String userFamilyAccount;
-	private static String userPasscode;
-	private static String sessionId;
-	private static String sessionFamily;
-	
-	
+	private Session() {
+	}
+
+	public static Session getInstance() {
+		return INSTANCE;
+	}
+
 	/**
 	 * @return the userFamilyAccount
 	 */
-	public static String getUserFamilyAccount() {
-		return userFamilyAccount;
+	public String getUserFamilyAccount(Context context) {
+		return SharedPrefMgr.getString(context, USER_FAMILY_ACCOUNT_KEY);
 	}
+
 	/**
-	 * @param userFamilyAccount the userFamilyAccount to set
+	 * @param userFamilyAccount
+	 *            the userFamilyAccount to set
 	 */
-	public static void setUserFamilyAccount(String userFamilyAccount) {
-		Session.userFamilyAccount = userFamilyAccount;
+	public void setUserFamilyAccount(Context context, String userFamilyAccount) {
+		SharedPrefMgr.setString(context, USER_FAMILY_ACCOUNT_KEY, userFamilyAccount);
 	}
+
 	/**
 	 * @return the userPasscode
 	 */
-	public static String getUserPasscode() {
-		return userPasscode;
+	public String getUserPasscode(Context context) {
+		return SharedPrefMgr.getString(context, USER_PASSCODE_KEY);
 	}
+
 	/**
-	 * @param userPasscode the userPasscode to set
+	 * @param userPasscode
+	 *            the userPasscode to set
 	 */
-	public static void setUserPasscode(String userPasscode) {
-		Session.userPasscode = userPasscode;
+	public void setUserPasscode(Context context, String userPasscode) {
+		SharedPrefMgr.setString(context, USER_PASSCODE_KEY, userPasscode);
 	}
 
 	/**
 	 * @return the sessionFamily
 	 */
-	public static String getSessionFamily() {
-		return sessionFamily;
+	public String getSessionFamily(Context context) {
+		return SharedPrefMgr.getString(context, SESSION_FAMILY_KEY);
 	}
+
 	/**
-	 * @param sessionFamily the sessionFamily to set
+	 * @param sessionFamily
+	 *            the sessionFamily to set
 	 */
-	public static void setSessionFamily(String sessionFamily) {
-		Session.sessionFamily = sessionFamily;
+	public void setSessionFamily(Context context, String sessionFamily) {
+		SharedPrefMgr.setString(context, SESSION_FAMILY_KEY, sessionFamily);
 	}
+
 	/**
 	 * @return the userName
 	 */
-	public static String getUserName() {
-		return userName;
+	public String getUserName(Context context) {
+		return SharedPrefMgr.getString(context, USERNAME_KEY);
 	}
+
 	/**
-	 * @param userName the userName to set
+	 * @param userName
+	 *            the userName to set
 	 */
-	public static void setUserName(String userName) {
-		Session.userName = userName;
+	public void setUserName(Context context, String userName) {
+		SharedPrefMgr.setString(context, USERNAME_KEY, userName);
 	}
+
 	/**
 	 * @return the userPassword
 	 */
-	public static String getUserPassword() {
-		return userPassword;
+	public String getUserPassword(Context context) {
+		return SharedPrefMgr.getString(context, USERPASSWORD_KEY);
 	}
+
 	/**
-	 * @param userPassword the userPassword to set
+	 * @param userPassword
+	 *            the userPassword to set
 	 */
-	public static void setUserPassword(String userPassword) {
-		Session.userPassword = userPassword;
+	public void setUserPassword(Context context, String userPassword) {
+		SharedPrefMgr.setString(context, USERPASSWORD_KEY, userPassword);
 	}
+
 	/**
 	 * @return the sessionId
 	 */
-	public static String getSessionId() {
-		return sessionId;
+	public String getSessionId(Context context) {
+		return SharedPrefMgr.getString(context, SESSION_ID_KEY);
 	}
+
 	/**
-	 * @param sessionId the sessionId to set
+	 * @param sessionId
+	 *            the sessionId to set
 	 */
-	public static void setSessionId(String sessionId) {
-		Session.sessionId = sessionId;
+	public void setSessionId(Context context, String sessionId) {
+		SharedPrefMgr.setString(context, SESSION_ID_KEY, sessionId);
 	}
-	
+
 	/**
-	 * @param sessionId the sessionId to set
+	 * Clear all session data
+	 * @param context
 	 */
-	
-	public static void reset() {
-		Session.setSessionId(null);
-		Session.setUserName(null);
-		Session.setUserPassword(null);
-		Session.setSessionFamily(null);
+	public void reset(Context context) {
+		SharedPrefMgr.removeData(context, USERNAME_KEY);
+		SharedPrefMgr.removeData(context, USERPASSWORD_KEY);
+		SharedPrefMgr.removeData(context, USER_FAMILY_ACCOUNT_KEY);
+		SharedPrefMgr.removeData(context, USER_PASSCODE_KEY);
+		SharedPrefMgr.removeData(context, SESSION_ID_KEY);
+		SharedPrefMgr.removeData(context, SESSION_FAMILY_KEY);	
 	}
-	
 }

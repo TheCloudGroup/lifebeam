@@ -238,9 +238,10 @@ public class RegistrationFormActivity extends Activity {
 								//showProgress(false);
 								//Intent myIntent = new Intent(RegisterActivity.this, DashboardFeedActivity.class);
 								//startActivity(myIntent);
-								Session.setSessionId(loggedInUser.getSessionToken());
-								Session.setUserName(mEmailAddress);
-								Session.setUserPassword(mPassword);
+								Session session = Session.getInstance();
+								session.setSessionId(getApplicationContext(), loggedInUser.getSessionToken());
+								session.setUserName(getApplicationContext(), mEmailAddress);
+								session.setUserPassword(getApplicationContext(), mPassword);
 								startActivity(new Intent(RegistrationFormActivity.this, RegisterFamilyActivity.class));
 								finish();
 							} else {

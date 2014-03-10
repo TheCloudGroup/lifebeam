@@ -64,7 +64,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 	private TextView mLoginStatusMessageView;
 	private CheckBox checkBoxKeepLoggedIn;
 	private boolean isTablet;
-
+    private Session session = Session.getInstance();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -116,8 +117,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 		}
 
 		//check if there is a stored session login via normal and not FB
-		if ( Session.getSessionId() != null  && SharedPrefMgr.getBool(LoginActivity.this, "hasSetKeptLogin")) {
-			doLogin(Session.getUserName(), Session.getUserPassword());
+		if ( session.getSessionId(getApplicationContext()) != null  && SharedPrefMgr.getBool(LoginActivity.this, "hasSetKeptLogin")) {
+			doLogin(session.getUserName(getApplicationContext()), session.getUserPassword(getApplicationContext()));
 		}
 	}
 
@@ -263,7 +264,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 		ParseUser.logOut();
 
 		// Go to the login page
-		Session.reset();
+		session.reset(getApplicationContext());
 		startLoginActivity();
 	}
 
@@ -284,9 +285,9 @@ public class LoginActivity extends Activity implements OnClickListener{
 			public void done(ParseUser user, ParseException e) {
 				showProgress(false);
 				if (e == null) {
-					Session.setSessionId(user.getSessionToken());
-					Session.setUserName(username);
-					Session.setUserPassword(password);
+					session.setSessionId(getApplicationContext(), user.getSessionToken());
+					session.setUserName(getApplicationContext(), username);
+					session.setUserPassword(getApplicationContext(),password);
 					Log.v(TAG, "reconfirm that there is an associated family for this user");
 					String strFamily = ParseUser.getCurrentUser().getString("family");
 					if (strFamily == null) {
