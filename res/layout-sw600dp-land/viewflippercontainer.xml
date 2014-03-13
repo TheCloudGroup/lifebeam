@@ -187,25 +187,39 @@
             android:orientation="horizontal" >
 
             <ImageView
-                android:id="@+id/imgGoToFirst"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/go_to_first" />
+                        android:id="@+id/imgGoToFirst"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_rew" />
 
-            <ImageView
-                android:id="@+id/imgPlay"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/play" />
+                    <ImageView
+                        android:id="@+id/imgGoToPrev"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_previous" />
+                    
+                    <ImageView
+                        android:id="@+id/imgPlay"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_play" />
 
-            <ImageView
-                android:id="@+id/imgGoToLast"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/go_to_last" />
+                    <ImageView
+                        android:id="@+id/imgGoToNext"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_next" />
+                    
+                    <ImageView
+                        android:id="@+id/imgGoToLast"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_ff" />
         </LinearLayout>
 
         <LinearLayout

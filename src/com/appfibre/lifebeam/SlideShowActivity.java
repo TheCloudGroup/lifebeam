@@ -297,6 +297,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(final View v) {
 		View thisFlipView = mViewFlipper.getCurrentView();
+		int currentDisplayed = mViewFlipper.getDisplayedChild();
 		switch (v.getId()) {
 		case R.id.view_flipper:
 			Log.v(TAG, "detected a click here and trying to stop flipping and show llynavigationholder here");
@@ -308,6 +309,8 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 			thisFlipView.findViewById(R.id.txtDeletePhoto).setOnClickListener(this);
 			thisFlipView.findViewById(R.id.imgGoToFirst).setOnClickListener(this);
 			thisFlipView.findViewById(R.id.imgGoToLast).setOnClickListener(this);
+			thisFlipView.findViewById(R.id.imgGoToPrev).setOnClickListener(this);
+			thisFlipView.findViewById(R.id.imgGoToNext).setOnClickListener(this);
 			break;
 
 		case R.id.imgPlay:
@@ -373,6 +376,25 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 			mViewFlipper.startFlipping();
 			break;
 
+		case R.id.imgGoToPrev:
+			//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);	
+			if(--currentDisplayed > -1){
+				mViewFlipper.setDisplayedChild(currentDisplayed);
+				mViewFlipper.setAutoStart(true);
+				mViewFlipper.setFlipInterval(4000);
+				mViewFlipper.startFlipping();
+			}			
+			break;
+
+		case R.id.imgGoToNext:
+			//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);		
+			if(++currentDisplayed < eventCount){
+				mViewFlipper.setDisplayedChild(currentDisplayed);
+				mViewFlipper.setAutoStart(true);
+				mViewFlipper.setFlipInterval(4000);
+				mViewFlipper.startFlipping();
+			}			
+			break;	
 		default:
 			break;
 		}
