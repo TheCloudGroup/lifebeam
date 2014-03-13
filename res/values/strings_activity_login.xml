@@ -16,4 +16,6 @@
     <string name="error_duplicate_username">This username is already in use</string>
     <string name="error_duplicate_email">This email is already in use</string>
 	<string name="error_invalid_username">This username is invalid</string>
+	<string name="action_cancel">Cancel</string>
+	<string name="action_reset">Reset</string>
 </resources>
