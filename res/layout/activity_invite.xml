@@ -6,7 +6,7 @@
 
 <!--     The PullToRefreshListView replaces a standard ListView widget. -->
 
-    <com.handmark.pulltorefresh.library.PullToRefreshListView
+    <ListView
         android:id="@+id/lstInviteView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

@@ -55,10 +55,10 @@ public class InviteActivity extends Activity  implements OnClickListener{
 	private String TAG = "InviteActivity";
 
 	private boolean isSelected = false;
-	private MyContactsAdapter adapter;
-	private PullToRefreshListView mainListView;
-	private ArrayList<MyContactItem3> Contacts = new ArrayList<MyContactItem3>();
-	private ArrayList<MyContactItem3> ContactsHolder = new ArrayList<MyContactItem3>();
+	private MyContactsAdapter mainListViewAdapter;
+	private ListView contactListView;
+	private ArrayList<MyContactItem3> contactData = new ArrayList<MyContactItem3>();
+	//private ArrayList<MyContactItem3> ContactsHolder = new ArrayList<MyContactItem3>();
 	private int iListPage;
 	private final static int ITEM_PER_LIST_PAGE = 15;
 
@@ -76,11 +76,11 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		ab.setDisplayUseLogoEnabled(false);
 
 		// Find the ListView resource.
-		mainListView = (PullToRefreshListView) findViewById(R.id.lstInviteView);
-		mainListView.setMode(Mode.BOTH);
+		contactListView = (ListView) findViewById(R.id.lstInviteView);
+		//contactListView.setMode(Mode.BOTH);
 
 		// Set a listener to be invoked when the list should be refreshed.
-		mainListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
+		/*contactListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
 
 			@Override
 			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
@@ -89,15 +89,15 @@ public class InviteActivity extends Activity  implements OnClickListener{
 				new GetDataTask().execute();
 
 			}
-		});
+		});*/
 
 		// Set our custom array adapter as the ListView's adapter.
-		adapter = new MyContactsAdapter(InviteActivity.this, Contacts);
+		mainListViewAdapter = new MyContactsAdapter(InviteActivity.this, contactData);
 
 		//adapter.loadData();
 
-		mainListView.setAdapter(adapter);
-		mainListView.setEmptyView(findViewById(R.id.lstInvitesEmpty));
+		contactListView.setAdapter(mainListViewAdapter);
+		contactListView.setEmptyView(findViewById(R.id.lstInvitesEmpty));
 
 		Log.v(TAG, "now implementing contacts loading in a separate thread");
 		new LoadContacts().execute();
@@ -130,13 +130,13 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			String recepient = "";
 
 			//email now
-			if (adapter.getCheckedPositions() == 0) {
+			if (mainListViewAdapter.getCheckedPositions() == 0) {
 				Toast.makeText(InviteActivity.this, "You need to select a contact to invite.", Toast.LENGTH_LONG).show();
 				return true;
 			} else {
 				Log.v(TAG, "loop thru recepients here");
-				for(int i=0; i<adapter.getCount(); i++){
-					MyContactItem3 contactitem = (MyContactItem3) adapter.getItem(i);
+				for(int i=0; i<mainListViewAdapter.getCount(); i++){
+					MyContactItem3 contactitem = (MyContactItem3) mainListViewAdapter.getItem(i);
 					if(contactitem.isSelected()){
 						if ("".equals(recepient)) {
 							recepient = contactitem.getContactNumber();
@@ -174,42 +174,6 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 		return true;
 	}
-
-	/*	private void saveFile() {
-		Utils.showProgressDialog(ImageSaveActivity.this, "Saving Image...");
-		File f = new File(outputFileUri.getPath());
-		byte[] reader = null;
-		try {
-			reader = FileUtils.readFileToByteArray(f);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		Log.v(TAG, "reader byte array size is = " + reader.length);
-		file = new ParseFile("eventImage", reader);
-
-		file.saveInBackground((new SaveCallback() {
-
-			@Override
-			public void done(ParseException e) {
-				Utils.hideProgressDialog();	
-				if (e == null) {
-					Log.v(TAG, "audiofile save as parsefile proceeding to savetoparse now");
-					saveToParse();
-				} else {
-					Log.v(TAG, "Error saving soundfile: " + e.toString());
-					Toast.makeText(ImageSaveActivity.this, "Error saving image. Please try again later.", Toast.LENGTH_LONG).show();
-				}
-			}
-		}));
-	}*/
-
-/*	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-		return true;
-	}*/
 
 	@Override
 	public void onClick(View v) {
@@ -327,13 +291,13 @@ public class InviteActivity extends Activity  implements OnClickListener{
 							" contactid = " + contactId +
 							" imageUri = " + imageURI);
 					MyContactItem3 contact = new MyContactItem3(name, emailAddress, contactId, imageURI, isSelected);
-					if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
+					//if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
 						publishProgress(contact);
-						iCountDisplayedListItems++;
-					} else {
-						iListPage = 1;
-					}
-					ContactsHolder.add(contact);
+					//	iCountDisplayedListItems++;
+					//} else {
+					//	iListPage = 1;
+					//}
+					//ContactsHolder.add(contact);
 				}  
 			} catch (NullPointerException npe) {
 				Log.e(TAG, "Error trying to get Contacts.");
@@ -349,16 +313,16 @@ public class InviteActivity extends Activity  implements OnClickListener{
 				}   
 			} 
 
-			Log.v(TAG, "Stored Contacts = " + ContactsHolder.size());
-			Log.v(TAG, "getcount of contactsize = " + adapter.getCount());
+			//Log.v(TAG, "Stored Contacts = " + ContactsHolder.size());
+			Log.v(TAG, "getcount of contactsize = " + mainListViewAdapter.getCount());
 			Log.v(TAG, "resetting all checkbox states here");
 			return null;
 		}
 
 		@Override
 		protected void onProgressUpdate(MyContactItem3... contact) {
-			adapter.add(contact[0]);
-			adapter.notifyDataSetChanged();
+			mainListViewAdapter.add(contact[0]);
+			mainListViewAdapter.notifyDataSetChanged();
 		}
 
 		@Override
@@ -488,11 +452,11 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		/**
 		 * Loads the data. 
 		 */
-		public void loadData() {
+		/*public void loadData() {
 
 			// Here add your code to load the data for example from a webservice or DB
-			if (adapter.getCount() < ContactsHolder.size()) {
-				Log.v(TAG, "adapter.getcount = " + adapter.getCount());
+			if (mainListViewAdapter.getCount() < ContactsHolder.size()) {
+				Log.v(TAG, "adapter.getcount = " + mainListViewAdapter.getCount());
 				int iLoopStart = iListPage*ITEM_PER_LIST_PAGE;
 				int iLoopEnd = (iListPage + 1)*ITEM_PER_LIST_PAGE > ContactsHolder.size() ? ContactsHolder.size() : (iListPage + 1)*ITEM_PER_LIST_PAGE; 
 				Log.v(TAG, "loop start = " + iLoopStart);
@@ -501,12 +465,12 @@ public class InviteActivity extends Activity  implements OnClickListener{
 				for (int i = iLoopStart; i < iLoopEnd; i++) {
 					Log.v(TAG, "i = " + i);
 					Log.v(TAG, "add this contactsholder = " + ContactsHolder.get(i).toString());
-					adapter.add(ContactsHolder.get(i));
+					mainListViewAdapter.add(ContactsHolder.get(i));
 				}	
 				iListPage++;
 				//adapter.resetCheckBoxesState();
 			}
-		}
+		}*/
 
 		public void add(MyContactItem3 myContactItem3) {
 			contacts.add(myContactItem3);
@@ -514,23 +478,23 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		}
 	}
 
-	private class GetDataTask extends AsyncTask<Void, Void, Void> {
+	/*private class GetDataTask extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			adapter.loadData();
+			mainListViewAdapter.loadData();
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void ret) {
-			adapter.notifyDataSetChanged();
+			mainListViewAdapter.notifyDataSetChanged();
 
 			// Call onRefreshComplete when the list has been refreshed.
-			mainListView.onRefreshComplete();
+			contactListView.onRefreshComplete();
 			super.onPostExecute(null);
 		}
-	}
+	}*/
 
 	private void LoadContactsTest() {
 		Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null); 

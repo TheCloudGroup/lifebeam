@@ -110,15 +110,6 @@ public class GalleryActivity extends Activity {
 		Log.v(TAG, "and the userid is = " + userId);
 
 		retrieveEvents(false);
-
-		/*// Find the ListView resource.
-		ListView mainListView = (ListView) findViewById(R.id.listImages);
-		//((TextView) findViewById(R.id.lstInvitesEmpty)).setText("You currently have no recorded farts yet.");
-
-		// Set our custom array adapter as the ListView's adapter.
-		MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
-		mainListView.setAdapter(adapter);*/
-
 	}
 	private void retrieveEvents(final boolean fromPullRefresh){
 		if(!fromPullRefresh){
