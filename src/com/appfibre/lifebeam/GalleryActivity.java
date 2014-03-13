@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -39,6 +40,9 @@ import com.appfibre.lifebeam.utils.MyImageItem;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.appfibre.lifebeam.utils.Utils;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -67,7 +71,8 @@ public class GalleryActivity extends Activity {
 	private ParseRelation<ParseObject> myEvents;
 	private List<ParseObject> ScratchMyEvents;
 	private int selectedIndex;
-	private ListView mainListView;
+	private PullToRefreshListView mainListView;
+	private MyImageAdapter mainListViewAdapter;
 	
 	private String eventIdToDelete;
 
@@ -83,6 +88,18 @@ public class GalleryActivity extends Activity {
 		ab.setDisplayShowHomeEnabled(false);
 		//ab.setDisplayUseLogoEnabled(false);
 
+		// Find the ListView resource.
+		mainListView = (PullToRefreshListView) findViewById(R.id.listEvents);
+		mainListView.setEmptyView(findViewById(R.id.txtEventsEmpty));
+		// Set a listener to be invoked when the list should be refreshed.
+		mainListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
+
+			@Override
+			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+				retrieveEvents(true);
+			}
+		});
+		
 		EventS = new ArrayList<Event>();
 		currentUser = ParseUser.getCurrentUser();
 		String userId = "";
@@ -92,34 +109,7 @@ public class GalleryActivity extends Activity {
 
 		Log.v(TAG, "and the userid is = " + userId);
 
-
-		final ParseQuery<ParseUser> innerQuery = ParseUser.getQuery();
-		innerQuery.whereEqualTo("family", currentUser.get("family"));
-
-		// Show a progress spinner, and kick off a background task to
-		Utils.showProgressDialog(this, "Loading...");
-
-		ParseQuery<Event> queryEvents = new ParseQuery<Event>("Event");
-		queryEvents.whereMatchesQuery("author", innerQuery);
-		queryEvents.orderByDescending("createdAt");
-		queryEvents.include("author");
-		queryEvents.findInBackground(new FindCallback<Event>() {
-			public void done(List<Event> Events, ParseException e) {
-				Utils.hideProgressDialog();
-				if (e == null) {
-					for (Event event : Events) {
-						Log.v(TAG, "just printing contents of events here content = " + event.getContent());
-						EventS.add(event);
-					}
-					loadEventsInListView();
-				} else {
-					Toast.makeText(getApplicationContext(),
-							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
-							.show();
-					Log.v(TAG, "Error: " + e.getMessage());
-				}
-			}
-		});	
+		retrieveEvents(false);
 
 		/*// Find the ListView resource.
 		ListView mainListView = (ListView) findViewById(R.id.listImages);
@@ -129,6 +119,41 @@ public class GalleryActivity extends Activity {
 		MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
 		mainListView.setAdapter(adapter);*/
 
+	}
+	private void retrieveEvents(final boolean fromPullRefresh){
+		if(!fromPullRefresh){
+			Utils.showProgressDialog(this, "Loading...");
+		}
+		final ParseQuery<ParseUser> innerQuery = ParseUser.getQuery();
+		innerQuery.whereEqualTo("family", currentUser.get("family"));
+		
+		ParseQuery<Event> queryEvents = new ParseQuery<Event>("Event");
+		queryEvents.whereMatchesQuery("author", innerQuery);
+		queryEvents.orderByDescending("createdAt");
+		queryEvents.include("author");
+		queryEvents.findInBackground(new FindCallback<Event>() {
+			public void done(List<Event> Events, ParseException e) {
+				
+				if (e == null) {
+					for (Event event : Events) {
+						Log.v(TAG, "just printing contents of events here content = " + event.getContent());
+						EventS.add(event);
+					}
+					loadEventsInListView();
+					if(!fromPullRefresh){
+						Utils.hideProgressDialog();
+					} else {
+						mainListViewAdapter.notifyDataSetChanged();
+						mainListView.onRefreshComplete();
+					}
+				} else {
+					Toast.makeText(getApplicationContext(),
+							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
+							.show();
+					Log.v(TAG, "Error: " + e.getMessage());
+				}
+			}
+		});	
 	}
 
 	@Override
@@ -354,19 +379,6 @@ public class GalleryActivity extends Activity {
 		}
 	}
 
-	private void captureImage(){
-		Log.v(TAG, "Now creating output file directory for image captured");
-		profileImageUri = CameraUtils.getOutputMediaFileUri(CameraUtils.MEDIA_TYPE_IMAGE, getPackageName());
-
-		SharedPrefMgr.setString(getApplicationContext(), "profileImageUri", profileImageUri.toString());
-
-		Log.v(TAG, "profileImageUri = " +  profileImageUri);
-		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, profileImageUri);
-		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-		startActivityForResult(intent, GalleryActivity.CAPTURE_CAMERA_CODE);
-	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v(TAG, "onActivityResult=====>>>>>>>>>>");
@@ -420,13 +432,13 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void loadEventsInListView() {
-		Images = new ArrayList<MyImageItem>();
-		Log.v(TAG, "Eventsize here = " + EventS.size());
-
-		// Find the ListView resource.
-		mainListView = (ListView) findViewById(R.id.listEvents);
-		mainListView.setEmptyView(findViewById(R.id.txtEventsEmpty));
-		//((TextView) findViewById(R.id.lstInvitesEmpty)).setText("You currently have no recorded farts yet.");
+		if(Images != null){
+			Images.clear();
+		} else{
+			Images = new ArrayList<MyImageItem>();	
+		}
+		
+		Log.v(TAG, "Eventsize here = " + EventS.size());		
 
 		for (Event event : EventS) {
 			
@@ -478,9 +490,11 @@ public class GalleryActivity extends Activity {
 		}
 
 		// Set our custom array adapter as the ListView's adapter.
-		MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
-		mainListView.setAdapter(adapter);
-
+		//MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
+		if(mainListViewAdapter == null){
+			mainListViewAdapter = new MyImageAdapter(GalleryActivity.this, Images);
+			mainListView.setAdapter(mainListViewAdapter);
+		}		
 	}
 	
 	private void resetParseUserEvents() {

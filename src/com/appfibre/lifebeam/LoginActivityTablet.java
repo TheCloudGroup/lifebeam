@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -306,7 +307,10 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		View currFocus = getCurrentFocus();
+		if(currFocus != null && currFocus.getWindowToken() != null){
+		    imm.hideSoftInputFromWindow(currFocus.getWindowToken(), 0);		
+		}		
 		return true;
 	}
 

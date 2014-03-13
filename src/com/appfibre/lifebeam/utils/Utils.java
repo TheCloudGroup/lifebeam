@@ -19,11 +19,9 @@ public class Utils {
 	}
 
 	public static void hideProgressDialog(){
-		if(pDialog != null){
-			if(pDialog.isShowing()){
-				pDialog.dismiss();
-				pDialog = null;
-			}
+		if(pDialog != null && pDialog.isShowing()){			
+			pDialog.dismiss();
+			pDialog = null;
 		}
 	}
 
