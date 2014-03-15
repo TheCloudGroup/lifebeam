@@ -273,25 +273,24 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 					eventUser.getString("firstName") + " " + eventUser.getString("lastName") : 
 						eventUser.getString("name");
 
-					((TextView) view.findViewById(R.id.eventAuthor)).setText(owner);
-					((TextView) view.findViewById(R.id.eventTitle)).setText(event.getContent());
+			((TextView) view.findViewById(R.id.eventAuthor)).setText(owner);
+			((TextView) view.findViewById(R.id.eventTitle)).setText(event.getContent());
 
-					Date datE = event.getCreatedAt();
-					SimpleDateFormat dfDate = new SimpleDateFormat("MM/dd/yyyy");
-					String date = dfDate.format(datE);
+			Date datE = event.getCreatedAt();
+			SimpleDateFormat dfDate = new SimpleDateFormat("MM/dd/yyyy");
+			String date = dfDate.format(datE);
 
-					((TextView) view.findViewById(R.id.eventDate)).setText(date);
+			((TextView) view.findViewById(R.id.eventDate)).setText(date);
 
-					ImageView imageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
-					ImageLoader imageLoader = new ImageLoader(SlideShowActivity.this);
-					imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
+			ImageView imageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
+			ImageLoader imageLoader = new ImageLoader(SlideShowActivity.this);
+			imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
 
-					mViewFlipper.addView(view);
-					Log.v(TAG, "just added a view here=============");
+			mViewFlipper.addView(view);
+			Log.v(TAG, "just added a view here=============");
 
 		}
 		Utils.hideProgressDialog();
-
 	}
 
 	@Override
@@ -360,40 +359,36 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 
 		case R.id.imgGoToFirst:
 			Log.v(TAG, "now go to first event");
-			thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);
-			mViewFlipper.setDisplayedChild(0);
-			mViewFlipper.setAutoStart(true);
-			mViewFlipper.setFlipInterval(4000);
-			mViewFlipper.startFlipping();
+			//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);
+			mViewFlipper.setDisplayedChild(0);			
+			mViewFlipper.stopFlipping();
+			mViewFlipper.setAutoStart(false);
+			//mViewFlipper.setFlipInterval(4000);
+			//mViewFlipper.startFlipping();
 			break;
 
 		case R.id.imgGoToLast:
 			Log.v(TAG, "now go to last event");
-			thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);
+			//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);
 			mViewFlipper.setDisplayedChild(eventCount - 1);
-			mViewFlipper.setAutoStart(true);
-			mViewFlipper.setFlipInterval(4000);
-			mViewFlipper.startFlipping();
+			mViewFlipper.stopFlipping();
+			mViewFlipper.setAutoStart(false);
+			//mViewFlipper.setFlipInterval(4000);
+			//mViewFlipper.startFlipping();
 			break;
 
 		case R.id.imgGoToPrev:
-			//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);	
-			if(--currentDisplayed > -1){
-				mViewFlipper.setDisplayedChild(currentDisplayed);
-				mViewFlipper.setAutoStart(true);
-				mViewFlipper.setFlipInterval(4000);
-				mViewFlipper.startFlipping();
-			}			
+			//display previous image or go to the last image if first image is reached.
+			mViewFlipper.stopFlipping();
+			mViewFlipper.setAutoStart(false);						
+			mViewFlipper.showPrevious();
 			break;
 
 		case R.id.imgGoToNext:
-			//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.GONE);		
-			if(++currentDisplayed < eventCount){
-				mViewFlipper.setDisplayedChild(currentDisplayed);
-				mViewFlipper.setAutoStart(true);
-				mViewFlipper.setFlipInterval(4000);
-				mViewFlipper.startFlipping();
-			}			
+			//display next image or go to the first image if last image is reached 
+			mViewFlipper.stopFlipping();
+			mViewFlipper.setAutoStart(false);						
+			mViewFlipper.showNext();
 			break;	
 		default:
 			break;

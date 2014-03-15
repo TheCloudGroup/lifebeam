@@ -23,16 +23,11 @@ public class LifebeamApp extends Application{
 	
 	
 	public void onCreate() {
-		
 		ParseObject.registerSubclass(Event.class);
 		ParseObject.registerSubclass(Family.class);
 		ParseObject.registerSubclass(Invitee.class);
-		
-		Parse.initialize(this, PARSE_APPLICATION_ID, PARSE_CLIENT_KEY);
-		
-		ParseFacebookUtils.initialize(getResources().getString(R.string.fbAppID));
-		
-		
+		Parse.initialize(this, PARSE_APPLICATION_ID, PARSE_CLIENT_KEY);		
+		ParseFacebookUtils.initialize(getResources().getString(R.string.fbAppID));			
 	}
 
 
