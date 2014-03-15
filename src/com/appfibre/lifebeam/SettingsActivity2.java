@@ -91,8 +91,7 @@ public class SettingsActivity2 extends PreferenceActivity{
 
 		        dialog.setContentView(R.layout.dialog_resetpassword);
 				final TextView email    = (TextView)dialog.findViewById(R.id.resetPasswordEmail);
-				final TextView cEmail   = (TextView)dialog.findViewById(R.id.resetPasswordEmailConfirm);
-
+				
 	            // Set dialog title
 	            dialog.setTitle("Reset Password");
 
@@ -101,30 +100,24 @@ public class SettingsActivity2 extends PreferenceActivity{
 	                @Override
 	                public void onClick(View v) {
 	                	String sEmail = email.getText().toString();
-	                	String sCemail = cEmail.getText().toString();
 	                	String sessionEmail = Session.getInstance().getUserName(SettingsActivity2.this);
-	                	if(sEmail.equals(sCemail)){
-	                		if(sessionEmail != null && sessionEmail.equals(sEmail)){
-	                			Utils.showProgressDialog(SettingsActivity2.this, "Sending reset password instructions");
-		                		ParseUser.requestPasswordResetInBackground(sEmail,
-		                                new RequestPasswordResetCallback() {
-									public void done(ParseException e) {
-										if (e == null) {
-											Utils.hideProgressDialog();
-					                		Toast.makeText(SettingsActivity2.this, "Password reset instructions sent!", Toast.LENGTH_LONG).show();
-					                		dialog.dismiss();
-										} else {
-											Toast.makeText(SettingsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-										}
+                		if(sessionEmail != null && sessionEmail.equals(sEmail)){
+                			Utils.showProgressDialog(SettingsActivity2.this, "Sending reset password instructions");
+	                		ParseUser.requestPasswordResetInBackground(sEmail,
+	                                new RequestPasswordResetCallback() {
+								public void done(ParseException e) {
+									if (e == null) {
+										Utils.hideProgressDialog();
+				                		Toast.makeText(SettingsActivity2.this, "Password reset instructions sent!", Toast.LENGTH_LONG).show();
+				                		dialog.dismiss();
+									} else {
+										Toast.makeText(SettingsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
 									}
-								});
-	                		} else {
-		                		Toast.makeText(SettingsActivity2.this, "Email does not match currently logged in user.", Toast.LENGTH_LONG).show();
-	                		}
-	                		
-	                	} else {
-	                		Toast.makeText(SettingsActivity2.this, "Email does not match", Toast.LENGTH_LONG).show();
-	                	}	                	
+								}
+							});
+                		} else {
+	                		Toast.makeText(SettingsActivity2.this, "Email does not match currently logged in user.", Toast.LENGTH_LONG).show();
+                		}                    	
 	                }
 	            });
 	            
