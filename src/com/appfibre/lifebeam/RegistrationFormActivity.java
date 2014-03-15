@@ -4,12 +4,16 @@
 package com.appfibre.lifebeam;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.Utils;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -234,10 +238,21 @@ public class RegistrationFormActivity extends Activity {
 							showProgress(false);
 							if(loggedInUser != null){//successfully logged in        						
 
-								//go to the dashboard
-								//showProgress(false);
-								//Intent myIntent = new Intent(RegisterActivity.this, DashboardFeedActivity.class);
-								//startActivity(myIntent);
+								HashMap<String, String> params =  new HashMap<String, String>();
+								params.put("email", mEmailAddress);
+								params.put("name", mFirstName);
+								
+								//send confirmation email to user
+								ParseCloud.callFunctionInBackground("sendConfirmationEmail", params, new FunctionCallback<String>() {
+								  public void done(String result, ParseException e) {
+								    if (e == null) {
+								      Log.v(getClass().getName(), "Confirmation email sent.");
+								    } else{
+								      Log.e(getClass().getName(), e.getMessage());	
+								    }
+								  }
+								});
+																
 								Session session = Session.getInstance();
 								session.setSessionId(getApplicationContext(), loggedInUser.getSessionToken());
 								session.setUserName(getApplicationContext(), mEmailAddress);
