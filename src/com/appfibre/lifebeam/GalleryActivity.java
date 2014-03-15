@@ -124,7 +124,7 @@ public class GalleryActivity extends Activity {
 		queryEvents.include("author");
 		queryEvents.findInBackground(new FindCallback<Event>() {
 			public void done(List<Event> Events, ParseException e) {
-				
+				EventS.clear();
 				if (e == null) {
 					for (Event event : Events) {
 						Log.v(TAG, "just printing contents of events here content = " + event.getContent());

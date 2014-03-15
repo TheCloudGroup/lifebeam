@@ -3,7 +3,6 @@
  */
 package com.appfibre.lifebeam;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,16 +20,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -39,10 +35,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appfibre.lifebeam.utils.MyContactItem3;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.parse.ParseUser;
 
 /**
@@ -58,9 +50,6 @@ public class InviteActivity extends Activity  implements OnClickListener{
 	private MyContactsAdapter mainListViewAdapter;
 	private ListView contactListView;
 	private ArrayList<MyContactItem3> contactData = new ArrayList<MyContactItem3>();
-	//private ArrayList<MyContactItem3> ContactsHolder = new ArrayList<MyContactItem3>();
-	private int iListPage;
-	private final static int ITEM_PER_LIST_PAGE = 15;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,20 +65,6 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		ab.setDisplayUseLogoEnabled(false);
 
 		// Find the ListView resource.
-		contactListView = (ListView) findViewById(R.id.lstInviteView);
-		//contactListView.setMode(Mode.BOTH);
-
-		// Set a listener to be invoked when the list should be refreshed.
-		/*contactListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
-
-			@Override
-			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-
-				// Do work to refresh the list here.
-				new GetDataTask().execute();
-
-			}
-		});*/
 
 		// Set our custom array adapter as the ListView's adapter.
 		mainListViewAdapter = new MyContactsAdapter(InviteActivity.this, contactData);
@@ -188,8 +163,6 @@ public class InviteActivity extends Activity  implements OnClickListener{
 	}
 
 	class LoadContacts extends AsyncTask<Void, MyContactItem3, Void> {
-
-		private int iCountDisplayedListItems = 0;
 		private ProgressDialog progressDialog;
 
 		@Override
@@ -206,44 +179,18 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 		@Override
 		protected Void doInBackground(Void... params) {
-
-			//------------------------
-			//String[] projection = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.HAS_PHONE_NUMBER};
-			//String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1";
-
 			String[] projection = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.HAS_PHONE_NUMBER};
-			//String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1";
-
 			Cursor cursor = null;
 			Cursor photos = null;
 			Cursor emails = null;
-			//String phoneNumber = "";
-			//interest = new String[500];
+
 			try {
 				ContentResolver cr = getContentResolver();
 				cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, projection, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
 
 				while (cursor.moveToNext()) {           
 					String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-					String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));
-
-					/*phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId,null, null);
-					while (phones.moveToNext()) {               
-						phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
-						phoneNumber = phoneNumber.replaceAll("\\s", "");
-						Log.v(TAG, "username = " + name + 
-								" mobilephone = " + phoneNumber + 
-								" contactid = " + contactId);
-						MyContactItem3 contact = new MyContactItem3(name, phoneNumber, contactId, !isSelected);
-						if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
-							publishProgress(contact);
-							iCountDisplayedListItems++;
-						} else {
-							iListPage = 1;
-						}
-						ContactsHolder.add(contact);
-
-					}*/   
+					String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));  
 
 					emails = getContentResolver().query(
 							ContactsContract.CommonDataKinds.Email.CONTENT_URI, 
@@ -291,13 +238,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 							" contactid = " + contactId +
 							" imageUri = " + imageURI);
 					MyContactItem3 contact = new MyContactItem3(name, emailAddress, contactId, imageURI, isSelected);
-					//if (iCountDisplayedListItems < ITEM_PER_LIST_PAGE) {
-						publishProgress(contact);
-					//	iCountDisplayedListItems++;
-					//} else {
-					//	iListPage = 1;
-					//}
-					//ContactsHolder.add(contact);
+				    publishProgress(contact);
 				}  
 			} catch (NullPointerException npe) {
 				Log.e(TAG, "Error trying to get Contacts.");
@@ -341,11 +282,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 		private Context context;
 		private List<MyContactItem3> contacts;
-		private MyContactItem3 contact;
 		private String TAG = "MyContactsAdapter";
-		private ArrayList<Boolean> checkboxstate;
-		private List<MyContactItem3> checkedContacts;
-		private List<Integer> checkedPositions;
 
 
 		public MyContactsAdapter(Context context, ArrayList<MyContactItem3> contacts) {
@@ -408,28 +345,8 @@ public class InviteActivity extends Activity  implements OnClickListener{
 					@Override
 					public void onClick(View v) {
 						CheckBox cb = (CheckBox) v ; 
-						MyContactItem3 contact = (MyContactItem3) cb.getTag();
-						
+						MyContactItem3 contact = (MyContactItem3) cb.getTag();						
 						contact.setSelected(cb.isChecked());
-
-						/*Toast.makeText(getApplicationContext(),
-								"Clicked on Checkbox: " + contact.getContactName() +
-								" is " + cb.isChecked(),
-								Toast.LENGTH_LONG).show();*/
-
-						/*StringBuffer responseText = new StringBuffer();
-						responseText.append("The following were selected...\n");
-
-						for(int i=0; i<adapter.getCount(); i++){
-							MyContactItem3 contactitem = (MyContactItem3) getItem(i);
-							if(contactitem.isSelected()){
-								responseText.append("\n" + contactitem.getContactName());
-							}
-						}
-
-						Toast.makeText(getApplicationContext(),
-								responseText, Toast.LENGTH_LONG).show();*/
-
 					}
 				});
 
@@ -448,80 +365,11 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 			return convertView;
 		}
-
-		/**
-		 * Loads the data. 
-		 */
-		/*public void loadData() {
-
-			// Here add your code to load the data for example from a webservice or DB
-			if (mainListViewAdapter.getCount() < ContactsHolder.size()) {
-				Log.v(TAG, "adapter.getcount = " + mainListViewAdapter.getCount());
-				int iLoopStart = iListPage*ITEM_PER_LIST_PAGE;
-				int iLoopEnd = (iListPage + 1)*ITEM_PER_LIST_PAGE > ContactsHolder.size() ? ContactsHolder.size() : (iListPage + 1)*ITEM_PER_LIST_PAGE; 
-				Log.v(TAG, "loop start = " + iLoopStart);
-				Log.v(TAG, "end loop = " + iLoopEnd);
-
-				for (int i = iLoopStart; i < iLoopEnd; i++) {
-					Log.v(TAG, "i = " + i);
-					Log.v(TAG, "add this contactsholder = " + ContactsHolder.get(i).toString());
-					mainListViewAdapter.add(ContactsHolder.get(i));
-				}	
-				iListPage++;
-				//adapter.resetCheckBoxesState();
-			}
-		}*/
-
+		
 		public void add(MyContactItem3 myContactItem3) {
 			contacts.add(myContactItem3);
 
 		}
-	}
-
-	/*private class GetDataTask extends AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			mainListViewAdapter.loadData();
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void ret) {
-			mainListViewAdapter.notifyDataSetChanged();
-
-			// Call onRefreshComplete when the list has been refreshed.
-			contactListView.onRefreshComplete();
-			super.onPostExecute(null);
-		}
-	}*/
-
-	private void LoadContactsTest() {
-		Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null); 
-		while (cursor.moveToNext()) { 
-			String contactId = cursor.getString(cursor.getColumnIndex( 
-					ContactsContract.Contacts._ID)); 
-			String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)); 
-			if (Boolean.parseBoolean(hasPhone)) { 
-				// You know it has a number so now query it like this
-				Cursor phones = getContentResolver().query( ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId, null, null); 
-				while (phones.moveToNext()) { 
-					String phoneNumber = phones.getString(phones.getColumnIndex( ContactsContract.CommonDataKinds.Phone.NUMBER));                 
-					Log.v(TAG, "phoneNumber = " + phoneNumber);
-				} 
-				phones.close(); 
-			}
-
-			Cursor emails = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null); 
-			while (emails.moveToNext()) { 
-				// This would allow you get several email addresses 
-				String emailAddress = emails.getString( 
-						emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-				Log.v(TAG, "emailAddress = " + emailAddress);
-			} 
-			emails.close();  
-		}
-		cursor.close(); 
 	}
 
 	public static void sendEmail(Context context, String[] recipientList,
