@@ -36,6 +36,10 @@
             android:key="listpref"
             android:summary="Select speed of Event slideshow"
             android:title="Transition Speed" />
+        <Preference
+            android:key="passwordReset"
+            android:summary="Reset your existing password"
+            android:title="Reset Password" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -17,8 +17,9 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:orientation="horizontal"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginTop="400dp"
         android:layout_marginBottom="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
@@ -50,7 +51,7 @@
                 android:textAlignment="center"
                 android:paddingLeft="10dp"
                 android:paddingTop="5dp"
-                android:text="Title Sample Here"
+                android:text="Some Content"
                 android:textColor="@color/Grey5"
                 android:textSize="36sp"
                 android:textStyle="bold" />
@@ -187,25 +188,39 @@
             android:orientation="horizontal" >
 
             <ImageView
-                android:id="@+id/imgGoToFirst"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/go_to_first" />
+                        android:id="@+id/imgGoToFirst"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_rew" />
 
-            <ImageView
-                android:id="@+id/imgPlay"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/play" />
+                    <ImageView
+                        android:id="@+id/imgGoToPrev"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_previous" />
+                    
+                    <ImageView
+                        android:id="@+id/imgPlay"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_play" />
 
-            <ImageView
-                android:id="@+id/imgGoToLast"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/go_to_last" />
+                    <ImageView
+                        android:id="@+id/imgGoToNext"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_next" />
+                    
+                    <ImageView
+                        android:id="@+id/imgGoToLast"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_media_ff" />
         </LinearLayout>
 
         <LinearLayout

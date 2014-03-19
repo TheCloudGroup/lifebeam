@@ -6,6 +6,7 @@ package com.appfibre.lifebeam;
 import java.util.List;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -16,11 +17,15 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.text.Html;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.View;
+
 
 import com.appfibre.lifebeam.classes.Family;
+import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.appfibre.lifebeam.utils.Utils;
 import com.parse.FindCallback;
@@ -31,7 +36,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
+import com.parse.RequestPasswordResetCallback;
 public class SettingsActivity2 extends PreferenceActivity{
 	
 	private String TAG = "SettingsActivity2";
@@ -76,6 +81,56 @@ public class SettingsActivity2 extends PreferenceActivity{
 				dlgAlert.setCancelable(true);
 				dlgAlert.create().show();
 				return true;
+			}
+		});
+		
+		Preference passwordReset = (Preference)findPreference("passwordReset");
+		passwordReset.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) { 
+				final Dialog dialog = new Dialog(SettingsActivity2.this);
+
+		        dialog.setContentView(R.layout.dialog_resetpassword);
+				final TextView email    = (TextView)dialog.findViewById(R.id.resetPasswordEmail);
+				
+	            // Set dialog title
+	            dialog.setTitle("Reset Password");
+
+	            Button resetBtn = (Button) dialog.findViewById(R.id.resetPasswordResetBtn);
+	            resetBtn.setOnClickListener(new View.OnClickListener() {
+	                @Override
+	                public void onClick(View v) {
+	                	String sEmail = email.getText().toString();
+	                	String sessionEmail = Session.getInstance().getUserName(SettingsActivity2.this);
+                		if(sessionEmail != null && sessionEmail.equals(sEmail)){
+                			Utils.showProgressDialog(SettingsActivity2.this, "Sending reset password instructions");
+	                		ParseUser.requestPasswordResetInBackground(sEmail,
+	                                new RequestPasswordResetCallback() {
+								public void done(ParseException e) {
+									if (e == null) {
+										Utils.hideProgressDialog();
+				                		Toast.makeText(SettingsActivity2.this, "Password reset instructions sent!", Toast.LENGTH_LONG).show();
+				                		dialog.dismiss();
+									} else {
+										Toast.makeText(SettingsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+									}
+								}
+							});
+                		} else {
+	                		Toast.makeText(SettingsActivity2.this, "Email does not match currently logged in user.", Toast.LENGTH_LONG).show();
+                		}                    	
+	                }
+	            });
+	            
+	            Button cancelBtn = (Button) dialog.findViewById(R.id.resetPasswordCancelBtn);
+	            cancelBtn.setOnClickListener(new View.OnClickListener() {
+	                @Override
+	                public void onClick(View v) {
+	                    dialog.dismiss();
+	                }
+	            });
+	            dialog.show();
+		        return true;
 			}
 		});
 		
