@@ -175,39 +175,48 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 				break;
 	
 			case R.id.llySplendidHolder:
-				Log.v(TAG, "event id for adding to splendid is = " + v.getTag());
-				if (SharedPrefMgr.getBool(SlideShowActivity.this, 
-						"hasSplendid_" + v.getTag().toString())) {
-					Toast.makeText(getApplicationContext(),
-							"You have already marked this as splendid.", Toast.LENGTH_LONG)
-							.show();
-					return;
-				}
-				ParseObject event = ParseObject.createWithoutData("Event", (String) v.getTag());
-				event.increment("splendidCount");
-				event.saveInBackground(new SaveCallback() {
-					@Override
-					public void done(ParseException e) {
-						if (e == null) {
-							Toast.makeText(getApplicationContext(),
-									"Just splenderized this event", Toast.LENGTH_LONG)
-									.show();
-							SharedPrefMgr.setBool(SlideShowActivity.this, 
-									"hasSplendid_" + v.getTag().toString(), true);
-							//Log.v(TAG, "new splendid count is now " + event.getSplendidCount());
-						} else {
-							Toast.makeText(getApplicationContext(),
-									"Error in splenderizing this event. Error: " + e.getMessage(), Toast.LENGTH_LONG)
-									.show();
+                boolean hasSplendid = SharedPrefMgr.getBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString());
+				if( hasSplendid ){
+					Toast.makeText(getApplicationContext(), "You have already marked this as splendid.", Toast.LENGTH_LONG).show();
+				} else {
+					final ParseObject eventSplendid = ParseObject.createWithoutData("Event", (String) v.getTag());
+					eventSplendid.increment("splendidCount");
+					eventSplendid.saveInBackground(new SaveCallback() {
+						@Override
+						public void done(ParseException e) {
+							if (e == null) {
+								Toast.makeText(getApplicationContext(), "Just splenderized this event", Toast.LENGTH_LONG).show();
+								SharedPrefMgr.setBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString(), true);
+								((TextView)findViewById(R.id.txtSplendidCount)).setText(String.valueOf(eventSplendid.getInt("splendidCount")));
+							} else {
+								Toast.makeText(getApplicationContext(), "Error in splenderizing this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+							}
 						}
-					}
-				});
+					});
+				}								
 				break;
 	
 			case R.id.llyRazzleHolder:
-				Log.v(TAG, "event id for adding to razzle is = " + v.getTag());
-				break;
-	
+				boolean hasRazzle = SharedPrefMgr.getBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString());
+				if( hasRazzle ){
+					Toast.makeText(getApplicationContext(), "You have already Razzle Dazzled this event.", Toast.LENGTH_LONG).show();
+				} else {
+					final ParseObject eventRazzle = ParseObject.createWithoutData("Event", (String) v.getTag());
+					eventRazzle.increment("razzleCount");
+					eventRazzle.saveInBackground(new SaveCallback() {
+						@Override
+						public void done(ParseException e) {
+							if (e == null) {
+								Toast.makeText(getApplicationContext(), "Razzle dazzled this event", Toast.LENGTH_LONG).show();
+								SharedPrefMgr.setBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString(), true);
+								((TextView)findViewById(R.id.txtRazzleCount)).setText(String.valueOf(eventRazzle.getInt("razzleCount")));
+							} else {
+								Toast.makeText(getApplicationContext(), "Error in razzle dazzling this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+							}
+						}
+					});
+				}				
+				break;	
 			case R.id.txtDeletePhoto:
 				Log.v(TAG, "event id for deleting this event is  = " + v.getTag());
 				break;

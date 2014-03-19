@@ -146,37 +146,7 @@
                     android:padding="7dp"
                     android:text="10"
                     android:textColor="@color/White" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/llySmileyHolder"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:src="@drawable/smiley" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="7"
-                    android:padding="7dp"
-                    android:text="You made me smile"
-                    android:textColor="@color/White" />
-
-                <TextView
-                    android:id="@+id/txtSmileyCount"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:padding="7dp"
-                    android:text="10"
-                    android:textColor="@color/White" />
-            </LinearLayout>
+            </LinearLayout>           
         </LinearLayout>
 
         <LinearLayout
