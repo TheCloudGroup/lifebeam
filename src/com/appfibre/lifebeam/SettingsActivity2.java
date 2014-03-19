@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.text.Html;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -54,7 +55,7 @@ public class SettingsActivity2 extends PreferenceActivity{
 			public boolean onPreferenceClick(Preference arg0) { 
 				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsActivity2.this);
 
-				dlgAlert.setMessage("This will contain terms and coditions here");
+				dlgAlert.setMessage(Html.fromHtml(getString(R.string.terms_and_conditions)));
 				dlgAlert.setTitle("Terms and Conditions");
 				dlgAlert.setPositiveButton("OK", null);
 				dlgAlert.setCancelable(true);
