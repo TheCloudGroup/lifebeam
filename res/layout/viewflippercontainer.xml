@@ -4,8 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-
-    <ImageView
+   	<ImageView
         android:id="@+id/imgeventPhoto"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -14,25 +13,23 @@
 		android:scaleType="fitCenter"
         android:src="@drawable/pix1" />
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="400dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:background="#80FFFFFF" >
-
+   	<LinearLayout
+	        android:layout_width="fill_parent"
+	        android:orientation="horizontal"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="15dp"
+	        android:layout_marginLeft="15dp"
+	        android:layout_marginRight="15dp">
+	
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:layout_gravity="bottom" >
 
             <TextView
                 android:id="@+id/eventAuthor"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingLeft="10dp"
@@ -40,7 +37,8 @@
                 android:text="Peter"
                 android:textColor="@color/lifebeamBlue"
                 android:textSize="36sp"
-                android:textStyle="bold" />
+                android:textStyle="bold" 
+                android:background="#80FFFFFF"/>
 
             <TextView
                 android:id="@+id/eventTitle"
@@ -54,6 +52,8 @@
                 android:text="Some Content"
                 android:textColor="@color/Grey5"
                 android:textSize="36sp"
+                
+                android:background="#80FFFFFF"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -65,7 +65,7 @@
         <TextView
             android:id="@+id/eventDate"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="right|center_vertical"
             android:orientation="horizontal"
             android:padding="10dp"
@@ -73,7 +73,6 @@
             android:textColor="@color/lifebeamBlue"
             android:textSize="20sp" />
     </LinearLayout>
-    
     <LinearLayout
         android:id="@+id/llyNavigationHolder"
         android:layout_width="fill_parent"
