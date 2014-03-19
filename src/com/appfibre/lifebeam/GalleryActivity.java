@@ -458,14 +458,14 @@ public class GalleryActivity extends Activity {
 			
 			int razzleCount = 0;
 			try {
-				razzleCount = Integer.parseInt(event.getRazzleCount());
+				razzleCount = event.getRazzleCount();
 			} catch (Exception e) {
 				Log.v(TAG, "Error in extracting razzeCount: " + e.getMessage());
 			}
 			
 			int splendidCount = 0;
 			try {
-				splendidCount = Integer.parseInt(event.getRazzleCount());
+				splendidCount = event.getRazzleCount();
 			} catch (Exception e) {
 				Log.v(TAG, "Error in extracting splendidCount: " + e.getMessage());
 			}

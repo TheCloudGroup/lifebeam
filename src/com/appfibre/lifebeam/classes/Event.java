@@ -64,30 +64,26 @@ public class Event extends ParseObject{
 		put("family", family);
 	}
 	
-	public String getSplendidCount() {
-		return getString("splendidCount");
+	public Integer getSplendidCount() {
+		Integer val = getInt("splendidCount");
+		return val != null ? val : 0;
 	}
 
-	public void setSplendidCount(String splendidCount) {
+	public void setSplendidCount(Integer splendidCount) {
+		splendidCount = splendidCount != null ? splendidCount : 0;
 		put("splendidCount", splendidCount);
 	}
 	
-	public String getRazzleCount() {
-		return getString("razzleCount");
+	public Integer getRazzleCount() {
+		Integer val = getInt("razzleCount");
+		return val != null ? val : 0;
 	}
 
-	public void setRazzleCount(String razzleCount) {
+	public void setRazzleCount(Integer razzleCount) {
+		razzleCount = razzleCount != null ? razzleCount : 0;
 		put("razzleCount", razzleCount);
 	}
 	
-	public String getSmileyCount() {
-		return getString("smileyCount");
-	}
-
-	public void setSmileyCount(String smileyCount) {
-		put("smileyCount", smileyCount);
-	}
-
 }
 
 
