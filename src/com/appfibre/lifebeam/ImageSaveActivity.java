@@ -25,6 +25,7 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -92,28 +93,19 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 		// TODO Auto-generated method stub
 		super.onWindowFocusChanged(hasFocus);
 		Log.v(TAG, "now in onWindowFocusChanged here ===================");
-		int width = imgPhoto.getWidth();
-		int height = imgPhoto.getHeight();
-		BitmapFactory.Options factoryOptions = new BitmapFactory.Options();
 		if (profileImageUri != null) {
-			factoryOptions.inJustDecodeBounds = true; BitmapFactory.decodeFile(profileImageUri.getPath(),
-					factoryOptions);
-			int imageWidth = factoryOptions.outWidth; int imageHeight = factoryOptions.outHeight;
-			// Determine how much to scale down the image
-			int scaleFactor = Math.min(imageWidth/width, imageHeight/height);
-			// Decode the image file into a Bitmap sized to fill the View
-			factoryOptions.inJustDecodeBounds = false; factoryOptions.inSampleSize = scaleFactor; factoryOptions.inPurgeable = true;
-			Bitmap bitmap = BitmapFactory.decodeFile(profileImageUri.getPath(),
-					factoryOptions);
-			origbitmap = BitmapFactory.decodeFile(profileImageUri.getPath(),
-					factoryOptions);
-			imgPhoto.setImageBitmap(bitmap);
-			hasNoImage = false;
-			findViewById(R.id.imgRotatePhoto).setVisibility(View.VISIBLE);
+			hasNoImage = !CameraUtils.setImageToView(imgPhoto, profileImageUri.getPath());			
+			if(!hasNoImage){
+				origbitmap = ((BitmapDrawable)imgPhoto.getDrawable()).getBitmap();
+				findViewById(R.id.imgRotatePhoto).setVisibility(View.VISIBLE);
+			} else {
+				findViewById(R.id.imgRotatePhoto).setVisibility(View.GONE);
+			}	
 		} else {
 			hasNoImage = true;
 			findViewById(R.id.imgRotatePhoto).setVisibility(View.GONE);
 		}
+
 	}
 
 	Uri outputFileUri;
@@ -306,16 +298,18 @@ public class ImageSaveActivity extends Activity  implements OnClickListener{
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {		
 		Log.v(TAG, "onActivityResult profileImageUri = " +  profileImageUri);
 		profileImageUri = null;
+		String imagePath = null;
+
 		if(resultCode == RESULT_OK){
 			switch(requestCode) {
 				case ImageSaveActivity.CAPTURE_CAMERA_CODE:
-					String strProfileImageUri = SharedPrefMgr.getString(getApplicationContext(), "profileImageUri");
-					profileImageUri = Uri.parse(strProfileImageUri);
+					imagePath = SharedPrefMgr.getString(getApplicationContext(), "profileImageUri");					
+					profileImageUri = Uri.parse(imagePath);
 					break;
 				case ImageSaveActivity.GALLERY_CODE:
 					Uri selectedImageUri = data.getData();
-					String photoPath = CameraUtils.getPath(ImageSaveActivity.this,selectedImageUri);
-					profileImageUri = Uri.parse(photoPath);
+					imagePath = CameraUtils.getPath(ImageSaveActivity.this,selectedImageUri);
+					profileImageUri = Uri.parse(imagePath);
 					break;
 				default:
 					break;

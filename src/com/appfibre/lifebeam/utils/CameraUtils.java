@@ -2,7 +2,9 @@ package com.appfibre.lifebeam.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,12 +18,14 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.ImageView;
 
 public class CameraUtils {
 
@@ -257,5 +261,60 @@ public class CameraUtils {
      */
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+    
+    /**
+     * Code from http://stackoverflow.com/a/18959674/327428. Sets the image thumbNail in
+     * the image view imageView. Makes sure that the image is not rotated and displayed according
+     * to how it was taken.
+     *
+     * @param imageView the ImageView element where the thumbNail image will be displayed
+     * @param imagePath the location of the thumbNail image. Used to retrieve the orientation of the
+     *                  image
+     */
+    public static boolean setImageToView(ImageView imageView, String imagePath){
+        boolean result = false;
+
+        if(imageView !=null && imagePath != null){
+            try {
+                ExifInterface exif = new ExifInterface(imagePath);
+                int orientation = exif.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL);
+
+                int angle = 0;
+
+                if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                    angle = 90;
+                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                    angle = 180;
+                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                    angle = 270;
+                }
+
+                Matrix mat = new Matrix();
+                mat.postRotate(angle);
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 4;
+
+                File f = new File(imagePath);
+                Bitmap bmp = BitmapFactory.decodeStream(new FileInputStream(f),
+                        null, options);
+                Bitmap bitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),
+                        bmp.getHeight(), mat, true);
+
+                ByteArrayOutputStream baOutStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100,
+                        baOutStream);
+                imageView.setImageBitmap(bitmap);
+                result = true;
+            } catch (IOException e) {
+                Log.w("setImageToView", "-- Error in setting image");
+            } catch (OutOfMemoryError oom) {
+                Log.w("setImageToView", "-- OOM Error in setting image");
+            }
+        }
+        return result;
     }
 }
