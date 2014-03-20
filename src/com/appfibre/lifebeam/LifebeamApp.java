@@ -43,9 +43,24 @@ public class LifebeamApp extends Application{
 	 * @param events the events to set
 	 */
 	public void setEvents(List<Event> events) {
-		Events = events;
+		if(Events != null){
+			Events.clear();
+		} else {
+			Events = new ArrayList<Event>();
+		}
+		Events.addAll(events);
 	}
-
-
-
+	
+	public Event getEvent(String objectId){
+		Event event = null;
+		if(Events != null && Events.size() > 0){
+			for(Event ev : Events){
+				if(ev.getObjectId().equals(objectId)){
+					event  = ev;
+					break;
+				}
+			}
+		}
+		return event;
+	}
 }

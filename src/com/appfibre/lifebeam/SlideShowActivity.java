@@ -159,6 +159,9 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(final View v) {
 		final View thisFlipView = mViewFlipper.getCurrentView();
+		LifebeamApp app = (LifebeamApp)getApplication();					
+	    Event event = app.getEvent((String)v.getTag());
+		
 		switch (v.getId()) {
 			case R.id.view_flipper:
 				Log.v(TAG, "detected a click here and trying to stop flipping and show llynavigationholder here");
@@ -176,21 +179,23 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 				if( hasSplendid ){
 					Toast.makeText(getApplicationContext(), "You have already marked this as splendid.", Toast.LENGTH_SHORT).show();
 				} else {
-					final Event eventSplendid = ParseObject.createWithoutData(Event.class, (String) v.getTag());
-					final int currentSplendidCount = eventSplendid.getSplendidCount();
-					((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText(String.valueOf(currentSplendidCount+1));
-					SharedPrefMgr.setBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString(), true);
-					eventSplendid.increment("splendidCount");
-					eventSplendid.saveInBackground(new SaveCallback() {
-						@Override
-						public void done(ParseException e) {
-							if (e != null) {
-								((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText(String.valueOf(currentSplendidCount));
-								SharedPrefMgr.setBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString(), false);
-								Toast.makeText(getApplicationContext(), "Error in splenderizing this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+					if(event != null){
+						final int currentSplendidCount = event.getSplendidCount();
+						((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText(String.valueOf(currentSplendidCount+1));
+						SharedPrefMgr.setBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString(), true);
+						event.increment("splendidCount");
+						event.saveInBackground(new SaveCallback() {
+							@Override
+							public void done(ParseException e) {
+								if (e != null) {
+									((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText(String.valueOf(currentSplendidCount));
+									SharedPrefMgr.setBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString(), false);
+									Toast.makeText(getApplicationContext(), "Error in splenderizing this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+								}
 							}
-						}
-					});
+						});
+					}
+					
 				}								
 				break;
 			case R.id.llyRazzleHolder:
@@ -198,21 +203,22 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 				if( hasRazzle ){
 					Toast.makeText(getApplicationContext(), "You have already Razzle Dazzled this event.", Toast.LENGTH_SHORT).show();
 				} else {
-					final Event eventRazzle = ParseObject.createWithoutData(Event.class, (String) v.getTag());
-					final int currentRazzleCount = eventRazzle.getRazzleCount();
-					((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText(String.valueOf(currentRazzleCount+1));
-					SharedPrefMgr.setBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString(), true);
-					eventRazzle.increment("razzleCount");
-					eventRazzle.saveInBackground(new SaveCallback() {
-						@Override
-						public void done(ParseException e) {
-							if (e != null) {
-								((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText(String.valueOf(currentRazzleCount));
-								SharedPrefMgr.setBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString(), false);
-								Toast.makeText(getApplicationContext(), "Error in razzle dazzling this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+					if(event != null){
+						final int currentRazzleCount = event.getRazzleCount();
+						((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText(String.valueOf(currentRazzleCount+1));
+						SharedPrefMgr.setBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString(), true);
+						event.increment("razzleCount");
+						event.saveInBackground(new SaveCallback() {
+							@Override
+							public void done(ParseException e) {
+								if (e != null) {
+									((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText(String.valueOf(currentRazzleCount));
+									SharedPrefMgr.setBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString(), false);
+									Toast.makeText(getApplicationContext(), "Error in razzle dazzling this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+								}
 							}
-						}
-					});
+						});
+					}					
 				}				
 				break;	
 			case R.id.txtDeletePhoto:
