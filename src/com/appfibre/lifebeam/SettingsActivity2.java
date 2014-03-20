@@ -75,7 +75,7 @@ public class SettingsActivity2 extends PreferenceActivity{
 			public boolean onPreferenceClick(Preference arg0) { 
 				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsActivity2.this);
 
-				dlgAlert.setMessage("This will contain app privacy statements here");
+				dlgAlert.setMessage(Html.fromHtml(getString(R.string.privacy_policy)));
 				dlgAlert.setTitle("Privacy Statement");
 				dlgAlert.setPositiveButton("OK", null);
 				dlgAlert.setCancelable(true);
