@@ -70,7 +70,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		mainListViewAdapter = new MyContactsAdapter(InviteActivity.this, contactData);
 
 		//adapter.loadData();
-
+		contactListView = (ListView)findViewById(R.id.lstInviteView);
 		contactListView.setAdapter(mainListViewAdapter);
 		contactListView.setEmptyView(findViewById(R.id.lstInvitesEmpty));
 
