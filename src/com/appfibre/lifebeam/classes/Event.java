@@ -1,13 +1,13 @@
 package com.appfibre.lifebeam.classes;
 
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
+import com.appfibre.lifebeam.utils.Utils;
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 
 @ParseClassName("Event")
 public class Event extends ParseObject{
@@ -21,13 +21,13 @@ public class Event extends ParseObject{
 	}
 	
 	public String getDate() {
-		SimpleDateFormat dfDate = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat dfDate = Utils.getDateFormat();
 		Date date = getCreatedAt();
 		return dfDate.format(date);
 	}
 	
 	public String getTime() {
-		SimpleDateFormat dfTime = new SimpleDateFormat("hh:mm aa");
+		SimpleDateFormat dfTime = Utils.getTimeFormat();
 		Date date = getCreatedAt();
 		return dfTime.format(date);
 	}

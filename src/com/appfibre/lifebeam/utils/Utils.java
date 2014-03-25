@@ -2,6 +2,8 @@ package com.appfibre.lifebeam.utils;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -40,5 +42,13 @@ public class Utils {
 			}
 		}
 		catch(Exception ex){}
+	}
+	
+	public static SimpleDateFormat getDateFormat(){
+		return new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+	}
+	
+	public static SimpleDateFormat getTimeFormat(){
+		return new SimpleDateFormat("hh:mm aa", Locale.US);
 	}
 }

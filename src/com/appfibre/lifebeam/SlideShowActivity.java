@@ -131,7 +131,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 			((TextView) view.findViewById(R.id.eventTitle)).setText(event.getContent());
 
 			Date datE = event.getCreatedAt();
-			SimpleDateFormat dfDate = new SimpleDateFormat("MM/dd/yyyy");
+			SimpleDateFormat dfDate = Utils.getDateFormat();
 			String date = dfDate.format(datE);
 
 			((TextView) view.findViewById(R.id.eventDate)).setText(date);

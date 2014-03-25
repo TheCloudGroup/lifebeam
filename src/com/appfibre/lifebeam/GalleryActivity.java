@@ -451,8 +451,8 @@ public class GalleryActivity extends Activity {
 			String family = ""; //hardcoded for now
 			
 			Date datE = event.getCreatedAt();
-			SimpleDateFormat dfDate = new SimpleDateFormat("MM/dd/yyyy");
-			SimpleDateFormat dfTime = new SimpleDateFormat("HH:mm:ss");
+			SimpleDateFormat dfDate = Utils.getDateFormat();
+			SimpleDateFormat dfTime = Utils.getTimeFormat();
 			String date = dfDate.format(datE);
 			String time = dfTime.format(datE);
 			
