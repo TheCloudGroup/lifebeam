@@ -3,9 +3,6 @@
  */
 package com.appfibre.lifebeam;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,17 +17,13 @@ import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -66,7 +59,6 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 		}
 
 		setFlipperContent();
-		//mViewFlipper.setAutoStart(true);
 		mViewFlipper.setFlipInterval(4000);
 		mViewFlipper.startFlipping();
 	}
@@ -117,12 +109,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 			String owner = "";
 
 			ParseObject eventUser = event.getAuthor();
-			Log.v(TAG, "monitoring eventUser here");
-			Log.v(TAG, "eventUser = " + eventUser.toString());
-			Log.v(TAG, "name = " + eventUser.getString("name"));
-			Log.v(TAG, "firstName = " + eventUser.getString("firstName"));
-			Log.v(TAG, "lastName = " + eventUser.getString("lastName"));
-
+			
 			owner = (eventUser.getString("name") == null) ? 
 					eventUser.getString("firstName") + " " + eventUser.getString("lastName") : 
 						eventUser.getString("name");
@@ -141,8 +128,6 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 			imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
 
 			mViewFlipper.addView(view);
-			Log.v(TAG, "just added a view here=============");
-
 		}
 		Utils.hideProgressDialog();
 	}
@@ -164,7 +149,6 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 		
 		switch (v.getId()) {
 			case R.id.view_flipper:
-				Log.v(TAG, "detected a click here and trying to stop flipping and show llynavigationholder here");
 				thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.VISIBLE);
 				mViewFlipper.stopFlipping();
 				break;
@@ -227,30 +211,20 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	
 			case R.id.imgGoToFirst:
 				setNavigationHolderVisbility(View.VISIBLE);
-				Log.v(TAG, "now go to first event");
-				//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.VISIBLE);
 				mViewFlipper.setDisplayedChild(0);			
 				mViewFlipper.stopFlipping();
 				mViewFlipper.setAutoStart(false);
-				//mViewFlipper.setFlipInterval(4000);
-				//mViewFlipper.startFlipping();
 				break;
 	
 			case R.id.imgGoToLast:
 				setNavigationHolderVisbility(View.VISIBLE);
-				Log.v(TAG, "now go to last event");
-				//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.VISIBLE);
 				mViewFlipper.setDisplayedChild(eventCount - 1);
 				mViewFlipper.stopFlipping();
 				mViewFlipper.setAutoStart(false);
-				//mViewFlipper.setFlipInterval(4000);
-				//mViewFlipper.startFlipping();
 				break;
 	
 			case R.id.imgGoToPrev:
 				setNavigationHolderVisbility(View.VISIBLE);
-				//display previous image or go to the last image if first image is reached.
-				//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.VISIBLE);
 				mViewFlipper.stopFlipping();
 				mViewFlipper.setAutoStart(false);						
 				mViewFlipper.showPrevious();
@@ -258,9 +232,6 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	
 			case R.id.imgGoToNext:
 				setNavigationHolderVisbility(View.VISIBLE);
-				//display next image or go to the first image if last image is reached 
-				//thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.VISIBLE);
-				mViewFlipper.stopFlipping();
 				mViewFlipper.setAutoStart(false);						
 				mViewFlipper.showNext();
 				break;	

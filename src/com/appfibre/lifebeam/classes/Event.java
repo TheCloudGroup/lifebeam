@@ -2,7 +2,6 @@ package com.appfibre.lifebeam.classes;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import com.appfibre.lifebeam.utils.Utils;
 import com.parse.ParseClassName;
