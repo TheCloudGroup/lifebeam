@@ -1,3 +1,3 @@
-lifebeam
+LifeBeam
 ====
 
