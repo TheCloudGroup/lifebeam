@@ -88,7 +88,7 @@
                 android:ems="10"
                 android:gravity="center"
                 android:hint="Family Account Name"
-                android:inputType="textCapSentences"
+                android:inputType="text"
                 android:textColor="#34bdc2"
                 android:textColorHint="#34bdc2"
                 android:textSize="18dp" >
