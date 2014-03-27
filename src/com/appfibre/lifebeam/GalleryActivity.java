@@ -44,9 +44,11 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.parse.FindCallback;
+import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -80,7 +82,8 @@ public class GalleryActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_gallery);
-
+		ParseAnalytics.trackAppOpened(getIntent());
+		
 		ActionBar ab = getActionBar();
 		ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#3fc1c6"));     
 		ab.setBackgroundDrawable(colorDrawable);
@@ -110,6 +113,10 @@ public class GalleryActivity extends Activity {
 		Log.v(TAG, "and the userid is = " + userId);
 
 		retrieveEvents(false);
+				
+		ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+		installation.put("objectId",ParseUser.getCurrentUser().getObjectId());
+		installation.saveInBackground();
 	}
 	private void retrieveEvents(final boolean fromPullRefresh){
 		if(!fromPullRefresh){

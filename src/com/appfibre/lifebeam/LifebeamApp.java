@@ -1,7 +1,6 @@
 package com.appfibre.lifebeam;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import android.app.Application;
@@ -9,10 +8,10 @@ import android.app.Application;
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.classes.Family;
 import com.appfibre.lifebeam.classes.Invitee;
-import com.appfibre.lifebeam.utils.MyContactItem3;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.PushService;
 
 public class LifebeamApp extends Application{
 
@@ -27,7 +26,8 @@ public class LifebeamApp extends Application{
 		ParseObject.registerSubclass(Family.class);
 		ParseObject.registerSubclass(Invitee.class);
 		Parse.initialize(this, PARSE_APPLICATION_ID, PARSE_CLIENT_KEY);		
-		ParseFacebookUtils.initialize(getResources().getString(R.string.fbAppID));			
+		PushService.setDefaultPushCallback(this, GalleryActivity.class);
+		ParseFacebookUtils.initialize(getResources().getString(R.string.fbAppID));
 	}
 
 

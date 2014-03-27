@@ -264,13 +264,13 @@ public class CameraUtils {
     }
     
     /**
-     * Code from http://stackoverflow.com/a/18959674/327428. Sets the image thumbNail in
-     * the image view imageView. Makes sure that the image is not rotated and displayed according
-     * to how it was taken.
+     * Code from http://stackoverflow.com/a/18959674/327428. 
+     * Sets the image thumbNail in the image view imageView. Makes sure that the image 
+     * is not rotated and displayed according to how it was taken.
      *
      * @param imageView the ImageView element where the thumbNail image will be displayed
-     * @param imagePath the location of the thumbNail image. Used to retrieve the orientation of the
-     *                  image
+     * @param imagePath the location of the thumbNail image. Used to retrieve the
+     *                  orientation of the image
      */
     public static boolean setImageToView(ImageView imageView, String imagePath){
         boolean result = false;

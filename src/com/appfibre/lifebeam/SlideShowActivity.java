@@ -6,14 +6,20 @@ package com.appfibre.lifebeam;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.utils.ImageLoader;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.appfibre.lifebeam.utils.Utils;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import android.app.Activity;
@@ -145,7 +151,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	public void onClick(final View v) {
 		final View thisFlipView = mViewFlipper.getCurrentView();
 		LifebeamApp app = (LifebeamApp)getApplication();					
-	    Event event = app.getEvent((String)v.getTag());
+	    final Event event = app.getEvent((String)v.getTag());
 		
 		switch (v.getId()) {
 			case R.id.view_flipper:
@@ -159,51 +165,84 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 				mViewFlipper.startFlipping();				
 				break;
 			case R.id.llySplendidHolder:
-                boolean hasSplendid = SharedPrefMgr.getBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString());
-				if( hasSplendid ){
-					Toast.makeText(getApplicationContext(), "You have already marked this as splendid.", Toast.LENGTH_SHORT).show();
-				} else {
-					if(event != null){
-						final int currentSplendidCount = event.getSplendidCount();
-						((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText(String.valueOf(currentSplendidCount+1));
-						SharedPrefMgr.setBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString(), true);
-						event.increment("splendidCount");
+                if(event != null){
+                	if(event.getSplendidCount() > 0){
+                		Toast.makeText(getApplicationContext(), "You have already marked this as splendid.", Toast.LENGTH_SHORT).show();
+                	} else {
+                		event.increment("splendidCount");
+                		Utils.showProgressDialog(SlideShowActivity.this, "Marking as splendid.");
 						event.saveInBackground(new SaveCallback() {
 							@Override
 							public void done(ParseException e) {
 								if (e != null) {
-									((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText(String.valueOf(currentSplendidCount));
-									SharedPrefMgr.setBool(SlideShowActivity.this, "hasSplendid_" + v.getTag().toString(), false);
 									Toast.makeText(getApplicationContext(), "Error in splenderizing this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+								} else {
+									((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText("1");																		
+									
+									ParseObject eventUser = event.getAuthor();																		
+									
+									HashMap<String, String> params =  new HashMap<String, String>();
+									String userId = eventUser.getObjectId();
+									
+									params.put("userId", userId);
+									params.put("message", "Your Event has been marked as splendid.");
+
+									ParseCloud.callFunctionInBackground("notifyUser", params, new FunctionCallback<String>() {
+									  public void done(String result, ParseException e) {
+									    if (e == null) {
+									      Log.v(getClass().getName(), "Notification sent.");
+									    } else{
+									      Log.e(getClass().getName(), e.getMessage());	
+									    }
+									  }
+									});
+									
 								}
+								Utils.hideProgressDialog();
 							}
 						});
-					}
-					
-				}								
+                	}
+                }						
 				break;
 			case R.id.llyRazzleHolder:
-				boolean hasRazzle = SharedPrefMgr.getBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString());
-				if( hasRazzle ){
-					Toast.makeText(getApplicationContext(), "You have already Razzle Dazzled this event.", Toast.LENGTH_SHORT).show();
-				} else {
-					if(event != null){
-						final int currentRazzleCount = event.getRazzleCount();
-						((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText(String.valueOf(currentRazzleCount+1));
-						SharedPrefMgr.setBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString(), true);
-						event.increment("razzleCount");
+				if(event != null){
+                	if(event.getRazzleCount() > 0){
+                		Toast.makeText(getApplicationContext(), "You have already Razzle Dazzled this event.", Toast.LENGTH_SHORT).show();
+                	} else {
+                		event.increment("razzleCount");
+                		Utils.showProgressDialog(SlideShowActivity.this, "Razzle Dazzling.");
 						event.saveInBackground(new SaveCallback() {
 							@Override
 							public void done(ParseException e) {
 								if (e != null) {
-									((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText(String.valueOf(currentRazzleCount));
-									SharedPrefMgr.setBool(SlideShowActivity.this, "hasRazzle_" + v.getTag().toString(), false);
 									Toast.makeText(getApplicationContext(), "Error in razzle dazzling this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+								} else {
+									((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText("1");
+									
+									HashMap<String, String> params =  new HashMap<String, String>();
+
+									ParseObject eventUser = event.getAuthor();																											
+									String userId = eventUser.getObjectId();
+									
+									params.put("userId", userId);
+									params.put("message", "Your Event has been razzle dazzled.");
+
+									ParseCloud.callFunctionInBackground("notifyUser", params, new FunctionCallback<String>() {
+									  public void done(String result, ParseException e) {
+									    if (e == null) {
+									      Log.v(getClass().getName(), "Notification sent.");
+									    } else{
+									      Log.e(getClass().getName(), e.getMessage());	
+									    }
+									  }
+									});
+
 								}
+								Utils.hideProgressDialog();
 							}
 						});
-					}					
-				}				
+                	}
+                }				
 				break;	
 			case R.id.txtDeletePhoto:
 				Log.v(TAG, "event id for deleting this event is  = " + v.getTag());
