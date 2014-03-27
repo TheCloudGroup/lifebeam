@@ -5,8 +5,10 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.view.inputmethod.InputMethodManager;
 
 public class Utils {
 	private static ProgressDialog pDialog = null;
@@ -51,4 +53,11 @@ public class Utils {
 	public static SimpleDateFormat getTimeFormat(){
 		return new SimpleDateFormat("hh:mm aa", Locale.US);
 	}
+	
+	public static void hideSoftKeyboard(Context context){
+        if(context != null && context.getSystemService(Activity.INPUT_SERVICE) != null){
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+        }
+    }
 }

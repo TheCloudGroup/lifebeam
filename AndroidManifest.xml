@@ -85,7 +85,7 @@
             android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".SettingsTablet"
             android:label="Settings"
             android:theme="@style/AppTheme" >
         </activity>
@@ -100,7 +100,7 @@
             android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".SettingsActivity2"
+            android:name=".SettingsPhone"
             android:theme="@android:style/Theme.Black.NoTitleBar" >
         </activity>
         <activity

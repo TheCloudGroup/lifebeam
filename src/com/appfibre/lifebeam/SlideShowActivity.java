@@ -26,6 +26,7 @@ import com.parse.SaveCallback;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -135,6 +136,9 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 			ImageLoader imageLoader = new ImageLoader(SlideShowActivity.this);
 			imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
 
+			TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
+			txtSettings.setOnClickListener(this);
+			
 			mViewFlipper.addView(view);
 		}
 		Utils.hideProgressDialog();
@@ -280,6 +284,9 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 				mViewFlipper.setAutoStart(false);						
 				mViewFlipper.showNext();
 				break;	
+			case R.id.txtSettings:
+				startActivity(new Intent(SlideShowActivity.this, SettingsTablet.class));
+				break;
 			default:
 				break;
 		}

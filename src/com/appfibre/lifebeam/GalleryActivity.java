@@ -208,7 +208,7 @@ public class GalleryActivity extends Activity {
 					dlgAlert.setTitle("No Associated Family Account");
 					dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,int id) {
-							startActivity(new Intent(GalleryActivity.this, SettingsActivity2.class));
+							startActivity(new Intent(GalleryActivity.this, SettingsPhone.class));
 						}});
 					dlgAlert.setCancelable(true);
 					dlgAlert.create().show();
@@ -230,7 +230,7 @@ public class GalleryActivity extends Activity {
 					dlgAlert.setTitle("No Associated Family Account");
 					dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,int id) {
-							startActivity(new Intent(GalleryActivity.this, SettingsActivity2.class));
+							startActivity(new Intent(GalleryActivity.this, SettingsPhone.class));
 						}});
 					dlgAlert.setCancelable(true);
 					dlgAlert.create().show();
@@ -253,7 +253,7 @@ public class GalleryActivity extends Activity {
 	
 			case R.id.menuSettings:
 				Log.v(TAG, "selected settings...");
-				startActivity(new Intent(GalleryActivity.this,SettingsActivity2.class));
+				startActivity(new Intent(GalleryActivity.this,SettingsPhone.class));
 				break;
 	
 			case R.id.menuHelp:

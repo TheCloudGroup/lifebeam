@@ -208,6 +208,8 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 								.show();
 					} else {
 						Log.v(TAG, "just printing contents of events here content = " + Families.get(0).getName());
+						String familyObjectId = Families.get(0).getObjectId();
+						session.setFamilyObjectId(getApplicationContext(), familyObjectId);
 						session.setUserFamilyAccount(getApplicationContext(), familyAccountName);
 						session.setUserPasscode(getApplicationContext(), passcode);
 						session.setSessionId(getApplicationContext(), ParseUser.getCurrentUser().getSessionToken());

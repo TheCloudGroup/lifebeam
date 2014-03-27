@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:key="pref_key">
+
+    <PreferenceCategory
+        android:summary="Username and password information"
+        android:title="Account Info" >
+        <Preference
+            android:key="terms"
+            android:summary="Displays Terms"
+            android:title="Terms and Conditions" />
+        <Preference
+            android:key="privacy"
+            android:summary="Show Privacy"
+            android:title="Privacy" />
+        <Preference
+            android:key="account"
+            android:summary="Family Account Used"
+            android:title="Account" />
+        <Preference
+            android:key="build"
+            android:summary="Display Build Number"
+            android:title="Version" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:summary="Username and password information"
+        android:title="Settings" >
+        <ListPreference
+            android:entries="@array/listOptions"
+            android:entryValues="@array/listValues"
+            android:key="listpref"
+            android:summary="Select speed of Event slideshow"
+            android:title="Transition Speed" />
+        <Preference
+            android:key="passwordReset"
+            android:summary="Reset your existing password"
+            android:title="Reset Password" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -147,6 +147,7 @@ public class RegisterFamilyActivity extends Activity {
 		Utils.showProgressDialog(RegisterFamilyActivity.this, "Creating new Family Account...");
 		ParseACL eventACL = new ParseACL(ParseUser.getCurrentUser());
 		eventACL.setPublicReadAccess(true);
+		eventACL.setPublicWriteAccess(true);
 
 		family = new Family();
 		family.setACL(eventACL);

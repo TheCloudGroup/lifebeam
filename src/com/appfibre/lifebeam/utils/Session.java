@@ -15,6 +15,7 @@ public class Session {
 	private final String USER_PASSCODE_KEY = "user_passcode";
 	private final String SESSION_ID_KEY = "session_id";
 	private final String SESSION_FAMILY_KEY = "session_family";
+	private final String SESSION_FAMILY_OBJ_ID_KEY = "session_family_obj_id";
 	private static final Session INSTANCE = new Session();
 
 	private Session() {
@@ -113,6 +114,14 @@ public class Session {
 	public void setSessionId(Context context, String sessionId) {
 		SharedPrefMgr.setString(context, SESSION_ID_KEY, sessionId);
 	}
+	
+	public void setFamilyObjectId(Context context, String objectId){
+		SharedPrefMgr.setString(context, SESSION_FAMILY_OBJ_ID_KEY, objectId);
+	}
+	
+	public String getFamilyObjectId(Context context){
+		return SharedPrefMgr.getString(context, SESSION_FAMILY_OBJ_ID_KEY);
+	}
 
 	/**
 	 * Clear all session data
@@ -124,6 +133,7 @@ public class Session {
 		SharedPrefMgr.removeData(context, USER_FAMILY_ACCOUNT_KEY);
 		SharedPrefMgr.removeData(context, USER_PASSCODE_KEY);
 		SharedPrefMgr.removeData(context, SESSION_ID_KEY);
-		SharedPrefMgr.removeData(context, SESSION_FAMILY_KEY);	
+		SharedPrefMgr.removeData(context, SESSION_FAMILY_KEY);
+		SharedPrefMgr.removeData(context, SESSION_FAMILY_OBJ_ID_KEY);	
 	}
 }

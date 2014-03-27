@@ -37,7 +37,7 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.RequestPasswordResetCallback;
-public class SettingsActivity2 extends PreferenceActivity{
+public class SettingsPhone extends PreferenceActivity{
 	
 	private String TAG = "SettingsActivity2";
 	private boolean isCreateNewAccount;
@@ -52,13 +52,13 @@ public class SettingsActivity2 extends PreferenceActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.prefs);
+		addPreferencesFromResource(R.xml.phoneprefs);
 
 		Preference terms = (Preference)findPreference("terms");
 		terms.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
-				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsActivity2.this);
+				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsPhone.this);
 
 				dlgAlert.setMessage(Html.fromHtml(getString(R.string.terms_and_conditions)));
 				dlgAlert.setTitle("Terms and Conditions");
@@ -73,7 +73,7 @@ public class SettingsActivity2 extends PreferenceActivity{
 		privacy.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
-				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsActivity2.this);
+				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsPhone.this);
 
 				dlgAlert.setMessage(Html.fromHtml(getString(R.string.privacy_policy)));
 				dlgAlert.setTitle("Privacy Statement");
@@ -88,7 +88,7 @@ public class SettingsActivity2 extends PreferenceActivity{
 		passwordReset.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
-				final Dialog dialog = new Dialog(SettingsActivity2.this);
+				final Dialog dialog = new Dialog(SettingsPhone.this);
 
 		        dialog.setContentView(R.layout.dialog_resetpassword);
 				final TextView email    = (TextView)dialog.findViewById(R.id.resetPasswordEmail);
@@ -101,23 +101,23 @@ public class SettingsActivity2 extends PreferenceActivity{
 	                @Override
 	                public void onClick(View v) {
 	                	String sEmail = email.getText().toString();
-	                	String sessionEmail = Session.getInstance().getUserName(SettingsActivity2.this);
+	                	String sessionEmail = Session.getInstance().getUserName(SettingsPhone.this);
                 		if(sessionEmail != null && sessionEmail.equals(sEmail)){
-                			Utils.showProgressDialog(SettingsActivity2.this, "Sending reset password instructions");
+                			Utils.showProgressDialog(SettingsPhone.this, "Sending reset password instructions");
 	                		ParseUser.requestPasswordResetInBackground(sEmail,
 	                                new RequestPasswordResetCallback() {
 								public void done(ParseException e) {
 									if (e == null) {
 										Utils.hideProgressDialog();
-				                		Toast.makeText(SettingsActivity2.this, "Password reset instructions sent!", Toast.LENGTH_LONG).show();
+				                		Toast.makeText(SettingsPhone.this, "Password reset instructions sent!", Toast.LENGTH_LONG).show();
 				                		dialog.dismiss();
 									} else {
-										Toast.makeText(SettingsActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+										Toast.makeText(SettingsPhone.this, e.getMessage(), Toast.LENGTH_SHORT).show();
 									}
 								}
 							});
                 		} else {
-	                		Toast.makeText(SettingsActivity2.this, "Email does not match currently logged in user.", Toast.LENGTH_LONG).show();
+	                		Toast.makeText(SettingsPhone.this, "Email does not match currently logged in user.", Toast.LENGTH_LONG).show();
                 		}                    	
 	                }
 	            });
@@ -143,21 +143,21 @@ public class SettingsActivity2 extends PreferenceActivity{
 				Log.v(TAG, "reconfirm that there is an associated family for this user");
 				String strFamily = ParseUser.getCurrentUser().getString("family");
 				if (strFamily == null) {
-					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsActivity2.this);
+					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsPhone.this);
 
 					dlgAlert.setMessage("You need to be associated to a" +
 							" Family Account.  Please join or create your own Family Account.");
 					dlgAlert.setTitle("No Associated Family Account");
 					dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,int id) {
-							SharedPrefMgr.setBool(SettingsActivity2.this, "isFromSettings", true);
-							startActivity(new Intent(SettingsActivity2.this, AssociateFamilyActivity.class));
+							SharedPrefMgr.setBool(SettingsPhone.this, "isFromSettings", true);
+							startActivity(new Intent(SettingsPhone.this, AssociateFamilyActivity.class));
 						}});
 					dlgAlert.setCancelable(true);
 					dlgAlert.create().show();
 					return true;
 				} else {
-					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsActivity2.this);
+					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsPhone.this);
 
 					dlgAlert.setMessage(family);
 					dlgAlert.setTitle("Currently Associated Family Account");
@@ -188,7 +188,7 @@ public class SettingsActivity2 extends PreferenceActivity{
 		build.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
-				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsActivity2.this);
+				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsPhone.this);
 
 				dlgAlert.setMessage(builD);
 				dlgAlert.setTitle("Build Version");
@@ -200,17 +200,17 @@ public class SettingsActivity2 extends PreferenceActivity{
 		});
 		
 		final CheckBoxPreference keepLoggedIn = (CheckBoxPreference)findPreference("keepLoggedIn");
-		keepLoggedIn.setChecked(SharedPrefMgr.getBool(SettingsActivity2.this, "hasSetKeptLogin"));
+		keepLoggedIn.setChecked(SharedPrefMgr.getBool(SettingsPhone.this, "hasSetKeptLogin"));
 		keepLoggedIn.setOnPreferenceClickListener(new CheckBoxPreference.OnPreferenceClickListener() {
 
 			@Override
 			public boolean onPreferenceClick(Preference arg0) {
 				// TODO Auto-generated method stub
 				if (keepLoggedIn.isChecked()) {
-					SharedPrefMgr.setBool(SettingsActivity2.this, "hasSetKeptLogin", true);
+					SharedPrefMgr.setBool(SettingsPhone.this, "hasSetKeptLogin", true);
 					return true;
 				} else {
-					SharedPrefMgr.setBool(SettingsActivity2.this, "hasSetKeptLogin", false);
+					SharedPrefMgr.setBool(SettingsPhone.this, "hasSetKeptLogin", false);
 					return false;
 				}
 			}
@@ -218,11 +218,12 @@ public class SettingsActivity2 extends PreferenceActivity{
 	}
 	
 	private boolean createNewFamilyAccount() {
-		Utils.showProgressDialog(SettingsActivity2.this, "Creating new Family Account...");
+		Utils.showProgressDialog(SettingsPhone.this, "Creating new Family Account...");
 		isAssociated = false;
 		ParseACL eventACL = new ParseACL(ParseUser.getCurrentUser());
 		eventACL.setPublicReadAccess(true);
-
+		eventACL.setPublicWriteAccess(true);
+		
 		family = new Family();
 		family.setACL(eventACL);
 		family.setName(edtFamilyName.getText().toString());
