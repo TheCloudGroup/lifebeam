@@ -130,7 +130,11 @@
 		  </intent-filter>
 		</receiver>
         
-        
+        <receiver android:name="com.appfibre.lifebeam.utils.NotificationReceiver" android:exported="false">
+		  <intent-filter>
+		    <action android:name="com.appfibre.lifebeam.NOTIFY_EVENT_RATED" />
+		  </intent-filter>
+		</receiver>
         
         
     </application>

@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.utils.ImageLoader;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
@@ -68,7 +70,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 		mViewFlipper.setFlipInterval(4000);
 		mViewFlipper.startFlipping();
 	}
-
+	
 	private void setFlipperContent() {
 		Utils.showProgressDialog(SlideShowActivity.this, "Just a few clicks now..." );
 		LifebeamApp globalVars = ((LifebeamApp)getApplication());
@@ -186,6 +188,9 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 									
 									params.put("userId", userId);
 									params.put("message", "Your Event has been marked as splendid.");
+									params.put("eventId", event.getObjectId());
+									params.put("action", "com.appfibre.lifebeam.NOTIFY_EVENT_RATED");
+									
 
 									ParseCloud.callFunctionInBackground("notifyUser", params, new FunctionCallback<String>() {
 									  public void done(String result, ParseException e) {
@@ -195,8 +200,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 									      Log.e(getClass().getName(), e.getMessage());	
 									    }
 									  }
-									});
-									
+									});	
 								}
 								Utils.hideProgressDialog();
 							}
@@ -226,6 +230,8 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 									
 									params.put("userId", userId);
 									params.put("message", "Your Event has been razzle dazzled.");
+									params.put("eventId", event.getObjectId());
+									params.put("action", "com.appfibre.lifebeam.NOTIFY_EVENT_RATED");
 
 									ParseCloud.callFunctionInBackground("notifyUser", params, new FunctionCallback<String>() {
 									  public void done(String result, ParseException e) {

@@ -19,6 +19,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -77,7 +78,9 @@ public class GalleryActivity extends Activity {
 	private MyImageAdapter mainListViewAdapter;
 	
 	private String eventIdToDelete;
-
+    private String updatedEventId;
+    private int updatedEventIdIndex;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -114,10 +117,36 @@ public class GalleryActivity extends Activity {
 
 		retrieveEvents(false);
 				
-		ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-		installation.put("objectId",ParseUser.getCurrentUser().getObjectId());
-		installation.saveInBackground();
+		ParseInstallation parseInstallation = ParseInstallation.getCurrentInstallation();
+		parseInstallation.put("userId",ParseUser.getCurrentUser().getObjectId());
+	    parseInstallation.saveInBackground();		
 	}
+	
+	private void checkMarkedEvents(){
+		updatedEventId = SharedPrefMgr.getString(GalleryActivity.this, "updatedEventId");
+		
+		if(updatedEventId != null && updatedEventId.length() > 0 && mainListViewAdapter != null){
+			SharedPrefMgr.removeData(GalleryActivity.this, "updatedEventId");
+			final ListView lv = mainListView.getRefreshableView();
+			for(int i = 0; i < mainListViewAdapter.getCount(); i++){
+				MyImageItem item = (MyImageItem)mainListViewAdapter.getItem(i);
+				if(item.getId().equals(updatedEventId)){
+					updatedEventIdIndex = i;
+					break;
+				}
+			}
+			
+			final Handler handler = new Handler();
+			handler.postDelayed(new Runnable() {
+			    @Override
+			    public void run() {
+			    	lv.smoothScrollToPositionFromTop(updatedEventIdIndex+1,0);
+			    }
+			}, 500);
+			
+		}
+	}
+	
 	private void retrieveEvents(final boolean fromPullRefresh){
 		if(!fromPullRefresh){
 			Utils.showProgressDialog(this, "Loading...");
@@ -134,7 +163,7 @@ public class GalleryActivity extends Activity {
 				EventS.clear();
 				if (e == null) {
 					for (Event event : Events) {
-						Log.v(TAG, "just printing contents of events here content = " + event.getContent());
+						//Log.v(TAG, "just printing contents of events here content = " + event.getContent());
 						EventS.add(event);
 					}
 					loadEventsInListView();
@@ -143,13 +172,14 @@ public class GalleryActivity extends Activity {
 					} else {
 						mainListViewAdapter.notifyDataSetChanged();
 						mainListView.onRefreshComplete();
-					}
+					}					
 				} else {
 					Toast.makeText(getApplicationContext(),
 							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
 							.show();
 					Log.v(TAG, "Error: " + e.getMessage());
 				}
+				checkMarkedEvents();
 			}
 		});	
 	}
@@ -505,11 +535,11 @@ public class GalleryActivity extends Activity {
 					deleteEvent(eventIdToDelete);
 					Images.remove(selectedIndex);
 					MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
-					mainListView.setAdapter(adapter);
+					mainListView.setAdapter(adapter);					
 				} else {
 					Log.e(TAG, "There was an error trying to query MyInterests: " + e.getMessage());
 				}
-				Utils.hideProgressDialog();
+				Utils.hideProgressDialog();				
 			}
 		});
 	}
