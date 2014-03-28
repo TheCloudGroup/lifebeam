@@ -176,6 +176,9 @@ public class GalleryActivity extends Activity {
 						mainListView.onRefreshComplete();
 					}					
 				} else {
+					if(!fromPullRefresh){
+						Utils.hideProgressDialog();
+					}
 					Toast.makeText(getApplicationContext(),
 							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
 							.show();
