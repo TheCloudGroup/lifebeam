@@ -25,6 +25,11 @@
     <PreferenceCategory
         android:summary="Username and password information"
         android:title="Settings" >
+        <CheckBoxPreference
+            android:key="keepLoggedIn"
+            android:summary="On/Off"
+            android:title="Keep me logged in" />
+
         <ListPreference
             android:entries="@array/listOptions"
             android:entryValues="@array/listValues"
@@ -32,9 +37,9 @@
             android:summary="Select speed of Event slideshow"
             android:title="Transition Speed" />
         <Preference
-            android:key="passwordChange"
-            android:summary="Change your existing password"
-            android:title="Change Password" />
+            android:key="passwordReset"
+            android:summary="Reset your existing password"
+            android:title="Reset Password" />
     </PreferenceCategory>
 
 </PreferenceScreen>

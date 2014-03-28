@@ -46,7 +46,7 @@ public class SettingsTablet extends PreferenceActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.phoneprefs);
+		addPreferencesFromResource(R.xml.tabletprefs);
 
 		Preference terms = (Preference)findPreference("terms");
 		terms.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
