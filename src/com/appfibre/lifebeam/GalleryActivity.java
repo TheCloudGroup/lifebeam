@@ -132,6 +132,7 @@ public class GalleryActivity extends Activity {
 				MyImageItem item = (MyImageItem)mainListViewAdapter.getItem(i);
 				if(item.getId().equals(updatedEventId)){
 					updatedEventIdIndex = i;
+					Log.i(getClass().getName(),"Event position to scroll to: " + updatedEventIdIndex);
 					break;
 				}
 			}
@@ -140,7 +141,8 @@ public class GalleryActivity extends Activity {
 			handler.postDelayed(new Runnable() {
 			    @Override
 			    public void run() {
-			    	lv.smoothScrollToPositionFromTop(updatedEventIdIndex+1,0);
+			    	updatedEventIdIndex = updatedEventIdIndex + 1;
+			    	lv.setSelection(updatedEventIdIndex);
 			    }
 			}, 500);
 			
