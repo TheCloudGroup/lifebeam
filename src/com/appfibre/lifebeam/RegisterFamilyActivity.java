@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -120,12 +121,17 @@ public class RegisterFamilyActivity extends Activity {
 				edtFamilyName.requestFocus();
 				return true;
 			}
-			if ("".equals(edtPassCode.getText().toString())) {
-				Toast.makeText(RegisterFamilyActivity.this, "Passcode is Required...", Toast.LENGTH_SHORT).show();
+			
+			if (TextUtils.isEmpty(edtPassCode.getText().toString())) {
+				edtPassCode.setError(getString(R.string.error_field_required));
+				edtPassCode.requestFocus();
+				return true;
+			} else if (edtPassCode.getText().toString().length() < 4) {
+				edtPassCode.setError(getString(R.string.error_invalid_password));
 				edtPassCode.requestFocus();
 				return true;
 			}
-
+						
 			if (isCreateNewAccount) {
 				Log.v(TAG, "save new family name account in parse here");
 				createNewFamilyAccount();
