@@ -191,7 +191,7 @@ public class RegisterFamilyActivity extends Activity {
 
 		// Show a progress spinner, and kick off a background task to
 		Utils.showProgressDialog(this, "Looking up your Family Account...");
-		
+		final ParseObject user = ParseUser.getCurrentUser();
 		ParseQuery<Family> queryFamily = new ParseQuery<Family>("Family");
 		queryFamily.whereEqualTo("name", edtFamilyName.getText().toString());
 		queryFamily.whereEqualTo("passCode", edtPassCode.getText().toString());
@@ -204,9 +204,22 @@ public class RegisterFamilyActivity extends Activity {
 								"Either your Family Account or Passcode is not correct", Toast.LENGTH_LONG)
 								.show();
 					} else {
-						ParseUser.getCurrentUser().add("family", edtFamilyName.getText().toString());
-						startActivity(new Intent(RegisterFamilyActivity.this, LoginActivity.class));
-						finish();
+						user.put("family", edtFamilyName.getText().toString());
+						user.saveInBackground(new SaveCallback() {							
+							@Override
+							public void done(ParseException e) {
+								if (e == null){
+									Utils.hideProgressDialog();
+									startActivity(new Intent(RegisterFamilyActivity.this, LoginActivity.class));
+									finish();
+								} else {
+									Utils.hideProgressDialog();
+									Toast.makeText(RegisterFamilyActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+								}
+								
+							}
+						});
+						
 					}
 				} else {
 					Toast.makeText(getApplicationContext(),

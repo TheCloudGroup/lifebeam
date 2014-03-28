@@ -133,42 +133,7 @@ public class SettingsTablet extends PreferenceActivity{
                 				        }
                 				    }
                 				});
-                    			//queryFamily.whereEqualTo("name", sessionFamilyName);
-                    			//queryFamily.whereEqualTo("passCode", sessionPasscode);
-                    			/*queryFamily.findInBackground(new FindCallback<Family>() {
-                    				public void done(List<Family> Families, ParseException e) {
-                    					if (e == null) {
-                    						if (Families.size() == 0) {
-                    							Utils.hideProgressDialog();
-                    							Toast.makeText(getApplicationContext(),
-                    									"Either your Family Account or Passcode is not correct", Toast.LENGTH_LONG)
-                    									.show();
-                    						} else {
-                    							Family family = Families.get(0);
-                    							family.setPassCode(newPasscode);
-                    							family.saveInBackground(new SaveCallback() {													
-													@Override
-													public void done(ParseException exception) {
-														Utils.hideProgressDialog();
-														if(exception == null){
-															session.setUserPasscode(SettingsTablet.this, newPasscode);
-															Toast.makeText(SettingsTablet.this, "Passcode changed successfully", Toast.LENGTH_SHORT).show();
-														} else {
-															Toast.makeText(SettingsTablet.this,exception.getMessage(), Toast.LENGTH_SHORT).show();
-														}
-													}
-												});
-                    						}
-                    					} else {
-                    						Utils.hideProgressDialog();
-                    						Toast.makeText(getApplicationContext(),
-                    								"Error: " + e.getMessage(), Toast.LENGTH_LONG)
-                    								.show();
-                    						Log.v(TAG, "Error: " + e.getMessage());
-                    					}
-                    				}
-                    			});	*/
-                			} else {
+                    		} else {
     	                		Toast.makeText(SettingsTablet.this, "New passcode does not match.", Toast.LENGTH_LONG).show();
                 			}                			
                 		} else {
