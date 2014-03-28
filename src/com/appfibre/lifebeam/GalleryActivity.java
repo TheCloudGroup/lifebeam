@@ -502,7 +502,7 @@ public class GalleryActivity extends Activity {
 			
 			int splendidCount = 0;
 			try {
-				splendidCount = event.getRazzleCount();
+				splendidCount = event.getSplendidCount();
 			} catch (Exception e) {
 				Log.v(TAG, "Error in extracting splendidCount: " + e.getMessage());
 			}
