@@ -192,7 +192,7 @@ public class SettingsTablet extends PreferenceActivity{
 		account.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
-				String family = Session.getInstance().getSessionFamily(SettingsTablet.this);
+				String family = Session.getInstance().getUserFamilyAccount(SettingsTablet.this);
 				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsTablet.this);
 				dlgAlert.setMessage(family);
 				dlgAlert.setTitle("Currently Associated Family Account");
