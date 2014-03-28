@@ -78,14 +78,14 @@ public class SettingsTablet extends PreferenceActivity{
 			}
 		});
 		
-		Preference passwordReset = (Preference)findPreference("passwordReset");
-		passwordReset.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+		Preference passwordChange = (Preference)findPreference("passwordChange");
+		passwordChange.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
 				final Dialog dialog = new Dialog(SettingsTablet.this);
 
 		        dialog.setContentView(R.layout.dialog_resetpassword_tablet);
-	            dialog.setTitle("Reset Passcode");
+	            dialog.setTitle("Change Passcode");
 	            
 				final TextView tvOldPasscode       = (TextView)dialog.findViewById(R.id.oldPasscode);
 				final TextView tvNewPasscode       = (TextView)dialog.findViewById(R.id.newPasscode);
@@ -107,7 +107,7 @@ public class SettingsTablet extends PreferenceActivity{
 	                	
                 		if(sessionPasscode != null && sessionPasscode.equals(oldPasscode)){
                 			if(verifyNewPasscode.equals(newPasscode)){
-                				Utils.showProgressDialog(SettingsTablet.this, "Resetting passcode");
+                				Utils.showProgressDialog(SettingsTablet.this, "Changing passcode");
                 				Utils.hideSoftKeyboard(SettingsTablet.this);
                     			ParseQuery<Family> queryFamily = new ParseQuery<Family>("Family");
                     			queryFamily.getInBackground(sessionFamilyObjId, new GetCallback<Family>() {
