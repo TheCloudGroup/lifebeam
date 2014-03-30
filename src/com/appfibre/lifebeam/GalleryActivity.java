@@ -480,15 +480,5 @@ public class GalleryActivity extends Activity {
 	private void deleteEvent(String selectedId) {
 		//attempt to delete now:
 		ParseObject.createWithoutData("Event", selectedId).deleteEventually();
-/*		for (ParseObject myEvent : ScratchMyEvents) {
-			if (selectedId.equalsIgnoreCase(myEvent.getObjectId().toString())){
-				myEvents = currentUser.getRelation("events");
-				myEvents.remove(myEvent);
-				currentUser.saveEventually();
-				Log.v(TAG, "removed an view.getTag() = " + selectedId);
-			} else {
-				Log.v(TAG, "not this one = " + myEvent.getString("content").toString());
-			}
-		}*/
 	}
 }

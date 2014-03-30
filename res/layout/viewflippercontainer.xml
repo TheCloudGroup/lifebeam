@@ -213,12 +213,12 @@
                 android:textColor="@color/White" />
 
             <TextView
-                android:id="@+id/txtDeletePhoto"
+                android:id="@+id/txtRemoveEvent"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="7dp"
-                android:text="Delete Photo"
+                android:text="Remove Event"
                 android:textColor="@color/White" />
         </LinearLayout>
     </LinearLayout>

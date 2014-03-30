@@ -28,7 +28,9 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -48,11 +50,11 @@ import android.widget.ViewFlipper;
  */
 public class SlideShowActivity extends Activity implements OnClickListener{
 
-	private static final int SWIPE_MIN_DISTANCE = 120;
-	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	//private static final int SWIPE_MIN_DISTANCE = 120;
+	//private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 	private ViewFlipper mViewFlipper;	
-	private Context mContext;
-	public ArrayList<String> eventImageUrls = new ArrayList<String>();
+	//private Context mContext;
+	//public ArrayList<String> eventImageUrls = new ArrayList<String>();
 	public List<Bitmap> eventBmps = new ArrayList<Bitmap>();	
 	private static final String TAG = "SlideShowActivity";
 	private int eventCount;
@@ -61,10 +63,10 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_slideshow);
-		mContext = this;
+		//mContext = this;
 
 		mViewFlipper = (ViewFlipper) this.findViewById(R.id.view_flipper);
-		mViewFlipper.setOnClickListener((OnClickListener) this);
+		mViewFlipper.setOnClickListener(this);
 
 		if(mViewFlipper.getChildCount() > 0) {
 			mViewFlipper.removeAllViews();
@@ -101,8 +103,8 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 						LinearLayout llyRazzleHolder = (LinearLayout)view.findViewById(R.id.llyRazzleHolder);
 						llyRazzleHolder.setOnClickListener(SlideShowActivity.this);
 						
-						TextView txtDeletePhoto = (TextView)view.findViewById(R.id.txtDeletePhoto);
-						txtDeletePhoto.setOnClickListener(SlideShowActivity.this);
+						TextView txtRemoveEvent = (TextView)view.findViewById(R.id.txtRemoveEvent);
+						txtRemoveEvent.setOnClickListener(SlideShowActivity.this);
 						
 						ImageView imgPlay = (ImageView)view.findViewById(R.id.imgPlay);
 						imgPlay.setOnClickListener(SlideShowActivity.this);
@@ -124,7 +126,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 
 						llySplendidHolder.setTag(event.getObjectId());
 						llyRazzleHolder.setTag(event.getObjectId());
-						txtDeletePhoto.setTag(event.getObjectId());
+						txtRemoveEvent.setTag(event.getObjectId());
 
 						String owner = "";
 
@@ -276,8 +278,31 @@ public class SlideShowActivity extends Activity implements OnClickListener{
                 	}
                 }				
 				break;	
-			case R.id.txtDeletePhoto:
+			case R.id.txtRemoveEvent:
 				Log.v(TAG, "event id for deleting this event is  = " + v.getTag());
+				
+				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SlideShowActivity.this);
+			     
+				alertDialogBuilder.setTitle("Remove Event");
+				alertDialogBuilder.setMessage("Are you sure you want to remove this event?");
+				alertDialogBuilder.setIcon(R.drawable.delete);
+				
+				alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+				    public void onClick(DialogInterface dialog,int id) {
+				    	dialog.cancel();
+				    	mViewFlipper.removeView(thisFlipView);
+						ParseObject.createWithoutData("Event", (String) v.getTag()).deleteEventually();
+					}
+				});
+				
+				alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+				    public void onClick(DialogInterface dialog,int id) {
+						dialog.cancel();
+					}
+				});
+
+				AlertDialog alertDialog = alertDialogBuilder.create();
+				alertDialog.show();
 				break;
 	
 			case R.id.imgGoToFirst:
