@@ -89,11 +89,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 					SharedPrefMgr.setBool(LoginActivity.this, "hasSetKeptLogin", false);
 				}
 			}
-		});
-		
-
-		
-
+		});           
 
 		muserNameView = (EditText) findViewById(R.id.muserNameView);
 		mPasswordView = (EditText) findViewById(R.id.mPasswordView);

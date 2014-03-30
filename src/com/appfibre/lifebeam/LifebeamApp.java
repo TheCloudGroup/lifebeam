@@ -26,7 +26,7 @@ public class LifebeamApp extends Application{
 		ParseObject.registerSubclass(Family.class);
 		ParseObject.registerSubclass(Invitee.class);
 		Parse.initialize(this, PARSE_APPLICATION_ID, PARSE_CLIENT_KEY);		
-		PushService.setDefaultPushCallback(this, GalleryActivity.class);
+		PushService.setDefaultPushCallback(this, GalleryActivity.class, R.drawable.ic_push_notification);
 		ParseFacebookUtils.initialize(getResources().getString(R.string.fbAppID));
 	}
 
