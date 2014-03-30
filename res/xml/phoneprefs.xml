@@ -25,6 +25,11 @@
     <PreferenceCategory
         android:summary="Username and password information"
         android:title="Settings" >
+        <CheckBoxPreference
+            android:key="keepLoggedIn"
+            android:summary="On/Off"
+            android:title="Keep me logged in" />
+
         <ListPreference
             android:entries="@array/listOptions"
             android:entryValues="@array/listValues"

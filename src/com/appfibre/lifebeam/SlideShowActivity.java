@@ -13,8 +13,10 @@ import org.json.JSONObject;
 
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.utils.ImageLoader;
+import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.appfibre.lifebeam.utils.Utils;
+import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -22,6 +24,7 @@ import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import android.app.Activity;
@@ -74,74 +77,89 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	
 	private void setFlipperContent() {
 		Utils.showProgressDialog(SlideShowActivity.this, "Just a few clicks now..." );
-		LifebeamApp globalVars = ((LifebeamApp)getApplication());
-		List<Event> Events = globalVars.getEvents(); 
+		
+		final ParseQuery<ParseUser> innerQuery = ParseUser.getQuery();
+		String family = Session.getInstance().getUserFamilyAccount(SlideShowActivity.this);
+		innerQuery.whereEqualTo("family", family);
+		
+		ParseQuery<Event> queryEvents = new ParseQuery<Event>("Event");
+		queryEvents.whereMatchesQuery("author", innerQuery);
+		queryEvents.orderByDescending("createdAt");
+		queryEvents.include("author");
+		queryEvents.findInBackground(new FindCallback<Event>() {
+			public void done(List<Event> Events, ParseException e) {
+				if(e == null){
+					eventCount = Events.size();
 
-		eventCount = Events.size();
+					for (Event event : Events) {
+						LayoutInflater inflater = (LayoutInflater) SlideShowActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+						View view = inflater.inflate(R.layout.viewflippercontainer, null);
+						
+						LinearLayout llySplendidHolder = (LinearLayout)view.findViewById(R.id.llySplendidHolder);
+						llySplendidHolder.setOnClickListener(SlideShowActivity.this);
+						
+						LinearLayout llyRazzleHolder = (LinearLayout)view.findViewById(R.id.llyRazzleHolder);
+						llyRazzleHolder.setOnClickListener(SlideShowActivity.this);
+						
+						TextView txtDeletePhoto = (TextView)view.findViewById(R.id.txtDeletePhoto);
+						txtDeletePhoto.setOnClickListener(SlideShowActivity.this);
+						
+						ImageView imgPlay = (ImageView)view.findViewById(R.id.imgPlay);
+						imgPlay.setOnClickListener(SlideShowActivity.this);
+						
+						ImageView imgGoToFirst = (ImageView)view.findViewById(R.id.imgGoToFirst);
+						imgGoToFirst.setOnClickListener(SlideShowActivity.this);
+						
+						ImageView imgGoToLast = (ImageView)view.findViewById(R.id.imgGoToLast);
+						imgGoToLast.setOnClickListener(SlideShowActivity.this);
+						
+						ImageView imgGoToPrev = (ImageView)view.findViewById(R.id.imgGoToPrev);
+						imgGoToPrev.setOnClickListener(SlideShowActivity.this);
+						
+						ImageView imgGoToNext = (ImageView)view.findViewById(R.id.imgGoToNext);
+						imgGoToNext.setOnClickListener(SlideShowActivity.this);			
+						
+						((TextView) view.findViewById(R.id.txtSplendidCount)).setText(event.getSplendidCount().toString());
+						((TextView) view.findViewById(R.id.txtRazzleCount)).setText( event.getRazzleCount().toString());
 
-		for (Event event : Events) {
-			LayoutInflater inflater = (LayoutInflater) this
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View view = inflater.inflate(R.layout.viewflippercontainer, null);
-			
-			LinearLayout llySplendidHolder = (LinearLayout)view.findViewById(R.id.llySplendidHolder);
-			llySplendidHolder.setOnClickListener(this);
-			
-			LinearLayout llyRazzleHolder = (LinearLayout)view.findViewById(R.id.llyRazzleHolder);
-			llyRazzleHolder.setOnClickListener(this);
-			
-			TextView txtDeletePhoto = (TextView)view.findViewById(R.id.txtDeletePhoto);
-			txtDeletePhoto.setOnClickListener(this);
-			
-			ImageView imgPlay = (ImageView)view.findViewById(R.id.imgPlay);
-			imgPlay.setOnClickListener(this);
-			
-			ImageView imgGoToFirst = (ImageView)view.findViewById(R.id.imgGoToFirst);
-			imgGoToFirst.setOnClickListener(this);
-			
-			ImageView imgGoToLast = (ImageView)view.findViewById(R.id.imgGoToLast);
-			imgGoToLast.setOnClickListener(this);
-			
-			ImageView imgGoToPrev = (ImageView)view.findViewById(R.id.imgGoToPrev);
-			imgGoToPrev.setOnClickListener(this);
-			
-			ImageView imgGoToNext = (ImageView)view.findViewById(R.id.imgGoToNext);
-			imgGoToNext.setOnClickListener(this);			
-			
-			((TextView) view.findViewById(R.id.txtSplendidCount)).setText(event.getSplendidCount().toString());
-			((TextView) view.findViewById(R.id.txtRazzleCount)).setText( event.getRazzleCount().toString());
+						llySplendidHolder.setTag(event.getObjectId());
+						llyRazzleHolder.setTag(event.getObjectId());
+						txtDeletePhoto.setTag(event.getObjectId());
 
-			llySplendidHolder.setTag(event.getObjectId());
-			llyRazzleHolder.setTag(event.getObjectId());
-			txtDeletePhoto.setTag(event.getObjectId());
+						String owner = "";
 
-			String owner = "";
+						ParseObject eventUser = event.getAuthor();
+						
+						owner = (eventUser.getString("name") == null) ? 
+								eventUser.getString("firstName") + " " + eventUser.getString("lastName") : 
+									eventUser.getString("name");
 
-			ParseObject eventUser = event.getAuthor();
-			
-			owner = (eventUser.getString("name") == null) ? 
-					eventUser.getString("firstName") + " " + eventUser.getString("lastName") : 
-						eventUser.getString("name");
+						((TextView) view.findViewById(R.id.eventAuthor)).setText(owner);
+						((TextView) view.findViewById(R.id.eventTitle)).setText(event.getContent());
 
-			((TextView) view.findViewById(R.id.eventAuthor)).setText(owner);
-			((TextView) view.findViewById(R.id.eventTitle)).setText(event.getContent());
+						Date datE = event.getCreatedAt();
+						SimpleDateFormat dfDate = Utils.getDateFormat();
+						SimpleDateFormat dfTime = Utils.getTimeFormat();
+						String date = dfDate.format(datE);
+						String time = dfTime.format(datE);
 
-			Date datE = event.getCreatedAt();
-			SimpleDateFormat dfDate = Utils.getDateFormat();
-			String date = dfDate.format(datE);
+						((TextView) view.findViewById(R.id.eventDate)).setText(date + " " + time);
 
-			((TextView) view.findViewById(R.id.eventDate)).setText(date);
+						ImageView imageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
+						ImageLoader imageLoader = new ImageLoader(SlideShowActivity.this);
+						imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
 
-			ImageView imageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
-			ImageLoader imageLoader = new ImageLoader(SlideShowActivity.this);
-			imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
-
-			TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
-			txtSettings.setOnClickListener(this);
-			
-			mViewFlipper.addView(view);
-		}
-		Utils.hideProgressDialog();
+						TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
+						txtSettings.setOnClickListener(SlideShowActivity.this);
+						
+						mViewFlipper.addView(view);
+					}
+				} else {
+					Toast.makeText(SlideShowActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+				}
+				Utils.hideProgressDialog();
+			}
+		});	
 	}
 
 	private void setNavigationHolderVisbility(int visibility){

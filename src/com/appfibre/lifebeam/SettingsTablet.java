@@ -46,7 +46,7 @@ public class SettingsTablet extends PreferenceActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.phoneprefs);
+		addPreferencesFromResource(R.xml.tabletprefs);
 
 		Preference terms = (Preference)findPreference("terms");
 		terms.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -78,14 +78,14 @@ public class SettingsTablet extends PreferenceActivity{
 			}
 		});
 		
-		Preference passwordReset = (Preference)findPreference("passwordReset");
-		passwordReset.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+		Preference passwordChange = (Preference)findPreference("passwordChange");
+		passwordChange.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
 				final Dialog dialog = new Dialog(SettingsTablet.this);
 
 		        dialog.setContentView(R.layout.dialog_resetpassword_tablet);
-	            dialog.setTitle("Reset Passcode");
+	            dialog.setTitle("Change Passcode");
 	            
 				final TextView tvOldPasscode       = (TextView)dialog.findViewById(R.id.oldPasscode);
 				final TextView tvNewPasscode       = (TextView)dialog.findViewById(R.id.newPasscode);
@@ -107,7 +107,7 @@ public class SettingsTablet extends PreferenceActivity{
 	                	
                 		if(sessionPasscode != null && sessionPasscode.equals(oldPasscode)){
                 			if(verifyNewPasscode.equals(newPasscode)){
-                				Utils.showProgressDialog(SettingsTablet.this, "Resetting passcode");
+                				Utils.showProgressDialog(SettingsTablet.this, "Changing passcode");
                 				Utils.hideSoftKeyboard(SettingsTablet.this);
                     			ParseQuery<Family> queryFamily = new ParseQuery<Family>("Family");
                     			queryFamily.getInBackground(sessionFamilyObjId, new GetCallback<Family>() {
@@ -121,6 +121,7 @@ public class SettingsTablet extends PreferenceActivity{
 													if(exception == null){
 														session.setUserPasscode(SettingsTablet.this, newPasscode);
 														Toast.makeText(SettingsTablet.this, "Passcode changed successfully", Toast.LENGTH_SHORT).show();
+														dialog.dismiss();
 													} else {
 														Toast.makeText(SettingsTablet.this,exception.getMessage(), Toast.LENGTH_SHORT).show();
 													}
@@ -132,42 +133,7 @@ public class SettingsTablet extends PreferenceActivity{
                 				        }
                 				    }
                 				});
-                    			//queryFamily.whereEqualTo("name", sessionFamilyName);
-                    			//queryFamily.whereEqualTo("passCode", sessionPasscode);
-                    			/*queryFamily.findInBackground(new FindCallback<Family>() {
-                    				public void done(List<Family> Families, ParseException e) {
-                    					if (e == null) {
-                    						if (Families.size() == 0) {
-                    							Utils.hideProgressDialog();
-                    							Toast.makeText(getApplicationContext(),
-                    									"Either your Family Account or Passcode is not correct", Toast.LENGTH_LONG)
-                    									.show();
-                    						} else {
-                    							Family family = Families.get(0);
-                    							family.setPassCode(newPasscode);
-                    							family.saveInBackground(new SaveCallback() {													
-													@Override
-													public void done(ParseException exception) {
-														Utils.hideProgressDialog();
-														if(exception == null){
-															session.setUserPasscode(SettingsTablet.this, newPasscode);
-															Toast.makeText(SettingsTablet.this, "Passcode changed successfully", Toast.LENGTH_SHORT).show();
-														} else {
-															Toast.makeText(SettingsTablet.this,exception.getMessage(), Toast.LENGTH_SHORT).show();
-														}
-													}
-												});
-                    						}
-                    					} else {
-                    						Utils.hideProgressDialog();
-                    						Toast.makeText(getApplicationContext(),
-                    								"Error: " + e.getMessage(), Toast.LENGTH_LONG)
-                    								.show();
-                    						Log.v(TAG, "Error: " + e.getMessage());
-                    					}
-                    				}
-                    			});	*/
-                			} else {
+                    		} else {
     	                		Toast.makeText(SettingsTablet.this, "New passcode does not match.", Toast.LENGTH_LONG).show();
                 			}                			
                 		} else {
@@ -192,7 +158,7 @@ public class SettingsTablet extends PreferenceActivity{
 		account.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) { 
-				String family = Session.getInstance().getSessionFamily(SettingsTablet.this);
+				String family = Session.getInstance().getUserFamilyAccount(SettingsTablet.this);
 				AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(SettingsTablet.this);
 				dlgAlert.setMessage(family);
 				dlgAlert.setTitle("Currently Associated Family Account");

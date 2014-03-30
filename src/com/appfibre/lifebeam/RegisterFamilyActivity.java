@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -120,12 +121,17 @@ public class RegisterFamilyActivity extends Activity {
 				edtFamilyName.requestFocus();
 				return true;
 			}
-			if ("".equals(edtPassCode.getText().toString())) {
-				Toast.makeText(RegisterFamilyActivity.this, "Passcode is Required...", Toast.LENGTH_SHORT).show();
+			
+			if (TextUtils.isEmpty(edtPassCode.getText().toString())) {
+				edtPassCode.setError(getString(R.string.error_field_required));
+				edtPassCode.requestFocus();
+				return true;
+			} else if (edtPassCode.getText().toString().length() < 4) {
+				edtPassCode.setError(getString(R.string.error_invalid_password));
 				edtPassCode.requestFocus();
 				return true;
 			}
-
+						
 			if (isCreateNewAccount) {
 				Log.v(TAG, "save new family name account in parse here");
 				createNewFamilyAccount();
@@ -191,7 +197,7 @@ public class RegisterFamilyActivity extends Activity {
 
 		// Show a progress spinner, and kick off a background task to
 		Utils.showProgressDialog(this, "Looking up your Family Account...");
-		
+		final ParseObject user = ParseUser.getCurrentUser();
 		ParseQuery<Family> queryFamily = new ParseQuery<Family>("Family");
 		queryFamily.whereEqualTo("name", edtFamilyName.getText().toString());
 		queryFamily.whereEqualTo("passCode", edtPassCode.getText().toString());
@@ -204,9 +210,22 @@ public class RegisterFamilyActivity extends Activity {
 								"Either your Family Account or Passcode is not correct", Toast.LENGTH_LONG)
 								.show();
 					} else {
-						ParseUser.getCurrentUser().add("family", edtFamilyName.getText().toString());
-						startActivity(new Intent(RegisterFamilyActivity.this, LoginActivity.class));
-						finish();
+						user.put("family", edtFamilyName.getText().toString());
+						user.saveInBackground(new SaveCallback() {							
+							@Override
+							public void done(ParseException e) {
+								if (e == null){
+									Utils.hideProgressDialog();
+									startActivity(new Intent(RegisterFamilyActivity.this, LoginActivity.class));
+									finish();
+								} else {
+									Utils.hideProgressDialog();
+									Toast.makeText(RegisterFamilyActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+								}
+								
+							}
+						});
+						
 					}
 				} else {
 					Toast.makeText(getApplicationContext(),
