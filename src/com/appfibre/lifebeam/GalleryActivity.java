@@ -360,13 +360,15 @@ public class GalleryActivity extends Activity {
 			holder.txtSplendidCount.setText(String.valueOf(image.getLiked()));
 			
 			if(image.getURL() != null){
+				holder.imgPix.setVisibility(View.VISIBLE);
+				holder.imgClose.setVisibility(View.VISIBLE);
 				holder.imgPix.setTag(image.getURL());
+				holder.imgClose.setTag(image.getId());
 				imageLoader.DisplayImage(image.getURL(), holder.imgPix);
 			} else{
 				holder.imgPix.setVisibility(View.GONE);
 				holder.imgClose.setVisibility(View.GONE);
 			}
-			holder.imgClose.setTag(image.getId());
 			return convertView;
 		}
 	}
@@ -440,10 +442,7 @@ public class GalleryActivity extends Activity {
 			} catch (Exception e) {
 				Log.v(TAG, "Error in extracting splendidCount: " + e.getMessage());
 			}
-			
-			
-			
-			
+
 			MyImageItem image = new MyImageItem(Id, URL, message, owner, family, date, time,
 					razzleCount, splendidCount);
 					
