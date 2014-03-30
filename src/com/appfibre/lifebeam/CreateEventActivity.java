@@ -3,8 +3,10 @@ package com.appfibre.lifebeam;
 import java.io.ByteArrayOutputStream;
 
 import com.appfibre.lifebeam.classes.Event;
+import com.appfibre.lifebeam.classes.EventSerializable;
 import com.appfibre.lifebeam.classes.Family;
 import com.appfibre.lifebeam.utils.CameraUtils;
+import com.appfibre.lifebeam.utils.EventsCache;
 import com.appfibre.lifebeam.utils.Utils;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -50,6 +52,7 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 	private boolean hasNoImage; 
 	private static final int CAPTURE_CAMERA_CODE  = 1337;
 	private static final int GALLERY_CODE  = 1338;
+	private String EVENT_CACHE_KEY = "event_cache_key_";
 	
 	
 	@Override
@@ -109,6 +112,7 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 		    	profileImageUri = imageUri;
 		    }   
 	     }
+		EVENT_CACHE_KEY = EVENT_CACHE_KEY + ParseUser.getCurrentUser().getObjectId();
 	}
 	
 	@Override
@@ -183,10 +187,33 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 				alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog,int id) {
 						dialog.cancel();
-						if(hasNoImage){
-						    postEvent(null);
+						if(Utils.isOnline(CreateEventActivity.this)){
+							if(hasNoImage){
+							    postEvent(null);
+							} else {
+								saveImage();
+							}
 						} else {
-							saveImage();
+							AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CreateEventActivity.this);
+						     
+							alertDialogBuilder.setTitle("Offline");
+							alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event for later posting?");
+							alertDialogBuilder.setIcon(R.drawable.delete);
+							
+							alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+							    public void onClick(DialogInterface dialog,int id) {
+							    	addEventToCache();
+								}
+							});
+							
+							alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+							    public void onClick(DialogInterface dialog,int id) {
+									dialog.cancel();
+								}
+							});
+
+							AlertDialog alertDialog = alertDialogBuilder.create();
+							alertDialog.show();
 						}
 					}
 				});
@@ -195,7 +222,30 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 				alertDialog.show();
 				
 			} else {
-				saveImage();
+				if(Utils.isOnline(CreateEventActivity.this)){
+					saveImage();
+				} else {
+					AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CreateEventActivity.this);
+				     
+					alertDialogBuilder.setTitle("Offline");
+					alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event for later posting?");
+					alertDialogBuilder.setIcon(R.drawable.delete);
+					
+					alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+					    public void onClick(DialogInterface dialog,int id) {
+					    	addEventToCache();
+						}
+					});
+					
+					alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+					    public void onClick(DialogInterface dialog,int id) {
+							dialog.cancel();
+						}
+					});
+
+					AlertDialog alertDialog = alertDialogBuilder.create();
+					alertDialog.show();
+				}
 			}
 			break;
 		case R.id.menuCamera:
@@ -227,6 +277,26 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
                         "Select Picture"), GALLERY_CODE);
                 break;
         }
+	}
+	
+	private void addEventToCache(){
+		EventSerializable event = new EventSerializable();
+		if(!hasNoImage){
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		    BitmapDrawable img = (BitmapDrawable) imgPhoto.getDrawable();
+		    Bitmap bitmap = img.getBitmap();
+		    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+		    event.setImageData(stream.toByteArray());
+		}
+		
+		event.setFamily(ParseUser.getCurrentUser().getString("family"));
+		event.setEventContent(edtPhotoDesc.getText().toString());		
+		
+		EventsCache eventCache = new EventsCache(EVENT_CACHE_KEY, getApplicationContext());
+		eventCache.addEvent(event);
+		
+		setResult(0);
+		finish();
 	}
 	
 	private void saveImage(){
