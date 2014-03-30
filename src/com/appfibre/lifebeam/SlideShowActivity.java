@@ -146,8 +146,12 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 						((TextView) view.findViewById(R.id.eventDate)).setText(date + " " + time);
 
 						ImageView imageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
-						ImageLoader imageLoader = new ImageLoader(SlideShowActivity.this);
-						imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
+						if(event.getImage() != null && event.getImage().getUrl() != null){
+							ImageLoader imageLoader = new ImageLoader(SlideShowActivity.this);
+							imageLoader.DisplayImage(event.getImage().getUrl(), imageView);
+						} else {
+							imageView.setVisibility(View.GONE);
+						}
 
 						TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
 						txtSettings.setOnClickListener(SlideShowActivity.this);

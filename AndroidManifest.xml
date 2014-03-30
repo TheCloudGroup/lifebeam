@@ -90,8 +90,8 @@
             android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".ImageSaveActivity"
-            android:label="Post"
+            android:name=".CreateEventActivity"
+            android:label="Create Event"
             android:theme="@style/AppTheme" >
         </activity>
         <activity

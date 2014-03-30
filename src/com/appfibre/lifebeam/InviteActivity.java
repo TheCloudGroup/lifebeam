@@ -155,9 +155,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		switch (v.getId()) {
 		case R.id.txtForPhotoHolder:
 			break;
-
 		default:
-			Log.e("In ImageSaveActivity onClick method", "unimplemented click listener");
 			break;
 		}
 	}

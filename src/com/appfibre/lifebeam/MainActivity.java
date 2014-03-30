@@ -128,11 +128,8 @@ public class MainActivity extends Activity implements OnClickListener{
 			} else {
 				startActivity(new Intent(MainActivity.this,LoginActivity.class));	
 			}
-			
 			break;
-
 		default:
-			Log.v("In ImageSaveActivity onClick method", "unimplemented click listener");
 			break;
 		}
 	}

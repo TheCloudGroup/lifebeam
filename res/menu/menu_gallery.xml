@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    
+    <!-- 
     <item
         android:id="@+id/menuCamera"
         android:icon="@drawable/ic_action_device_access_camera"
@@ -20,12 +20,22 @@
         android:titleCondensed="@string/gallery"
         android:visible="true">
     </item>
-	
-   	<item android:id="@+id/menuRefresh" 
-          android:orderInCategory="3" 
-          android:title="Refresh"
-          android:icon="@drawable/ic_menu_refresh"
-          android:showAsAction="always">
+	    -->
+	    	
+	<item
+        android:id="@+id/menuAddEvent"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/post"
+        android:titleCondensed="@string/gallery"
+        android:showAsAction="always"
+        android:visible="true">
+    </item>
+	    
+   	<item 
+   	    android:id="@+id/menuRefresh" 
+        android:title="Refresh"
+        android:icon="@drawable/ic_menu_refresh"
+        android:showAsAction="always">
     </item>
     
    	<item
@@ -48,4 +58,6 @@
         android:title="@string/signout"
         android:showAsAction="never">
     </item>
+
+    
 </menu>

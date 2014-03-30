@@ -298,7 +298,6 @@ public class LoginActivity extends Activity implements OnClickListener{
 					switch (e.getCode()) {
 
 					case ParseException.OBJECT_NOT_FOUND:
-
 						showAlertDialog(LoginActivity.this,"Login", "Username or Password is invalid. Try again.", false);
 						break;
 
@@ -412,26 +411,20 @@ public class LoginActivity extends Activity implements OnClickListener{
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public void showAlertDialog(Context context, String title, String message, Boolean status) {
-		AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-
-		// Setting Dialog Title
-		alertDialog.setTitle(title);
-
-		// Setting Dialog Message
-		alertDialog.setMessage(message);
-
-		// Setting alert dialog icon
-		alertDialog.setIcon(R.drawable.delete);
-
-		// Setting OK Button
-		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+	    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(LoginActivity.this);
+	     
+		alertDialogBuilder.setTitle(title);
+		alertDialogBuilder.setMessage(message);
+		alertDialogBuilder.setIcon(R.drawable.delete);
+		alertDialogBuilder.setNegativeButton("OK",new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog,int id) {
+				dialog.cancel();
 			}
 		});
 
-		// Showing Alert Message
+		AlertDialog alertDialog = alertDialogBuilder.create();
+		// show alert
 		alertDialog.show();
 	}
 

@@ -62,7 +62,7 @@ import com.parse.SaveCallback;
  */
 public class GalleryActivity extends Activity {
 
-	private static final int CAPTURE_CAMERA_CODE  = 1337;
+	private static final int CREATE_EVENT_CODE  = 1338;
 	private Uri profileImageUri = null;
 
 	private String TAG = "GalleryActivity";
@@ -199,54 +199,11 @@ public class GalleryActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		String strFamily;
 		switch (item.getItemId()) {
-			case R.id.menuCamera:
-				Log.v(TAG, "reconfirm that there is an associated family for this user");
-				strFamily = ParseUser.getCurrentUser().getString("family");
-				if (strFamily == null) {
-					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(GalleryActivity.this);
-	
-					dlgAlert.setMessage("To start sharing events you need to be associated to a " +
-							" Family Account.  Please join or create your own Family Account in" +
-							" your Application Settings.");
-					dlgAlert.setTitle("No Associated Family Account");
-					dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,int id) {
-							startActivity(new Intent(GalleryActivity.this, SettingsPhone.class));
-						}});
-					dlgAlert.setCancelable(true);
-					dlgAlert.create().show();
-					return true;
-				} else {
-					startActivity(new Intent(GalleryActivity.this, ImageSaveActivity.class));	
-				}
-				break;
-	
-			case R.id.menuGallery:
-				Log.v(TAG, "reconfirm that there is an associated family for this user");
-				strFamily = ParseUser.getCurrentUser().getString("family");
-				if (strFamily == null) {
-					AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(GalleryActivity.this);
-	
-					dlgAlert.setMessage("To start sharing events you need to be associated to a " +
-							" Family Account.  Please join or create your own Family Account in" +
-							" your Application Settings.");
-					dlgAlert.setTitle("No Associated Family Account");
-					dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,int id) {
-							startActivity(new Intent(GalleryActivity.this, SettingsPhone.class));
-						}});
-					dlgAlert.setCancelable(true);
-					dlgAlert.create().show();
-					return true;
-				} else {
-					Intent i = new Intent(GalleryActivity.this, ImageSaveActivity.class);
-					i.putExtra("isGallery", true);
-					startActivity(i);	
-				}
-				break;	
-	
+			case R.id.menuAddEvent:
+		    	Intent intent = new Intent(GalleryActivity.this, CreateEventActivity.class);
+        		startActivityForResult(intent, CREATE_EVENT_CODE);
+		    	break;
 			case R.id.menuRefresh:
 				Log.v(TAG, "selected refresh...");
 				Toast.makeText(this, "Menu refresh selected", Toast.LENGTH_SHORT).show();
@@ -268,10 +225,12 @@ public class GalleryActivity extends Activity {
 	
 			case R.id.menuSignout:
 				Log.v(TAG, "clicked logout...");
+				
 				if (ParseFacebookUtils.getSession() != null) {
 					Log.v(TAG, "Now clearing tokens as there is an FB sessions");
 					ParseFacebookUtils.getSession().closeAndClearTokenInformation();
 				}
+				
 				// Log the user out
 				ParseUser.logOut();
 				Session session = Session.getInstance();
@@ -292,12 +251,10 @@ public class GalleryActivity extends Activity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-
 		return true;
 	}
 
 	public class MyImageAdapter extends BaseAdapter {
-
 		private Context context;
 		private List<MyImageItem> images;
 		private MyImageItem image;
@@ -401,69 +358,35 @@ public class GalleryActivity extends Activity {
 			holder.txtMessage.setText(image.getMessage());
 			holder.txtRazzleCount.setText(String.valueOf(image.getMessagecount()));
 			holder.txtSplendidCount.setText(String.valueOf(image.getLiked()));
-
-			holder.imgPix.setTag(image.getURL());
-			imageLoader.DisplayImage(image.getURL(), holder.imgPix);
 			
+			if(image.getURL() != null){
+				holder.imgPix.setTag(image.getURL());
+				imageLoader.DisplayImage(image.getURL(), holder.imgPix);
+			} else{
+				holder.imgPix.setVisibility(View.GONE);
+				holder.imgClose.setVisibility(View.GONE);
+			}
 			holder.imgClose.setTag(image.getId());
-
-
 			return convertView;
 		}
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.v(TAG, "onActivityResult=====>>>>>>>>>>");
-		Log.v(TAG, "requestCode = " + requestCode);
-		Log.v(TAG, "resultCode = " + resultCode);
 
-		String strProfileImageUri = SharedPrefMgr.getString(getApplicationContext(), "profileImageUri");
-		profileImageUri = Uri.parse(strProfileImageUri);
-
-		Log.v(TAG, "onActivityResult profileImageUri = " +  profileImageUri);
-
-		if (requestCode == GalleryActivity.CAPTURE_CAMERA_CODE) {
-			if (resultCode == RESULT_OK) {
-				Toast.makeText(GalleryActivity.this, "Image Confirmed!", Toast.LENGTH_SHORT).show();
-				if (profileImageUri != null) {
-					try {
-						file = new ParseFile( "file.jpg", CameraUtils.convertUriToBytes(GalleryActivity.this, profileImageUri));
-						file.saveInBackground(new SaveCallback() {
-
-							@Override
-							public void done(com.parse.ParseException e) {
-								if (e == null) {
-									saveImage();
-								} else {
-									Log.v(TAG, "Error saving user with new group : " + e.toString());
-								}
-							}
-
-						});
-
-					} catch (Exception e) {
-						Log.e(TAG, "Error: " + e.getMessage());
-					}
-
-				}
-				Log.v(TAG, "profileImageUri = " + profileImageUri);
-			} else {
-				profileImageUri = null;
+		if( resultCode == RESULT_OK){
+			switch( requestCode ){
+			    case CREATE_EVENT_CODE:
+			    	Log.i(getClass().getName(),"Created new event");
+			    	retrieveEvents(false);
+			        break;
+		    	default:
+			    	break;
 			}
 		}
+				
 	}
-
-	private void saveImage(){
-		Log.v(TAG, "Now attempt to save the image");
-		Intent myIntent;
-		Bundle bundle = new Bundle();
-		bundle.putString("imgLink", "" + profileImageUri);
-		myIntent = new Intent(GalleryActivity.this, ImageSaveActivity.class);
-		myIntent.putExtras(bundle);
-		startActivity(myIntent);
-	}
-
+	
 	private void loadEventsInListView() {
 		if(Images != null){
 			Images.clear();
@@ -476,7 +399,13 @@ public class GalleryActivity extends Activity {
 		for (Event event : EventS) {
 			
 			String Id = event.getObjectId();
-			String URL = event.getImage().getUrl();
+			String URL;
+			if(event.getImage() != null){
+				URL = event.getImage().getUrl();
+			} else {
+				URL = null;
+			}
+			
 			String message = event.getContent();
 			Log.v(TAG, "check if user is via facebook");
 			
