@@ -361,13 +361,13 @@ public class GalleryActivity extends Activity {
 			
 			if(image.getURL() != null){
 				holder.imgPix.setVisibility(View.VISIBLE);
-				holder.imgClose.setVisibility(View.VISIBLE);
+				//holder.imgClose.setVisibility(View.VISIBLE);
 				holder.imgPix.setTag(image.getURL());
 				holder.imgClose.setTag(image.getId());
 				imageLoader.DisplayImage(image.getURL(), holder.imgPix);
 			} else{
 				holder.imgPix.setVisibility(View.GONE);
-				holder.imgClose.setVisibility(View.GONE);
+				//holder.imgClose.setVisibility(View.GONE);
 			}
 			return convertView;
 		}

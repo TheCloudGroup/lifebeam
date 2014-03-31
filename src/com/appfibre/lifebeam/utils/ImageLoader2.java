@@ -115,7 +115,7 @@ public class ImageLoader2 {
         view.setImageDrawable(result);
 
         // Now change ImageView's dimensions to match the scaled image
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams(); 
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams(); 
         params.width = width;
         params.height = height;
         view.setLayoutParams(params);
