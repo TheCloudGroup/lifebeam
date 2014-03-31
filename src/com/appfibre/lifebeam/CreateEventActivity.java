@@ -99,7 +99,15 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 	        
 	        if(bitmap != null){
 	        	imgPhoto.setImageBitmap(bitmap);
-	        	hasNoImage = false;
+	        }
+	        hasNoImage = savedInstanceState.getBoolean("hasNoImage");
+	        
+	        if(!hasNoImage) {
+	        	imgRotate.setVisibility(View.VISIBLE);
+				imgDelete.setVisibility(View.VISIBLE);
+	        } else {
+	        	imgRotate.setVisibility(View.GONE);
+				imgDelete.setVisibility(View.GONE);
 	        }
 	        
 	        String sPhotoDesc = savedInstanceState.getString("photoDesc");
@@ -128,6 +136,8 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 	    if(sPhotoDesc != null && edtPhotoDesc.length() > 0){
 	    	outState.putString("photoDesc", sPhotoDesc);
 	    }
+	    
+	    outState.putBoolean("hasNoImage", hasNoImage);
 	    
 	    if(profileImageUri != null ){
 	    	outState.putParcelable("profileImageUri", profileImageUri);
