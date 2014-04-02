@@ -6,11 +6,13 @@ package com.appfibre.lifebeam;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,12 +31,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appfibre.lifebeam.classes.Event;
+import com.appfibre.lifebeam.classes.Family;
 import com.appfibre.lifebeam.utils.CameraUtils;
 import com.appfibre.lifebeam.utils.ImageLoader2;
 import com.appfibre.lifebeam.utils.MyImageItem;
@@ -45,7 +50,10 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.GetCallback;
 import com.parse.ParseAnalytics;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
@@ -219,8 +227,7 @@ public class GalleryActivity extends Activity {
 				break;
 	
 			case R.id.menuHelp:
-				Log.v(TAG, "selected help...");
-				Toast.makeText(this, "Menu Help selected", Toast.LENGTH_SHORT).show();
+				showHelpDialog();
 				break;
 	
 			case R.id.menuSignout:
@@ -249,6 +256,61 @@ public class GalleryActivity extends Activity {
 		return true;
 	}
 
+	private void showHelpDialog(){
+		final Dialog dialog = new Dialog(GalleryActivity.this);
+
+        dialog.setContentView(R.layout.dialog_help);
+        dialog.setTitle("Help");
+        dialog.setCancelable(false);
+        
+	    final EditText supportMessage = (EditText)dialog.findViewById(R.id.supportMessage);
+	    Button supportSend            = (Button)dialog.findViewById(R.id.supportSend);
+	    Button supportCancel          = (Button)dialog.findViewById(R.id.supportCancel);
+        
+	    supportSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	Utils.showProgressDialog(GalleryActivity.this, "Sending email to support.");
+                ParseUser parseUser = ParseUser.getCurrentUser();
+                String message = supportMessage.getText().toString();
+                if(message.length() > 0){
+                	String email = parseUser.getEmail();
+                    String fname = parseUser.getString("firstName") != null  ? parseUser.getString("firstName") : "";
+                    String lname = parseUser.getString("lastName") != null ? parseUser.getString("lastName") : "";
+                    String name  = fname + " " + lname;
+                    
+                    HashMap<String, String> params =  new HashMap<String, String>();
+    				params.put("message", message);
+    				params.put("fromEmail", email);
+    				params.put("fromName", name);
+    				//send confirmation email to user
+    				ParseCloud.callFunctionInBackground("sendSupportEmail", params, new FunctionCallback<String>() {
+    				  public void done(String result, ParseException e) {
+    				    if (e == null) {
+    				      Log.v(getClass().getName(), "Support email sent.");
+    				    } else{
+    				      Log.e(getClass().getName(), e.getMessage());	
+    				    }
+    				    Utils.hideProgressDialog();
+    				    dialog.dismiss();
+    				  }
+    				});
+                } else {
+                	Utils.hideProgressDialog();
+                	supportMessage.setError("Message required");
+                }
+            }
+        });
+        
+	    supportCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+	}
+	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		return true;

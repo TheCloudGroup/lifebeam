@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+        
+	<LinearLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:layout_margin="10dp" >
+	    
+	    <TextView 
+	        android:drawableBottom="@android:drawable/divider_horizontal_dim_dark"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="We're happy to asisst you in anyway we can. Please use this form to send us problem reports, feature ideas and general comments regarding the app."/>
+	       
+	    <EditText
+	        android:id="@+id/supportMessage"
+	        style="@android:style/TextAppearance.Medium"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:hint="Enter your message"
+	        android:inputType="textMultiLine"
+	        android:maxLength="200"
+	        android:lines="7"
+	        android:background="@drawable/addevent_rounded"
+	        android:paddingBottom="15dp"
+	        android:paddingLeft="15dp"
+	        android:paddingRight="15dp"
+	        android:paddingTop="15dp"
+	        android:layout_marginTop="10dp"
+	        android:visibility="visible"
+	        android:gravity="top|left"/>
+	    
+	    
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:gravity="center_vertical">
+	        
+	        <Button
+		       android:id="@+id/supportSend"
+	            android:layout_width="0.0dip"
+	            android:layout_weight="1.0"
+	            android:layout_height="fill_parent"
+	            android:text="Send"
+	            android:layout_gravity="center_vertical"
+	            android:background="@drawable/rounded_cornerblue"
+	            android:layout_marginLeft="40dp"
+	            android:layout_marginRight="5dp"
+	            android:layout_marginTop="15dp"
+	            android:layout_marginBottom="10dp"/>
+	
+	        <Button android:id="@+id/supportCancel"
+	            android:layout_width="0.0dip"
+	            android:layout_weight="1.0"
+	            android:layout_height="fill_parent"
+	            android:text="Cancel"
+	            android:background="@drawable/rounded_cornerblue"
+	            android:layout_gravity="center_vertical"
+	            android:layout_marginRight="40dp"
+	            android:layout_marginTop="15dp"
+	            android:layout_marginBottom="10dp"/>
+	    </LinearLayout>
+	</LinearLayout>
+</ScrollView>
