@@ -94,57 +94,9 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 
 		edtPhotoDesc.addTextChangedListener(mTextEditorWatcher);
 		
-		if(savedInstanceState != null) {
-	        Bitmap bitmap = savedInstanceState.getParcelable("eventImage");
-	        
-	        if(bitmap != null){
-	        	imgPhoto.setImageBitmap(bitmap);
-	        }
-	        hasNoImage = savedInstanceState.getBoolean("hasNoImage");
-	        
-	        if(!hasNoImage) {
-	        	imgRotate.setVisibility(View.VISIBLE);
-				imgDelete.setVisibility(View.VISIBLE);
-	        } else {
-	        	imgRotate.setVisibility(View.GONE);
-				imgDelete.setVisibility(View.GONE);
-	        }
-	        
-	        String sPhotoDesc = savedInstanceState.getString("photoDesc");
-		    if(sPhotoDesc != null){
-		    	edtPhotoDesc.setText(sPhotoDesc);
-		    }
-		    
-		    Uri imageUri = savedInstanceState.getParcelable("profileImageUri");
-		    if(imageUri != null ){
-		    	profileImageUri = imageUri;
-		    }   
-	     }
 		EVENT_CACHE_KEY = EVENT_CACHE_KEY + ParseUser.getCurrentUser().getObjectId();
 	}
 	
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-	    BitmapDrawable img = (BitmapDrawable) imgPhoto.getDrawable();
-	    Bitmap bitmap = img.getBitmap();
-	    
-	    if(bitmap != null){
-	    	outState.putParcelable("eventImage", bitmap);		    	
-	    }
-	    
-	    String sPhotoDesc = edtPhotoDesc.getText().toString();
-	    if(sPhotoDesc != null && edtPhotoDesc.length() > 0){
-	    	outState.putString("photoDesc", sPhotoDesc);
-	    }
-	    
-	    outState.putBoolean("hasNoImage", hasNoImage);
-	    
-	    if(profileImageUri != null ){
-	    	outState.putParcelable("profileImageUri", profileImageUri);
-	    }
-	    super.onSaveInstanceState(outState);
-	}
-
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
@@ -180,83 +132,95 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menuPost:
-			if(hasNoImage){
-				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CreateEventActivity.this);
-			     
-				alertDialogBuilder.setTitle("No Image");
-				alertDialogBuilder.setMessage("Would you like to add an image to this event?");
-				alertDialogBuilder.setIcon(R.drawable.delete);
-				
-				alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-				    public void onClick(DialogInterface dialog,int id) {
-				    	dialog.cancel();
-				    	setEventImage(CAPTURE_CAMERA_CODE);
-					}
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CreateEventActivity.this);
+			if(hasNoImage && edtPhotoDesc.getText().toString().length() == 0){
+				alertDialogBuilder.setTitle("Error");
+				alertDialogBuilder.setMessage("No event data found, please add either a message or an image or both to post events.");
+				alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				   public void onClick(DialogInterface dialog, int which) {
+					   dialog.cancel();
+				   }
 				});
-				
-				alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
-				    public void onClick(DialogInterface dialog,int id) {
-						dialog.cancel();
-						if(Utils.isOnline(CreateEventActivity.this)){
-							if(hasNoImage){
-							    postEvent(null);
-							} else {
-								saveImage();
-							}
-						} else {
-							AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CreateEventActivity.this);
-						     
-							alertDialogBuilder.setTitle("Offline");
-							alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event for later posting?");
-							alertDialogBuilder.setIcon(R.drawable.delete);
-							
-							alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-							    public void onClick(DialogInterface dialog,int id) {
-							    	addEventToCache();
-								}
-							});
-							
-							alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
-							    public void onClick(DialogInterface dialog,int id) {
-									dialog.cancel();
-								}
-							});
-
-							AlertDialog alertDialog = alertDialogBuilder.create();
-							alertDialog.show();
-						}
-					}
-				});
-
-				AlertDialog alertDialog = alertDialogBuilder.create();
-				alertDialog.show();
-				
+				// Set the Icon for the Dialog
+				alertDialogBuilder.create().show();
 			} else {
-				if(Utils.isOnline(CreateEventActivity.this)){
-					saveImage();
-				} else {
-					AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CreateEventActivity.this);
+				if(hasNoImage){
+					
 				     
-					alertDialogBuilder.setTitle("Offline");
-					alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event for later posting?");
+					alertDialogBuilder.setTitle("No Image");
+					alertDialogBuilder.setMessage("Would you like to add an image to this event?");
 					alertDialogBuilder.setIcon(R.drawable.delete);
 					
 					alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
 					    public void onClick(DialogInterface dialog,int id) {
-					    	addEventToCache();
+					    	dialog.cancel();
+					    	setEventImage(CAPTURE_CAMERA_CODE);
 						}
 					});
 					
 					alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
 					    public void onClick(DialogInterface dialog,int id) {
 							dialog.cancel();
+							if(Utils.isOnline(CreateEventActivity.this)){
+								if(hasNoImage){
+								    postEvent(null);
+								} else {
+									saveImage();
+								}
+							} else {
+								AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CreateEventActivity.this);
+							     
+								alertDialogBuilder.setTitle("Offline");
+								alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event for later posting?");
+								alertDialogBuilder.setIcon(R.drawable.delete);
+								
+								alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+								    public void onClick(DialogInterface dialog,int id) {
+								    	addEventToCache();
+									}
+								});
+								
+								alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+								    public void onClick(DialogInterface dialog,int id) {
+										dialog.cancel();
+									}
+								});
+
+								AlertDialog alertDialog = alertDialogBuilder.create();
+								alertDialog.show();
+							}
 						}
 					});
 
 					AlertDialog alertDialog = alertDialogBuilder.create();
 					alertDialog.show();
+					
+				} else {
+					if(Utils.isOnline(CreateEventActivity.this)){
+						saveImage();
+					} else {					     
+						alertDialogBuilder.setTitle("Offline");
+						alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event for later posting?");
+						alertDialogBuilder.setIcon(R.drawable.delete);
+						
+						alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+						    	addEventToCache();
+							}
+						});
+						
+						alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+								dialog.cancel();
+							}
+						});
+
+						AlertDialog alertDialog = alertDialogBuilder.create();
+						alertDialog.show();
+					}
 				}
 			}
+			
 			break;
 		case R.id.menuCamera:
 			setEventImage(CAPTURE_CAMERA_CODE);
