@@ -200,7 +200,7 @@ public class CreateEventActivity extends Activity  implements OnClickListener {
 						saveImage();
 					} else {					     
 						alertDialogBuilder.setTitle("Offline");
-						alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event for later posting?");
+						alertDialogBuilder.setMessage("You seem to be offline, would you like to save this event to be sent later?");
 						alertDialogBuilder.setIcon(R.drawable.delete);
 						
 						alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {

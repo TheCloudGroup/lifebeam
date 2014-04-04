@@ -53,7 +53,9 @@ public class EventsCache {
         FileOutputStream fos = context.openFileOutput(KEY, Context.MODE_PRIVATE);
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(object);
+        oos.flush();
         oos.close();
+        fos.flush();
         fos.close();
     }
    
@@ -62,11 +64,13 @@ public class EventsCache {
         FileInputStream fis = this.context.openFileInput(KEY);
         ObjectInputStream ois = new ObjectInputStream(fis);
         List<EventSerializable> object = (List<EventSerializable>)ois.readObject();
+        fis.close();
+        ois.close();
         return object;
      }
     
     public boolean emptyCache(){
-    	File file = new File(KEY);
+    	File file = context.getFileStreamPath(KEY);//new File(KEY);
     	return file.delete();
     }
 }
