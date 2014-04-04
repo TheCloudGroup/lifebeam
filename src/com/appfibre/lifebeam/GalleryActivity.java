@@ -49,6 +49,7 @@ import com.appfibre.lifebeam.utils.Utils;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.GetCallback;
@@ -85,7 +86,7 @@ public class GalleryActivity extends Activity {
 	private PullToRefreshListView mainListView;
 	private MyImageAdapter mainListViewAdapter;
 	
-	private String eventIdToDelete;
+	//private String eventIdToDelete;
     private String updatedEventId;
     private int updatedEventIdIndex;
     
@@ -331,7 +332,7 @@ public class GalleryActivity extends Activity {
 		/*private view holder class*/
 		private class ViewHolder {
 			ImageView imgPix;
-			ImageView imgClose;
+			ImageView imgDelete;
 			TextView txtOwner;
 			TextView txtDate;
 			TextView txtTime;
@@ -366,7 +367,7 @@ public class GalleryActivity extends Activity {
 				convertView = mInflater.inflate(R.layout.gallery_list_item, null);
 				holder = new ViewHolder();
 				holder.imgPix = (ImageView) convertView.findViewById(R.id.imgPix);
-				holder.imgClose = (ImageView) convertView.findViewById(R.id.imgClose);
+				holder.imgDelete = (ImageView) convertView.findViewById(R.id.imgDelete);
 				holder.txtOwner = (TextView) convertView.findViewById(R.id.txtOwner);
 				holder.txtDate = (TextView) convertView.findViewById(R.id.txtDate);
 				holder.txtTime = (TextView) convertView.findViewById(R.id.txtTime);
@@ -375,16 +376,9 @@ public class GalleryActivity extends Activity {
 				holder.txtSplendidCount = (TextView) convertView.findViewById(R.id.txtSplendidCount);
 				convertView.setTag(holder);
 				
-				holder.imgClose.setOnClickListener(new OnClickListener() {
+				holder.imgDelete.setOnClickListener(new OnClickListener() {
 					@Override
-					public void onClick(View v) {
-						ImageView imgClose = (ImageView) v ; 
-						eventIdToDelete = (String) imgClose.getTag();
-						selectedIndex = position;
-						
-						//Toast.makeText(getApplicationContext(),
-						//		"You selected for deletion = " + eventIdToDelete, Toast.LENGTH_LONG).show();
-						
+					public void onClick(final View v) {				
 						AlertDialog.Builder alertDialog = new AlertDialog.Builder(GalleryActivity.this);
 						alertDialog.setTitle("Confirm Delete...");
 						alertDialog.setMessage("Are you sure you want to delete this event?");
@@ -393,9 +387,15 @@ public class GalleryActivity extends Activity {
 						alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,int which) {
 								dialog.cancel();
-								resetParseUserEvents();
-								//resetListView(item, position -1,REMOVE_AS_USER_INTEREST);
-								//hasInformedRemoveOnce = true;
+								ImageView img = (ImageView)v;
+								String itemId = (String)img.getTag();
+								for(int i = 0; i < Images.size(); i++){
+									MyImageItem imageItem = Images.get(i);
+									if(imageItem.getId().equals(itemId)){
+										deleteEvent(i, itemId);
+										break;
+									}
+								}								
 							}
 						});
 
@@ -423,14 +423,13 @@ public class GalleryActivity extends Activity {
 			
 			if(image.getURL() != null){
 				holder.imgPix.setVisibility(View.VISIBLE);
-				//holder.imgClose.setVisibility(View.VISIBLE);
 				holder.imgPix.setTag(image.getURL());
-				holder.imgClose.setTag(image.getId());
 				imageLoader.DisplayImage(image.getURL(), holder.imgPix);
 			} else{
 				holder.imgPix.setVisibility(View.GONE);
-				//holder.imgClose.setVisibility(View.GONE);
 			}
+			holder.imgDelete.setTag(image.getId());
+
 			return convertView;
 		}
 	}
@@ -520,27 +519,22 @@ public class GalleryActivity extends Activity {
 		}		
 	}
 	
-	private void resetParseUserEvents() {
-		Utils.showProgressDialog(GalleryActivity.this, "Deleting this event in server...");
-		myEvents = currentUser.getRelation("events");
-		myEvents.getQuery().findInBackground(new FindCallback<ParseObject>() {
+	private void deleteEvent(final int position, String eventIdToDelete) {
+		Utils.showProgressDialog(GalleryActivity.this, "Removing Event.");
+		ParseObject.createWithoutData("Event", eventIdToDelete).deleteInBackground( new DeleteCallback() {
 			@Override
-			public void done(List<ParseObject> MyEvents, ParseException e) {
-				if (e == null) {
-					deleteEvent(eventIdToDelete);
-					Images.remove(selectedIndex);
+			public void done(ParseException e) {
+				Utils.hideProgressDialog();
+				if( e == null ){
+					Images.remove(position);
 					MyImageAdapter adapter = new MyImageAdapter(GalleryActivity.this, Images);
-					mainListView.setAdapter(adapter);					
-				} else {
-					Log.e(TAG, "There was an error trying to query MyInterests: " + e.getMessage());
-				}
-				Utils.hideProgressDialog();				
+					mainListView.setAdapter(adapter);
+                	Toast.makeText(GalleryActivity.this, "Event removed", Toast.LENGTH_SHORT).show();
+                } else {
+                	Toast.makeText(GalleryActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                
 			}
 		});
-	}
-	
-	private void deleteEvent(String selectedId) {
-		//attempt to delete now:
-		ParseObject.createWithoutData("Event", selectedId).deleteEventually();
 	}
 }
