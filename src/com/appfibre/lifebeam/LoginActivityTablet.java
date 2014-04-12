@@ -78,15 +78,14 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
 		//check if there is a stored session login via normal and not FB
-		String familyAccount = session.getUserFamilyAccount(getApplicationContext());
+		/*String familyAccount = session.getUserFamilyAccount(getApplicationContext());
 		String passCode = session.getUserPasscode(getApplicationContext());
 		
 		if ( familyAccount!= null && familyAccount.length() > 0 && 
 			 passCode !=null &&  passCode.length() > 0 ) {
 			//attemptLogin(Session.getUserFamilyAccount(), Session.getUserPasscode());
 			doLogin(familyAccount,passCode);
-		}
-		
+		}*/		
 	}
 	
 	@Override
@@ -213,7 +212,10 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 						session.setUserFamilyAccount(getApplicationContext(), familyAccountName);
 						session.setUserPasscode(getApplicationContext(), passcode);
 						session.setSessionId(getApplicationContext(), ParseUser.getCurrentUser().getSessionToken());
-						extractEvents(familyAccountName);
+						//extractEvents(familyAccountName);
+						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity.class);
+						//myIntent.putStringArrayListExtra("eventImageUrls", (ArrayList<String>) eventImageUrls);
+						startActivity(myIntent);	
 					}
 				} else {
 					Toast.makeText(getApplicationContext(),
