@@ -12,10 +12,8 @@ import java.util.List;
 
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.utils.ImageLoader;
-import com.appfibre.lifebeam.utils.ImageLoader2;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.Utils;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -25,7 +23,6 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.squareup.picasso.Picasso;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -60,14 +57,12 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	public List<Bitmap> eventBmps = new ArrayList<Bitmap>();	
 	private static final String TAG = "SlideShowActivity";
 	private int eventCount;
-	private Picasso picasso;
 	ImageLoader imageLoader;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_slideshow);
 		imageLoader = new ImageLoader(this);
-		picasso = Picasso.with(this);
 		mViewFlipper = (ViewFlipper) this.findViewById(R.id.view_flipper);
 		mViewFlipper.setOnClickListener(this);
 
