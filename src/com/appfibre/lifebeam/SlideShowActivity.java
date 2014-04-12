@@ -87,6 +87,8 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 			public void done(List<Event> Events, ParseException e) {
 				if(e == null){
 					eventCount = Events.size();
+					LifebeamApp app = (LifebeamApp)getApplication();
+					app.setEvents(Events);
 					new LoadEvents(SlideShowActivity.this).execute(Events.toArray());
 				} else {
 					Toast.makeText(SlideShowActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -96,7 +98,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 		});	
 	}
 
-	private class LoadEvents extends AsyncTask<Object, View, Void> {	
+	private class LoadEvents extends AsyncTask<Object, View, List<View>> {	
 		private ProgressDialog dialog;
 		private Activity activity;
 		private int counter;
@@ -115,8 +117,9 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 
 		
 		@Override
-	    protected Void doInBackground(Object...events) {
+	    protected List<View> doInBackground(Object...events) {
             Log.i("Events Tag", "Event count Found " + eventCount + " events" );
+            List<View> views = new ArrayList<View>();
 			for (int i = 0; i < eventCount; i++) {
 				counter = i;
 				Event event = (Event)events[i];
@@ -183,22 +186,28 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 				
 				TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
 				txtSettings.setOnClickListener((OnClickListener) this.activity);
-	            publishProgress(view);
+	            //publishProgress(view);
+				views.add(view);
 				Log.i("Events Tag", "Loading event number " + counter);
 			}					
-	        return null;
+	        return views;
 	    }
 
-		@Override
-	    protected void onProgressUpdate(View...view){
-			mViewFlipper.addView(view[0]);
-	    }
+//		@Override
+//	    protected void onProgressUpdate(View...view){
+//			mViewFlipper.addView(view[0]);
+//	    }
 
 		@Override
-	    protected void onPostExecute(Void result) {
+	    protected void onPostExecute(List<View> views) {    	
+	    	for(View view : views){
+	    		mViewFlipper.addView(view);
+	    	}
+	    	
 	    	if(dialog.isShowing()){
 	    		dialog.dismiss();
 	    	}
+	    	
 	    	mViewFlipper.setFlipInterval(4000);
 			mViewFlipper.startFlipping();
 	    }		
