@@ -186,17 +186,11 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 				
 				TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
 				txtSettings.setOnClickListener((OnClickListener) this.activity);
-	            //publishProgress(view);
 				views.add(view);
 				Log.i("Events Tag", "Loading event number " + counter);
 			}					
 	        return views;
 	    }
-
-//		@Override
-//	    protected void onProgressUpdate(View...view){
-//			mViewFlipper.addView(view[0]);
-//	    }
 
 		@Override
 	    protected void onPostExecute(List<View> views) {    	
