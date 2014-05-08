@@ -213,7 +213,7 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 						session.setUserPasscode(getApplicationContext(), passcode);
 						session.setSessionId(getApplicationContext(), ParseUser.getCurrentUser().getSessionToken());
 						//extractEvents(familyAccountName);
-						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity.class);
+						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity2.class);
 						//myIntent.putStringArrayListExtra("eventImageUrls", (ArrayList<String>) eventImageUrls);
 						startActivity(myIntent);	
 					}

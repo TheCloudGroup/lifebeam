@@ -16,7 +16,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -34,7 +37,9 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +69,9 @@ import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 /**
  * @author Angel Abellanosa Jr
@@ -421,17 +429,91 @@ public class GalleryActivity extends Activity {
 			holder.txtRazzleCount.setText(String.valueOf(image.getMessagecount()));
 			holder.txtSplendidCount.setText(String.valueOf(image.getLiked()));
 			
+			final ProgressBar imgProgressBar = (ProgressBar)convertView.findViewById(R.id.galleryLoadingImg);
+			imgProgressBar.setVisibility(View.VISIBLE);
+			
 			if(image.getURL() != null){
 				holder.imgPix.setVisibility(View.VISIBLE);
 				holder.imgPix.setTag(image.getURL());
-				imageLoader.DisplayImage(image.getURL(), holder.imgPix);
+				final ImageView fImgPix = holder.imgPix;
+				//imageLoader.DisplayImage(image.getURL(), holder.imgPix);
+				
+				Picasso.with(GalleryActivity.this)
+			       .load(image.getURL())
+			       .transform(new ResizeTransform(holder.imgPix))
+			       .into(holder.imgPix, new Callback(){                   
+						@Override
+						public void onError() {
+							fImgPix.setVisibility(View.VISIBLE);
+							imgProgressBar.setVisibility(View.GONE);
+						}
+	
+						@Override
+						public void onSuccess() {
+							fImgPix.setVisibility(View.VISIBLE);
+							imgProgressBar.setVisibility(View.GONE);
+						}			    	   
+			       });
 			} else{
+				imgProgressBar.setVisibility(View.GONE);
 				holder.imgPix.setVisibility(View.GONE);
 			}
 			holder.imgDelete.setTag(image.getId());
 
 			return convertView;
 		}
+		private int dpToPx(int dp)
+	    {
+	        float density = this.context.getResources().getDisplayMetrics().density;
+	        return Math.round((float)dp * density);
+	    }
+		
+		private class ResizeTransform implements Transformation {
+			private ImageView view;
+			
+			public ResizeTransform(ImageView view){
+				this.view = view;
+			}
+			
+	        @Override 
+		    public Bitmap transform(Bitmap bitmap) {
+                Bitmap resizedBmp = null;
+                if(bitmap != null && view != null){		       		  
+                    // Get current dimensions AND the desired bounding box
+                    int width = bitmap.getWidth();
+                    int height = bitmap.getHeight();
+                    int bounding = dpToPx(450);
+		 
+                    float xScale = ((float) bounding) / width;
+                    float yScale = ((float) bounding) / height;
+                    float scale = (xScale <= yScale) ? xScale : yScale;
+				      
+                    // Create a matrix for the scaling and add the scaling data
+                    Matrix matrix = new Matrix();
+                    matrix.postScale(scale, scale);
+		
+                    // Create a new bitmap and convert it to a format understood by the ImageView 
+                    resizedBmp = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+                    width = resizedBmp.getWidth(); // re-use
+                    height = resizedBmp.getHeight(); // re-use
+                    
+                    // Now change ImageView's dimensions to match the scaled image
+                    //LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams(); 
+                    //params.width = resizedBmp.getWidth();
+                    //params.height = resizedBmp.getHeight();
+                    //view.setLayoutParams(params);
+                    
+                    if(resizedBmp != bitmap){
+                        bitmap.recycle();
+                    }
+                }
+            	  
+            	return resizedBmp;
+		    	
+			      
+			}
+			@Override public String key() { return "square()"; }
+        }
 	}
 
 	@Override
