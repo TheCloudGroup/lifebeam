@@ -39,3 +39,6 @@ nb-configuration.xml
 
 # Ignore this properties
 additional.properties
+
+#Mac files
+.DS_Store
