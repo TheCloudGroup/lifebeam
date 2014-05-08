@@ -440,7 +440,7 @@ public class GalleryActivity extends Activity {
 				
 				Picasso.with(GalleryActivity.this)
 			       .load(image.getURL())
-			       .transform(new ResizeTransform(holder.imgPix))
+			       //.transform(new ResizeTransform(holder.imgPix))
 			       .into(holder.imgPix, new Callback(){                   
 						@Override
 						public void onError() {
@@ -494,8 +494,8 @@ public class GalleryActivity extends Activity {
 		
                     // Create a new bitmap and convert it to a format understood by the ImageView 
                     resizedBmp = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-                    width = resizedBmp.getWidth(); // re-use
-                    height = resizedBmp.getHeight(); // re-use
+                    //width = resizedBmp.getWidth(); // re-use
+                    //height = resizedBmp.getHeight(); // re-use
                     
                     // Now change ImageView's dimensions to match the scaled image
                     //LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams(); 
