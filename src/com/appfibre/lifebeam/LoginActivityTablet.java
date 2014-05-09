@@ -213,7 +213,7 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 						session.setUserPasscode(getApplicationContext(), passcode);
 						session.setSessionId(getApplicationContext(), ParseUser.getCurrentUser().getSessionToken());
 						//extractEvents(familyAccountName);
-						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity2.class);
+						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity.class);
 						//myIntent.putStringArrayListExtra("eventImageUrls", (ArrayList<String>) eventImageUrls);
 						startActivity(myIntent);	
 					}
@@ -317,39 +317,5 @@ public class LoginActivityTablet extends Activity implements OnClickListener{
 		}		
 		return true;
 	}
-
-	private void extractEvents(String familyAccount) {
-		Utils.showProgressDialog(LoginActivityTablet.this, "Extracting events.");
-		Log.v(TAG, "how many events for this family ?????????????? " + familyAccount);
-		ParseQuery<Event> queryEvent = new ParseQuery<Event>("Event");
-		queryEvent.whereEqualTo("family", familyAccount);
-		queryEvent.include("author");
-		queryEvent.findInBackground(new FindCallback<Event>() {
-			public void done(List<Event> Events, ParseException e) {
-				Utils.hideProgressDialog();
-				ParseObject user = new ParseObject("User");
-				if (e == null) {
-					
-					if (Events.size() == 0) {
-						Toast.makeText(getApplicationContext(),
-								"There are no events associated with this family account.", Toast.LENGTH_LONG)
-								.show();
-					} else {
-						Log.v(TAG, "hook up a global variable here for the events loading in slideshowactivity");
-						LifebeamApp globalVars = ((LifebeamApp)getApplication());
-						globalVars.setEvents(Events); 
-						Intent myIntent = new Intent(LoginActivityTablet.this, SlideShowActivity.class);
-						//myIntent.putStringArrayListExtra("eventImageUrls", (ArrayList<String>) eventImageUrls);
-						startActivity(myIntent);	
-					}
-				} else {
-					Toast.makeText(getApplicationContext(),
-							"Error: " + e.getMessage(), Toast.LENGTH_LONG)
-							.show();
-					Log.v(TAG, "Error: " + e.getMessage());
-				}
-			}
-		});	
-		
-	}
+	
 }

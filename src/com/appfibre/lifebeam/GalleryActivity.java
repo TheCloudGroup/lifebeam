@@ -46,7 +46,6 @@ import android.widget.Toast;
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.classes.Family;
 import com.appfibre.lifebeam.utils.CameraUtils;
-import com.appfibre.lifebeam.utils.ImageLoader2;
 import com.appfibre.lifebeam.utils.MyImageItem;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
@@ -329,7 +328,6 @@ public class GalleryActivity extends Activity {
 		private Context context;
 		private List<MyImageItem> images;
 		private MyImageItem image;
-		public ImageLoader2 imageLoader;
 		private String TAG = "MyImageAdapter";
 
 		public MyImageAdapter(Context context, ArrayList<MyImageItem> images) {
@@ -370,7 +368,6 @@ public class GalleryActivity extends Activity {
 			ViewHolder holder = null;
 
 			LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-			imageLoader = new ImageLoader2(context);
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.gallery_list_item, null);
 				holder = new ViewHolder();

@@ -39,7 +39,7 @@ import android.widget.Toast;
 public class SlideShowEventItem extends Fragment implements OnClickListener, Target{
 	private Event event;
 	private LinearLayout llyNavigationHolder;
-	private SlideShowActivity2 parentActivity;
+	private SlideShowActivity parentActivity;
 	private LinearLayout llySplendidHolder;
 	private TextView txtSplendidCount;
 	
@@ -59,7 +59,7 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		parentActivity      = (SlideShowActivity2)getActivity();
+		parentActivity      = (SlideShowActivity)getActivity();
 		llyNavigationHolder = (LinearLayout)parentActivity.findViewById(R.id.llyNavigationHolder);
 		if(getView() != null){
 			eventImageView = (ImageView) getView().findViewById(R.id.imgeventPhoto);
@@ -99,14 +99,13 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 		if(imageFile != null){
 			String imgUrl = imageFile.getUrl();
 			//imageLoader.DisplayImage(imgUrl, imageView);
-			((SlideShowActivity2)getActivity()).stopFlip();
+			((SlideShowActivity)getActivity()).stopFlip();
 			
 			//if cache max size is more or equal to the current cache size + 1mb
 			//clear the cache
 
 			Picasso.with(parentActivity)
 			       .load(imgUrl)
-			       .skipMemoryCache()
 			       .error(R.drawable.image_load_fail)
 			       .into(this);
 		} else {

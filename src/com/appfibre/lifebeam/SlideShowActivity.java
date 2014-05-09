@@ -1,79 +1,72 @@
-/**
- * 
- */
 package com.appfibre.lifebeam;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-
+import java.util.concurrent.Executors;
 
 import com.appfibre.lifebeam.classes.Event;
-import com.appfibre.lifebeam.utils.ImageLoader;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.Utils;
 import com.parse.FindCallback;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
+import com.squareup.picasso.LruCache;
+import com.squareup.picasso.Picasso;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 
-/**
- * @author Angel Abellanosa Jr
- *
- */
-public class SlideShowActivity extends Activity implements OnClickListener{
+public class SlideShowActivity extends FragmentActivity implements
+		OnClickListener {
+    private ViewPager mPager;    
+    private List<SlideShowEventItem> pagerFragments;
+    private PagerAdapter mPagerAdapter;
+    private Handler flipHandler;
+    private Runnable flipRunnable;
+    private boolean isFlipping = false;
+    private LinearLayout llyNavigationHolder;
+    private static final long TRANSITION_TIME = 4000;
 
-	//private static final int SWIPE_MIN_DISTANCE = 120;
-	//private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-	private ViewFlipper mViewFlipper;	
-	//private Context mContext;
-	//public ArrayList<String> eventImageUrls = new ArrayList<String>();
-	public List<Bitmap> eventBmps = new ArrayList<Bitmap>();	
-	private static final String TAG = "SlideShowActivity";
-	private int eventCount;
-	ImageLoader imageLoader;
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_slideshow);
-		
-		mViewFlipper = (ViewFlipper) this.findViewById(R.id.view_flipper);
-		mViewFlipper.setOnClickListener(this);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_slideshow);
 
-		if(mViewFlipper.getChildCount() > 0) {
-			mViewFlipper.removeAllViews();
-		}
-		setFlipperContent();
-	}
-	
-	private void setFlipperContent() {
-		Utils.showProgressDialog(SlideShowActivity.this, "Just a few clicks now..." );
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setOffscreenPageLimit(3);
+        mPager.setOnPageChangeListener(new OnPageChangeListener() {			
+			@Override
+			public void onPageSelected(int position) {
+				SlideShowEventItem eventFragment = pagerFragments.get(position);
+				eventFragment.updateNavigationView();
+			}
+			
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}			
+			@Override
+			public void onPageScrollStateChanged(int state) {}
+		});
+        retrieveEvent();
+    }
+        
+    private void retrieveEvent(){
+    	Utils.showProgressDialog(SlideShowActivity.this, "Loading Events." );
 		
 		final ParseQuery<ParseUser> innerQuery = ParseUser.getQuery();
 		String family = Session.getInstance().getUserFamilyAccount(SlideShowActivity.this);
@@ -84,297 +77,191 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 		queryEvents.orderByDescending("createdAt");
 		queryEvents.include("author");
 		queryEvents.findInBackground(new FindCallback<Event>() {
-			public void done(List<Event> Events, ParseException e) {
+			public void done(List<Event> events, ParseException e) {
 				if(e == null){
-					eventCount = Events.size();
+					pagerFragments = new ArrayList<SlideShowEventItem>();
 					LifebeamApp app = (LifebeamApp)getApplication();
-					app.setEvents(Events);
-					new LoadEvents(SlideShowActivity.this).execute(Events.toArray());
+					app.setEvents(events);
+					for(Event event: events){
+						SlideShowEventItem slideshowItem = new SlideShowEventItem();
+						slideshowItem.setEvent(event);
+						pagerFragments.add(slideshowItem);
+					}
+			        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pagerFragments);
+			        int pageLimit = (int)(pagerFragments.size() * 0.25);
+			        mPager.setAdapter(mPagerAdapter);
+			        
 				} else {
 					Toast.makeText(SlideShowActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 				Utils.hideProgressDialog();
+				initNavigation();
+				startFlip();
 			}
 		});	
-	}
-
-	private class LoadEvents extends AsyncTask<Object, View, List<View>> {	
-		private ProgressDialog dialog;
-		private Activity activity;
-		private int counter;
-		public LoadEvents(Activity activity){
-			this.activity = activity;
-	        this.dialog = new ProgressDialog(this.activity);
-	        counter = 0;
-
-		}
-		@Override
-	    protected void onPreExecute (){
-	        Log.d("PreExceute","On pre Exceute......");
-	        dialog.setMessage("Loading Events");
-	        dialog.show();
-	    }
-
+    }
+    
+    private void initNavigation(){
+    	llyNavigationHolder = (LinearLayout)findViewById(R.id.llyNavigationHolder);
+    	
+        ImageView imgPlay = (ImageView)findViewById(R.id.imgPlay);
+        imgPlay.setOnClickListener(this);
+        
+        ImageView imgGoToFirst = (ImageView)findViewById(R.id.imgGoToFirst);
+		imgGoToFirst.setOnClickListener(this);
 		
-		@Override
-	    protected List<View> doInBackground(Object...events) {
-            Log.i("Events Tag", "Event count Found " + eventCount + " events" );
-            List<View> views = new ArrayList<View>();
-			for (int i = 0; i < eventCount; i++) {
-				counter = i;
-				Event event = (Event)events[i];
-				
-				LayoutInflater inflater = (LayoutInflater) SlideShowActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				View view = inflater.inflate(R.layout.viewflippercontainer, null);
-				
-				LinearLayout llySplendidHolder = (LinearLayout)view.findViewById(R.id.llySplendidHolder);
-				llySplendidHolder.setOnClickListener(SlideShowActivity.this);
-				
-				LinearLayout llyRazzleHolder = (LinearLayout)view.findViewById(R.id.llyRazzleHolder);
-				llyRazzleHolder.setOnClickListener(SlideShowActivity.this);
-				
-				TextView txtRemoveEvent = (TextView)view.findViewById(R.id.txtRemoveEvent);
-				txtRemoveEvent.setOnClickListener(SlideShowActivity.this);
-				
-				ImageView imgPlay = (ImageView)view.findViewById(R.id.imgPlay);
-				imgPlay.setOnClickListener(SlideShowActivity.this);
-				
-				ImageView imgGoToFirst = (ImageView)view.findViewById(R.id.imgGoToFirst);
-				imgGoToFirst.setOnClickListener(SlideShowActivity.this);
-				
-				ImageView imgGoToLast = (ImageView)view.findViewById(R.id.imgGoToLast);
-				imgGoToLast.setOnClickListener(SlideShowActivity.this);
-				
-				ImageView imgGoToPrev = (ImageView)view.findViewById(R.id.imgGoToPrev);
-				imgGoToPrev.setOnClickListener(SlideShowActivity.this);
-				
-				ImageView imgGoToNext = (ImageView)view.findViewById(R.id.imgGoToNext);
-				imgGoToNext.setOnClickListener(SlideShowActivity.this);			
-				
-				((TextView) view.findViewById(R.id.txtSplendidCount)).setText(event.getSplendidCount().toString());
-				((TextView) view.findViewById(R.id.txtRazzleCount)).setText( event.getRazzleCount().toString());
-
-				llySplendidHolder.setTag(event.getObjectId());
-				llyRazzleHolder.setTag(event.getObjectId());
-				txtRemoveEvent.setTag(event.getObjectId());
-
-				String owner = "";
-
-				ParseObject eventUser = event.getAuthor();
-				
-				owner = (eventUser.getString("name") == null) ? 
-						eventUser.getString("firstName") + " " + eventUser.getString("lastName") : 
-							eventUser.getString("name");
-
-				((TextView) view.findViewById(R.id.eventAuthor)).setText(owner);
-				((TextView) view.findViewById(R.id.eventTitle)).setText(event.getContent());
-
-				Date datE = event.getCreatedAt();
-				SimpleDateFormat dfDate = Utils.getDateFormat();
-				SimpleDateFormat dfTime = Utils.getTimeFormat();
-				String date = dfDate.format(datE);
-				String time = dfTime.format(datE);
-
-				((TextView) view.findViewById(R.id.eventDate)).setText(date + " " + time);
-
-				ImageView imageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
-				ParseFile imageFile = event.getImage();
-				if(imageFile != null){
-					String imgUrl = imageFile.getUrl();
-					imageLoader.DisplayImage(imgUrl, imageView);
-				}
-				
-				TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
-				txtSettings.setOnClickListener((OnClickListener) this.activity);
-				views.add(view);
-				Log.i("Events Tag", "Loading event number " + counter);
-			}					
-	        return views;
-	    }
-
-		@Override
-	    protected void onPostExecute(List<View> views) {    	
-	    	for(View view : views){
-	    		mViewFlipper.addView(view);
-	    	}
-	    	
-	    	if(dialog.isShowing()){
-	    		dialog.dismiss();
-	    	}
-	    	
-	    	mViewFlipper.setFlipInterval(4000);
-			mViewFlipper.startFlipping();
-	    }		
-	}
-	
-	private void setNavigationHolderVisbility(int visibility){
-		int numChild = mViewFlipper.getChildCount();
-		for(int i = 0; i< numChild; i++){
-			View flipperChild = mViewFlipper.getChildAt(i);
-			if(flipperChild != null){
-				flipperChild.findViewById(R.id.llyNavigationHolder).setVisibility(visibility);
-			}
-		}
-	}
+		ImageView imgGoToLast = (ImageView)findViewById(R.id.imgGoToLast);
+		imgGoToLast.setOnClickListener(this);
+		
+		ImageView imgGoToPrev = (ImageView)findViewById(R.id.imgGoToPrev);
+		imgGoToPrev.setOnClickListener(this);
+		
+		ImageView imgGoToNext = (ImageView)findViewById(R.id.imgGoToNext);
+		imgGoToNext.setOnClickListener(this);	
+		
+		TextView txtSettings = (TextView)findViewById(R.id.txtSettings);
+		txtSettings.setOnClickListener(this);
+    }
+    
 	@Override
-	public void onClick(final View v) {
-		final View thisFlipView = mViewFlipper.getCurrentView();
-		LifebeamApp app = (LifebeamApp)getApplication();					
-	    final Event event = app.getEvent((String)v.getTag());
-		
-		switch (v.getId()) {
-			case R.id.view_flipper:
-				thisFlipView.findViewById(R.id.llyNavigationHolder).setVisibility(View.VISIBLE);
-				mViewFlipper.stopFlipping();
-				break;
-	
+	public void onClick(View v) {
+		int currentDisplayedIndex = mPager != null ? mPager.getCurrentItem() : -1;
+		switch (v.getId()){
 			case R.id.imgPlay:
-				//set all viewFlipper child view's llyNavigationHolder to View.GONE
-				setNavigationHolderVisbility(View.GONE);
-				mViewFlipper.startFlipping();				
+				llyNavigationHolder.setVisibility(View.GONE);
+				SlideShowActivity.this.startFlip();
 				break;
-			case R.id.llySplendidHolder:
-                if(event != null){
-                	if(event.getSplendidCount() > 0){
-                		Toast.makeText(getApplicationContext(), "You have already marked this as splendid.", Toast.LENGTH_SHORT).show();
-                	} else {
-                		event.increment("splendidCount");
-                		Utils.showProgressDialog(SlideShowActivity.this, "Marking as splendid.");
-						event.saveInBackground(new SaveCallback() {
-							@Override
-							public void done(ParseException e) {
-								if (e != null) {
-									Toast.makeText(getApplicationContext(), "Error in splenderizing this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-								} else {
-									((TextView)thisFlipView.findViewById(R.id.txtSplendidCount)).setText("1");																		
-									
-									ParseObject eventUser = event.getAuthor();																		
-									
-									HashMap<String, String> params =  new HashMap<String, String>();
-									String userId = eventUser.getObjectId();
-									
-									params.put("userId", userId);
-									params.put("message", "Your Event has been marked as splendid.");
-									params.put("eventId", event.getObjectId());
-									params.put("action", "com.appfibre.lifebeam.NOTIFY_EVENT_RATED");
-									
-
-									ParseCloud.callFunctionInBackground("notifyUser", params, new FunctionCallback<String>() {
-									  public void done(String result, ParseException e) {
-									    if (e == null) {
-									      Log.v(getClass().getName(), "Notification sent.");
-									    } else{
-									      Log.e(getClass().getName(), e.getMessage());	
-									    }
-									  }
-									});	
-								}
-								Utils.hideProgressDialog();
-							}
-						});
-                	}
-                }						
-				break;
-			case R.id.llyRazzleHolder:
-				if(event != null){
-                	if(event.getRazzleCount() > 0){
-                		Toast.makeText(getApplicationContext(), "You have already Razzle Dazzled this event.", Toast.LENGTH_SHORT).show();
-                	} else {
-                		event.increment("razzleCount");
-                		Utils.showProgressDialog(SlideShowActivity.this, "Razzle Dazzling.");
-						event.saveInBackground(new SaveCallback() {
-							@Override
-							public void done(ParseException e) {
-								if (e != null) {
-									Toast.makeText(getApplicationContext(), "Error in razzle dazzling this event. Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-								} else {
-									((TextView)thisFlipView.findViewById(R.id.txtRazzleCount)).setText("1");
-									
-									HashMap<String, String> params =  new HashMap<String, String>();
-
-									ParseObject eventUser = event.getAuthor();																											
-									String userId = eventUser.getObjectId();
-									
-									params.put("userId", userId);
-									params.put("message", "Your Event has been razzle dazzled.");
-									params.put("eventId", event.getObjectId());
-									params.put("action", "com.appfibre.lifebeam.NOTIFY_EVENT_RATED");
-
-									ParseCloud.callFunctionInBackground("notifyUser", params, new FunctionCallback<String>() {
-									  public void done(String result, ParseException e) {
-									    if (e == null) {
-									      Log.v(getClass().getName(), "Notification sent.");
-									    } else{
-									      Log.e(getClass().getName(), e.getMessage());	
-									    }
-									  }
-									});
-
-								}
-								Utils.hideProgressDialog();
-							}
-						});
-                	}
-                }				
-				break;	
-			case R.id.txtRemoveEvent:
-				Log.v(TAG, "event id for deleting this event is  = " + v.getTag());
-				
-				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SlideShowActivity.this);
-			     
-				alertDialogBuilder.setTitle("Remove Event");
-				alertDialogBuilder.setMessage("Are you sure you want to remove this event?");
-				alertDialogBuilder.setIcon(R.drawable.delete);
-				
-				alertDialogBuilder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-				    public void onClick(DialogInterface dialog,int id) {
-				    	dialog.cancel();
-				    	mViewFlipper.removeView(thisFlipView);
-						ParseObject.createWithoutData("Event", (String) v.getTag()).deleteEventually();
-					}
-				});
-				
-				alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
-				    public void onClick(DialogInterface dialog,int id) {
-						dialog.cancel();
-					}
-				});
-
-				AlertDialog alertDialog = alertDialogBuilder.create();
-				alertDialog.show();
-				break;
-	
 			case R.id.imgGoToFirst:
-				setNavigationHolderVisbility(View.VISIBLE);
-				mViewFlipper.setDisplayedChild(0);			
-				mViewFlipper.stopFlipping();
-				mViewFlipper.setAutoStart(false);
+				if(mPager != null){
+					mPager.setCurrentItem(0, true);
+				}
 				break;
-	
 			case R.id.imgGoToLast:
-				setNavigationHolderVisbility(View.VISIBLE);
-				mViewFlipper.setDisplayedChild(eventCount - 1);
-				mViewFlipper.stopFlipping();
-				mViewFlipper.setAutoStart(false);
+				if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+					mPager.setCurrentItem(pagerFragments.size() - 1, true);
+				}
 				break;
-	
-			case R.id.imgGoToPrev:
-				setNavigationHolderVisbility(View.VISIBLE);
-				mViewFlipper.stopFlipping();
-				mViewFlipper.setAutoStart(false);						
-				mViewFlipper.showPrevious();
+			case R.id.imgGoToPrev:				
+				if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+					if(currentDisplayedIndex > 0){
+						mPager.setCurrentItem(currentDisplayedIndex - 1, true);
+					}
+				}
 				break;
-	
 			case R.id.imgGoToNext:
-				setNavigationHolderVisbility(View.VISIBLE);
-				mViewFlipper.setAutoStart(false);						
-				mViewFlipper.showNext();
-				break;	
+				if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+					if(currentDisplayedIndex < pagerFragments.size()){
+						mPager.setCurrentItem(currentDisplayedIndex + 1, true);
+					}
+				}
+				break;
 			case R.id.txtSettings:
 				startActivity(new Intent(SlideShowActivity.this, SettingsTablet.class));
 				break;
 			default:
-				break;
+				
 		}
 	}
+
+    @Override
+    public void onBackPressed() {
+        if (mPager.getCurrentItem() == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
+            super.onBackPressed();
+        } else {
+            // Otherwise, select the previous step.
+            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        }
+    }
+
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+    	private List<SlideShowEventItem> fragments;
+        public ScreenSlidePagerAdapter(FragmentManager fm, List<SlideShowEventItem> fragments) {
+            super(fm);
+            this.fragments = fragments;
+        }
+
+        @Override
+        public void destroyItem(View collection, int position, Object o) {        	
+            View view = (View)o;
+            ((ViewPager) collection).removeView(view);
+            view = null;
+            Log.d(getClass().getName(), "Detroyed view at position: " + position);
+        }     
+        
+        @Override
+        public Fragment getItem(int position) {
+            return this.fragments.get(position);
+        }
+        
+        @Override
+        public int getItemPosition(Object object){
+            return PagerAdapter.POSITION_NONE;
+        }
+
+        @Override
+        public int getCount() {
+            return this.fragments.size();
+        }
+    }
+    
+    public void startFlip(){
+    	stopFlip();
+    	if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+    		isFlipping = true;
+    		if(flipHandler == null){
+    			flipHandler = new Handler();
+    		}
+    		
+    		if(flipRunnable == null){
+	    		flipRunnable = new Runnable(){
+	    			public void run(){
+	    				int toIndex = mPager.getCurrentItem(); 
+	    				//if we can still go forward, the go to next event
+	    		        if(toIndex + 1 < pagerFragments.size()){
+	        				mPager.setCurrentItem(++toIndex,true);
+	        				SlideShowEventItem eventFragment = pagerFragments.get(toIndex);
+	        				eventFragment.updateNavigationView();
+	    		        } else { // else go back to the first event
+	    		        	mPager.setCurrentItem(0,true);
+	    		        	SlideShowEventItem eventFragment = pagerFragments.get(0);
+	        				eventFragment.updateNavigationView();
+	    		        }    		        
+	    		        //schedule next flip
+	    		        flipHandler.postDelayed(flipRunnable, TRANSITION_TIME);
+	    			}
+	    		};
+    		}
+    		
+    		//start flipping
+    		flipHandler.postDelayed(flipRunnable, TRANSITION_TIME);
+    	}
+    }
+    
+    public void stopFlip(){
+    	if(isFlipping && flipRunnable != null && flipHandler != null){
+    		isFlipping = false;
+    		flipHandler.removeCallbacks(flipRunnable);
+    	}
+    }
+    
+    @Override
+    public void onPause(){
+    	super.onPause();
+    	stopFlip();
+    }
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	startFlip();
+    }
+    
+    public void removeEvent(SlideShowEventItem eventItem){
+    	if(eventItem != null && pagerFragments != null && pagerFragments.size() > 0 && mPagerAdapter != null){
+    	    pagerFragments.remove(eventItem);
+    	    mPagerAdapter.notifyDataSetChanged();
+    	}
+    }
 }
