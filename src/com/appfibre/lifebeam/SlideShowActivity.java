@@ -62,7 +62,7 @@ public class SlideShowActivity extends Activity implements OnClickListener{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_slideshow);
-		imageLoader = new ImageLoader(this);
+		
 		mViewFlipper = (ViewFlipper) this.findViewById(R.id.view_flipper);
 		mViewFlipper.setOnClickListener(this);
 

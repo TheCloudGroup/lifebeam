@@ -14,6 +14,7 @@ import android.widget.Button;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
+import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
 import com.parse.ParseAnalytics;
 
@@ -72,19 +73,29 @@ public class MainActivity extends Activity implements OnClickListener{
 		findViewById(R.id.btnLogin2).setOnClickListener(this);
 
 		final Button btnLogin = (Button) findViewById(R.id.btnLogin);
+		final Button btnLogin2 = (Button) findViewById(R.id.btnLogin2);
 		
-		
-		btnLogin.setOnClickListener(new View.OnClickListener() {
+		/*btnLogin.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				startActivity(new Intent(MainActivity.this,LoginActivity.class));
 			}
-		});
+		});*/
 
-		if (SharedPrefMgr.getBool(this, "hasSetKeptLogin")) {
+		if (!isTablet && SharedPrefMgr.getBool(this, "hasSetKeptLogin")) {
 			btnLogin.performClick();
+		} 
+		
+		if(isTablet){
+			Session session = Session.getInstance();
+			String familyAccount = session.getUserFamilyAccount(getApplicationContext());
+			String passCode = session.getUserPasscode(getApplicationContext());
+			if ( familyAccount!= null && familyAccount.length() > 0 && 
+				 passCode !=null &&  passCode.length() > 0 ) {
+				btnLogin2.performClick();
+			}
 		}
 	}
 

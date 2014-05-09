@@ -8,9 +8,13 @@ import java.util.Locale;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 
 public class Utils {
 	private static ProgressDialog pDialog = null;
@@ -69,5 +73,33 @@ public class Utils {
  
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return null != activeNetwork;
+    }
+	
+	public static Bitmap resizeBitmap(Bitmap bitmap, Context context) {
+        int width, height;
+        Bitmap resizedBitmap = null;
+        if(bitmap!=null){
+            width = bitmap.getWidth();
+            height = bitmap.getHeight();
+            int bounding = dpToPx(450, context);
+
+            float xScale = ((float) bounding) / width;
+            float yScale = ((float) bounding) / height;
+            float scale = (xScale <= yScale) ? xScale : yScale;
+
+            // Create a matrix for the scaling and add the scaling data
+            Matrix matrix = new Matrix();
+            matrix.postScale(scale, scale);
+
+            // Create a new bitmap and convert it to a format understood by the ImageView 
+            resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+        }
+        
+        return resizedBitmap;
+    }
+	
+	public static int dpToPx(int dp, Context context) {
+        float density = context.getResources().getDisplayMetrics().density;
+        return Math.round((float)dp * density);
     }
 }
