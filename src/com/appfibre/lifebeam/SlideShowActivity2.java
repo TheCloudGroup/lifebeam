@@ -11,19 +11,33 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class SlideShowActivity2 extends FragmentActivity {
+public class SlideShowActivity2 extends FragmentActivity implements
+		OnClickListener {
     private ViewPager mPager;    
     private List<Fragment> pagerFragments;
     private PagerAdapter mPagerAdapter;
+    private Handler flipHandler;
+    private Runnable flipRunnable;
+    private boolean isFlipping = false;
+    private LinearLayout llyNavigationHolder;
+    private static final long TRANSITION_TIME = 4000;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +45,6 @@ public class SlideShowActivity2 extends FragmentActivity {
         setContentView(R.layout.activity_slideshow2);
 
         mPager = (ViewPager) findViewById(R.id.pager);
-        
         retrieveEvent();
     }
         
@@ -59,13 +72,77 @@ public class SlideShowActivity2 extends FragmentActivity {
 					}
 			        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pagerFragments);
 			        mPager.setAdapter(mPagerAdapter);
+			        
 				} else {
 					Toast.makeText(SlideShowActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 				Utils.hideProgressDialog();
+				initNavigation();
+				startFlip();
 			}
 		});	
     }
+    
+    private void initNavigation(){
+    	llyNavigationHolder = (LinearLayout)findViewById(R.id.llyNavigationHolder);
+    	
+        ImageView imgPlay = (ImageView)findViewById(R.id.imgPlay);
+        imgPlay.setOnClickListener(this);
+        
+        ImageView imgGoToFirst = (ImageView)findViewById(R.id.imgGoToFirst);
+		imgGoToFirst.setOnClickListener(this);
+		
+		ImageView imgGoToLast = (ImageView)findViewById(R.id.imgGoToLast);
+		imgGoToLast.setOnClickListener(this);
+		
+		ImageView imgGoToPrev = (ImageView)findViewById(R.id.imgGoToPrev);
+		imgGoToPrev.setOnClickListener(this);
+		
+		ImageView imgGoToNext = (ImageView)findViewById(R.id.imgGoToNext);
+		imgGoToNext.setOnClickListener(this);	
+		
+		TextView txtSettings = (TextView)findViewById(R.id.txtSettings);
+		txtSettings.setOnClickListener(this);
+    }
+    
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()){
+			case R.id.imgPlay:
+				llyNavigationHolder.setVisibility(View.GONE);
+				SlideShowActivity2.this.startFlip();
+				break;
+			case R.id.imgGoToFirst:
+				if(mPager != null){
+					mPager.setCurrentItem(0, true);
+				}
+				break;
+			case R.id.imgGoToLast:
+				if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+					mPager.setCurrentItem(pagerFragments.size() - 1, true);
+				}
+				break;
+			case R.id.imgGoToPrev:
+				if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+					if(mPager.getCurrentItem() > 0){
+						mPager.setCurrentItem(mPager.getCurrentItem() - 1, true);
+					}
+				}
+				break;
+			case R.id.imgGoToNext:
+				if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+					if(mPager.getCurrentItem() < pagerFragments.size()){
+						mPager.setCurrentItem(mPager.getCurrentItem() + 1, true);
+					}
+				}
+				break;
+			case R.id.txtSettings:
+				startActivity(new Intent(SlideShowActivity2.this, SettingsTablet.class));
+				break;
+			default:
+				
+		}
+	}
 
     @Override
     public void onBackPressed() {
@@ -88,6 +165,7 @@ public class SlideShowActivity2 extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
+        	Log.d(getClass().getName(), "Event positionn: " + position);
             return this.fragments.get(position);
         }
 
@@ -95,5 +173,58 @@ public class SlideShowActivity2 extends FragmentActivity {
         public int getCount() {
             return this.fragments.size();
         }
+    }
+    
+    public void startFlip(){
+    	if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
+    		isFlipping = true;
+    		if(flipHandler == null){
+    			flipHandler = new Handler();
+    		}
+    		
+    		if(flipRunnable == null){
+	    		flipRunnable = new Runnable(){
+	    			public void run(){
+	    				int toIndex = mPager.getCurrentItem(); 
+	    				//if we can still go forward, the go to next event
+	    		        if(toIndex + 1 < pagerFragments.size()){
+	        				mPager.setCurrentItem(++toIndex,true);
+	    		        } else { // else go back to the first event
+	    		        	mPager.setCurrentItem(0,true);
+	    		        }    		        
+	    		        //schedule next flip
+	    		        flipHandler.postDelayed(flipRunnable, TRANSITION_TIME);
+	    			}
+	    		};
+    		}
+    		
+    		//start flipping
+    		flipHandler.postDelayed(flipRunnable, TRANSITION_TIME);
+    	}
+    }
+    
+    public void stopFlip(){
+    	if(isFlipping && flipRunnable != null && flipHandler != null){
+    		isFlipping = false;
+    		flipHandler.removeCallbacks(flipRunnable);
+    	}
+    }
+    
+    @Override
+    public void onPause(){
+    	super.onPause();
+    	stopFlip();
+    }
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	startFlip();
+    }
+    
+    public void removeEventView(View v){
+    	if(v != null){
+    		mPager.removeView(v);
+    	}
     }
 }
