@@ -4,12 +4,12 @@
     android:layout_height="match_parent"
     android:id="@+id/mainLayout">
     
-    <android.support.v4.view.ViewPager
+    <com.appfibre.lifebeam.utils.ViewPagerFlipper
 	    xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:id="@+id/pager"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent" />
-        
+            
     <LinearLayout
         android:id="@+id/llyNavigationHolder"
         android:layout_width="fill_parent"
@@ -156,4 +156,5 @@
                 android:textColor="@color/White" />
         </LinearLayout>
     </LinearLayout>
+
 </RelativeLayout>

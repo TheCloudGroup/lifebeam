@@ -2,27 +2,23 @@ package com.appfibre.lifebeam;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import com.appfibre.lifebeam.classes.Event;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.Utils;
+import com.appfibre.lifebeam.utils.ViewPagerFlipper;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.squareup.picasso.LruCache;
-import com.squareup.picasso.Picasso;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,22 +31,22 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 
 public class SlideShowActivity extends FragmentActivity implements
 		OnClickListener {
-    private ViewPager mPager;    
+    private ViewPagerFlipper mPager;    
     private List<SlideShowEventItem> pagerFragments;
     private PagerAdapter mPagerAdapter;
-    private Handler flipHandler;
-    private Runnable flipRunnable;
-    private boolean isFlipping = false;
     private LinearLayout llyNavigationHolder;
-    private static final long TRANSITION_TIME = 4000;
+    private static final int TRANSITION_TIME = 4000;
+    private static final int EVENT_UPDATE_TIME = 30000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_slideshow);
     	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager = (ViewPagerFlipper) findViewById(R.id.pager);
         mPager.setOffscreenPageLimit(3);
+        mPager.setFlipInterval(TRANSITION_TIME);
+        mPager.setUpdateInterval(EVENT_UPDATE_TIME);
         mPager.setOnPageChangeListener(new OnPageChangeListener() {			
 			@Override
 			public void onPageSelected(int position) {
@@ -63,7 +59,52 @@ public class SlideShowActivity extends FragmentActivity implements
 			@Override
 			public void onPageScrollStateChanged(int state) {}
 		});
+        
+        mPager.setUpdateHandler( new ViewPagerFlipper.OnUpdatePages() {			
+			@Override
+			public void onUpdate() {
+				final ParseQuery<ParseUser> innerQuery = ParseUser.getQuery();
+				String family = Session.getInstance().getUserFamilyAccount(SlideShowActivity.this);
+				innerQuery.whereEqualTo("family", family);
+				final int pagerFragmentsNum = pagerFragments.size();
+				
+				ParseQuery<Event> queryEvents = new ParseQuery<Event>("Event");
+				queryEvents.setLimit(1000);
+				queryEvents.whereMatchesQuery("author", innerQuery);
+				queryEvents.orderByDescending("createdAt");
+				queryEvents.include("author");
+				
+				List<Event> foundEvents;
+                
+				queryEvents.findInBackground(new FindCallback<Event>() {
+					@Override
+					public void done(List<Event> foundEvents, ParseException exc) {
+						if(exc == null && foundEvents.size() != pagerFragmentsNum){
+							pagerFragments.clear();
+							LifebeamApp app = (LifebeamApp)getApplication();
+							app.setEvents(foundEvents);
+							for(Event event: foundEvents){
+								SlideShowEventItem slideshowItem = new SlideShowEventItem();
+								slideshowItem.setEvent(event);
+								pagerFragments.add(slideshowItem);
+							}
+			                mPagerAdapter.notifyDataSetChanged();
+			                Toast.makeText(SlideShowActivity.this, "Events updated", Toast.LENGTH_LONG).show();
+						}
+					}	
+				});
+			}
+		});
+		
         retrieveEvent();
+    }
+    
+    public void pauseFlip(){
+    	mPager.stopFlipping();
+    }
+    
+    public void unPauseFlip(){
+    	mPager.startFlipping();
     }
         
     private void retrieveEvent(){
@@ -74,11 +115,13 @@ public class SlideShowActivity extends FragmentActivity implements
 		innerQuery.whereEqualTo("family", family);
 		
 		ParseQuery<Event> queryEvents = new ParseQuery<Event>("Event");
+		queryEvents.setLimit(1000);
 		queryEvents.whereMatchesQuery("author", innerQuery);
 		queryEvents.orderByDescending("createdAt");
 		queryEvents.include("author");
 		queryEvents.findInBackground(new FindCallback<Event>() {
 			public void done(List<Event> events, ParseException e) {
+				Log.d(getClass().getName(), "Found " + events.size() + " events");
 				if(e == null){
 					pagerFragments = new ArrayList<SlideShowEventItem>();
 					LifebeamApp app = (LifebeamApp)getApplication();
@@ -97,7 +140,10 @@ public class SlideShowActivity extends FragmentActivity implements
 				}
 				Utils.hideProgressDialog();
 				initNavigation();
-				startFlip();
+				//startFlip();
+				mPager.startFlipping();
+				mPager.startUpdate();
+				//startUpdateEventThread();
 			}
 		});	
     }
@@ -130,7 +176,7 @@ public class SlideShowActivity extends FragmentActivity implements
 		switch (v.getId()){
 			case R.id.imgPlay:
 				llyNavigationHolder.setVisibility(View.GONE);
-				SlideShowActivity.this.startFlip();
+			    mPager.startFlipping();
 				break;
 			case R.id.imgGoToFirst:
 				if(mPager != null){
@@ -167,11 +213,8 @@ public class SlideShowActivity extends FragmentActivity implements
     @Override
     public void onBackPressed() {
         if (mPager.getCurrentItem() == 0) {
-            // If the user is currently looking at the first step, allow the system to handle the
-            // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
         } else {
-            // Otherwise, select the previous step.
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
     }
@@ -186,9 +229,8 @@ public class SlideShowActivity extends FragmentActivity implements
         @Override
         public void destroyItem(View collection, int position, Object o) {        	
             View view = (View)o;
-            ((ViewPager) collection).removeView(view);
+            ((ViewPagerFlipper) collection).removeView(view);
             view = null;
-            Log.d(getClass().getName(), "Detroyed view at position: " + position);
         }     
         
         @Override
@@ -206,57 +248,19 @@ public class SlideShowActivity extends FragmentActivity implements
             return this.fragments.size();
         }
     }
-    
-    public void startFlip(){
-    	stopFlip();
-    	if(mPager != null && pagerFragments != null && pagerFragments.size() > 0){
-    		isFlipping = true;
-    		if(flipHandler == null){
-    			flipHandler = new Handler();
-    		}
-    		
-    		if(flipRunnable == null){
-	    		flipRunnable = new Runnable(){
-	    			public void run(){
-	    				int toIndex = mPager.getCurrentItem(); 
-	    				//if we can still go forward, the go to next event
-	    		        if(toIndex + 1 < pagerFragments.size()){
-	        				mPager.setCurrentItem(++toIndex,true);
-	        				SlideShowEventItem eventFragment = pagerFragments.get(toIndex);
-	        				eventFragment.updateNavigationView();
-	    		        } else { // else go back to the first event
-	    		        	mPager.setCurrentItem(0,true);
-	    		        	SlideShowEventItem eventFragment = pagerFragments.get(0);
-	        				eventFragment.updateNavigationView();
-	    		        }    		        
-	    		        //schedule next flip
-	    		        flipHandler.postDelayed(flipRunnable, TRANSITION_TIME);
-	    			}
-	    		};
-    		}
-    		
-    		//start flipping
-    		flipHandler.postDelayed(flipRunnable, TRANSITION_TIME);
-    	}
-    }
-    
-    public void stopFlip(){
-    	if(isFlipping && flipRunnable != null && flipHandler != null){
-    		isFlipping = false;
-    		flipHandler.removeCallbacks(flipRunnable);
-    	}
-    }
-    
+
     @Override
     public void onPause(){
     	super.onPause();
-    	stopFlip();
+    	mPager.stopFlipping();
+    	mPager.stopUpdate();
     }
     
     @Override
     public void onResume(){
     	super.onResume();
-    	startFlip();
+    	mPager.startFlipping();
+    	mPager.startUpdate();
     }
     
     public void removeEvent(SlideShowEventItem eventItem){

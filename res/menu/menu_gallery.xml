@@ -31,13 +31,6 @@
         android:visible="true">
     </item>
 	    
-   	<item 
-   	    android:id="@+id/menuRefresh" 
-        android:title="Refresh"
-        android:icon="@drawable/ic_menu_refresh"
-        android:showAsAction="always">
-    </item>
-    
    	<item
         android:id="@+id/menuInvite"
         android:title="@string/invitefamily"

@@ -42,13 +42,12 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 	private SlideShowActivity parentActivity;
 	private LinearLayout llySplendidHolder;
 	private TextView txtSplendidCount;
-	
+    private ProgressBar loadingImg;
 	private LinearLayout llyRazzleHolder;
 	private TextView txtRazzleCount;
     private ImageView eventImageView;
 	
 	private TextView txtRemoveEvent;
-	private View thisView;
 	
 	public SlideShowEventItem(){}
 	
@@ -64,7 +63,6 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 		if(getView() != null){
 			eventImageView = (ImageView) getView().findViewById(R.id.imgeventPhoto);
 		}
-		Log.d(getClass().getName(), "creating event fragment : " + this.event.getId());
 	}
 	
 	@Override
@@ -81,11 +79,12 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 					eventUser.getString("name");
 		
 		eventImageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
+		loadingImg = (ProgressBar)view.findViewById(R.id.loadingImg);
+
 		updateNavigationView();
 
 		((TextView) view.findViewById(R.id.eventAuthor)).setText(owner);
 		((TextView) view.findViewById(R.id.eventTitle)).setText(event.getContent());
-        ((ProgressBar) view.findViewById(R.id.loadingImg)).setVisibility(View.VISIBLE);
         
 		Date datE = event.getCreatedAt();
 		SimpleDateFormat dfDate = Utils.getDateFormat();
@@ -98,12 +97,6 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 		ParseFile imageFile = event.getImage();
 		if(imageFile != null){
 			String imgUrl = imageFile.getUrl();
-			//imageLoader.DisplayImage(imgUrl, imageView);
-			((SlideShowActivity)getActivity()).stopFlip();
-			
-			//if cache max size is more or equal to the current cache size + 1mb
-			//clear the cache
-
 			Picasso.with(parentActivity)
 			       .load(imgUrl)
 			       .error(R.drawable.image_load_fail)
@@ -113,28 +106,25 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 			((ProgressBar) view.findViewById(R.id.loadingImg)).setVisibility(View.GONE);
 		}
 		
-		//TextView txtSettings = (TextView)view.findViewById(R.id.txtSettings);
-		//txtSettings.setOnClickListener((OnClickListener) this.activity);
-        
-        
 		view.setOnClickListener(this);
-		this.thisView = view;
         return view;
     }
 
 	public void updateNavigationView(){
-		llySplendidHolder   = (LinearLayout)parentActivity.findViewById(R.id.llySplendidHolder);
-		txtSplendidCount    = (TextView)parentActivity.findViewById(R.id.txtSplendidCount);
-		llySplendidHolder.setOnClickListener(this);
-		txtSplendidCount.setText(this.event.getSplendidCount().toString());
-		
-		llyRazzleHolder     = (LinearLayout)parentActivity.findViewById(R.id.llyRazzleHolder);
-		txtRazzleCount      = (TextView)parentActivity.findViewById(R.id.txtRazzleCount);
-		llyRazzleHolder.setOnClickListener(this);
-		txtRazzleCount.setText(this.event.getRazzleCount().toString());
-		
-		txtRemoveEvent      = (TextView)parentActivity.findViewById(R.id.txtRemoveEvent);
-		txtRemoveEvent.setOnClickListener(this);
+		if(parentActivity != null){
+			llySplendidHolder   = (LinearLayout)parentActivity.findViewById(R.id.llySplendidHolder);
+			txtSplendidCount    = (TextView)parentActivity.findViewById(R.id.txtSplendidCount);
+			llySplendidHolder.setOnClickListener(this);
+			txtSplendidCount.setText(this.event.getSplendidCount().toString());
+			
+			llyRazzleHolder     = (LinearLayout)parentActivity.findViewById(R.id.llyRazzleHolder);
+			txtRazzleCount      = (TextView)parentActivity.findViewById(R.id.txtRazzleCount);
+			llyRazzleHolder.setOnClickListener(this);
+			txtRazzleCount.setText(this.event.getRazzleCount().toString());
+			
+			txtRemoveEvent      = (TextView)parentActivity.findViewById(R.id.txtRemoveEvent);
+			txtRemoveEvent.setOnClickListener(this);
+		}
 	}
 	
 	@Override
@@ -142,7 +132,7 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 		// TODO Auto-generated method stub
 		switch(v.getId()){
 			case R.id.relViewFlipperContainer: //show hide buttons
-				parentActivity.stopFlip();
+				parentActivity.pauseFlip();
 				llyNavigationHolder.setVisibility(View.VISIBLE);
 				break;
 			case R.id.txtRemoveEvent:				
@@ -270,46 +260,35 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 
 	@Override
 	public void onBitmapFailed(Drawable errorDrawable) {
-		if(thisView != null){
-			((ProgressBar) thisView.findViewById(R.id.loadingImg)).setVisibility(View.GONE);
+		if(loadingImg != null){
+			loadingImg.setVisibility(View.GONE);
 		}
 		if(eventImageView != null){
 			eventImageView.setImageDrawable(errorDrawable);
 		}
-		
-		boolean isNagivationVisible = llyNavigationHolder.getVisibility() != View.GONE;
-		if(!isNagivationVisible){
-	       parentActivity.startFlip();
-	    }
 	}
 
 	@Override
-	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom arg1) {
-		if(thisView != null){
-			((ProgressBar) thisView.findViewById(R.id.loadingImg)).setVisibility(View.GONE);
+	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom arg1) {		
+		if(loadingImg != null){
+			loadingImg.setVisibility(View.GONE);
 		}
-
 		if(eventImageView != null){
 			eventImageView.setImageBitmap(Utils.resizeBitmap(bitmap, parentActivity));
-		}
-		
-		boolean isNagivationVisible = llyNavigationHolder.getVisibility() != View.GONE;
-		if(!isNagivationVisible){
-	       parentActivity.startFlip();
-	    }
+		}		
 	}
 
 	@Override
-	public void onPrepareLoad(Drawable placeHolderDrawable) {
+	public void onPrepareLoad(Drawable placeHolderDrawable) {		
 		if(eventImageView != null){
 			eventImageView.setImageDrawable(null);
+			loadingImg.setVisibility(View.VISIBLE);
 		}
 	}
 	
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
-		Log.d(getClass().getName(), "destroying fragment event item: " + event.getId());
 		eventImageView.setImageDrawable(null);
 		eventImageView = null;
 	}

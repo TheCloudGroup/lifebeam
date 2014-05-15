@@ -220,15 +220,9 @@ public class GalleryActivity extends Activity {
 		    	Intent intent = new Intent(GalleryActivity.this, CreateEventActivity.class);
         		startActivityForResult(intent, CREATE_EVENT_CODE);
 		    	break;
-			case R.id.menuRefresh:
-				Log.v(TAG, "selected refresh...");
-				Toast.makeText(this, "Menu refresh selected", Toast.LENGTH_SHORT).show();
-				break;
-	
 			case R.id.menuInvite:
 				startActivity(new Intent(GalleryActivity.this, InviteActivity.class));
-				break;
-	
+				break;	
 			case R.id.menuSettings:
 				Log.v(TAG, "selected settings...");
 				startActivity(new Intent(GalleryActivity.this,SettingsPhone.class));
