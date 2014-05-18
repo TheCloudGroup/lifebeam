@@ -16,16 +16,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,15 +31,12 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appfibre.lifebeam.classes.Event;
-import com.appfibre.lifebeam.classes.Family;
-import com.appfibre.lifebeam.utils.CameraUtils;
 import com.appfibre.lifebeam.utils.MyImageItem;
 import com.appfibre.lifebeam.utils.Session;
 import com.appfibre.lifebeam.utils.SharedPrefMgr;
@@ -56,21 +47,16 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
-import com.parse.GetCallback;
 import com.parse.ParseAnalytics;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 /**
  * @author Angel Abellanosa Jr
@@ -79,17 +65,12 @@ import com.squareup.picasso.Transformation;
 public class GalleryActivity extends Activity {
 
 	private static final int CREATE_EVENT_CODE  = 1338;
-	private Uri profileImageUri = null;
 
 	private String TAG = "GalleryActivity";
 	private ArrayList<MyImageItem> Images;
 	private ArrayList<Event> EventS;
 
-	private ParseFile file;
 	private ParseUser currentUser;
-	private ParseRelation<ParseObject> myEvents;
-	private List<ParseObject> ScratchMyEvents;
-	private int selectedIndex;
 	private PullToRefreshListView mainListView;
 	private MyImageAdapter mainListViewAdapter;
 	
@@ -322,7 +303,6 @@ public class GalleryActivity extends Activity {
 		private Context context;
 		private List<MyImageItem> images;
 		private MyImageItem image;
-		private String TAG = "MyImageAdapter";
 
 		public MyImageAdapter(Context context, ArrayList<MyImageItem> images) {
 			this.context = context;
@@ -453,58 +433,6 @@ public class GalleryActivity extends Activity {
 
 			return convertView;
 		}
-		private int dpToPx(int dp)
-	    {
-	        float density = this.context.getResources().getDisplayMetrics().density;
-	        return Math.round((float)dp * density);
-	    }
-		
-		private class ResizeTransform implements Transformation {
-			private ImageView view;
-			
-			public ResizeTransform(ImageView view){
-				this.view = view;
-			}
-			
-	        @Override 
-		    public Bitmap transform(Bitmap bitmap) {
-                Bitmap resizedBmp = null;
-                if(bitmap != null && view != null){		       		  
-                    // Get current dimensions AND the desired bounding box
-                    int width = bitmap.getWidth();
-                    int height = bitmap.getHeight();
-                    int bounding = dpToPx(450);
-		 
-                    float xScale = ((float) bounding) / width;
-                    float yScale = ((float) bounding) / height;
-                    float scale = (xScale <= yScale) ? xScale : yScale;
-				      
-                    // Create a matrix for the scaling and add the scaling data
-                    Matrix matrix = new Matrix();
-                    matrix.postScale(scale, scale);
-		
-                    // Create a new bitmap and convert it to a format understood by the ImageView 
-                    resizedBmp = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-                    //width = resizedBmp.getWidth(); // re-use
-                    //height = resizedBmp.getHeight(); // re-use
-                    
-                    // Now change ImageView's dimensions to match the scaled image
-                    //LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams(); 
-                    //params.width = resizedBmp.getWidth();
-                    //params.height = resizedBmp.getHeight();
-                    //view.setLayoutParams(params);
-                    
-                    if(resizedBmp != bitmap){
-                        bitmap.recycle();
-                    }
-                }
-            	  
-            	return resizedBmp;
-		    	
-			      
-			}
-			@Override public String key() { return "square()"; }
-        }
 	}
 
 	@Override

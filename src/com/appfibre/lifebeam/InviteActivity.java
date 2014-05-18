@@ -8,7 +8,6 @@ import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -30,7 +29,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +51,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 	private LoadMoreListView contactListView;
 	private ArrayList<MyContactItem3> contactData = new ArrayList<MyContactItem3>();
     private int contactsCursorOffset = 0;
+    private static final int CONTACT_LIST_LIMIT = 20;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -192,7 +191,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 			Cursor contactsCursor = null;
 			try {
 			    ContentResolver cr = getContentResolver();
-			    contactsCursor = cr.query(ContactsContract.Contacts.CONTENT_URI, projection, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC LIMIT 20 OFFSET " + contactsCursorOffset);
+			    contactsCursor = cr.query(ContactsContract.Contacts.CONTENT_URI, projection, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC LIMIT " + CONTACT_LIST_LIMIT + " OFFSET " + contactsCursorOffset);
 								
 				while (contactsCursor.moveToNext()) {           
 					String contactId = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts._ID));
@@ -274,7 +273,7 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 		@Override
 		protected void onPostExecute(Void unused) {
-			contactsCursorOffset+=20;
+			contactsCursorOffset+=CONTACT_LIST_LIMIT;
 			contactListView.onLoadMoreComplete();
 			// stop the loading animation or something
 			/*try {
