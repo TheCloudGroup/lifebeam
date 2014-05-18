@@ -4,9 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-<!--     The PullToRefreshListView replaces a standard ListView widget. -->
-
-    <ListView
+    <com.appfibre.lifebeam.utils.LoadMoreListView
         android:id="@+id/lstInviteView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

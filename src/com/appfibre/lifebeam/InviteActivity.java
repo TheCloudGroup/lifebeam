@@ -34,6 +34,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appfibre.lifebeam.utils.LoadMoreListView;
+import com.appfibre.lifebeam.utils.LoadMoreListView.OnLoadMoreListener;
 import com.appfibre.lifebeam.utils.MyContactItem3;
 import com.parse.ParseUser;
 
@@ -43,14 +45,14 @@ import com.parse.ParseUser;
  */
 public class InviteActivity extends Activity  implements OnClickListener{
 
-
+	private static int numContactsQueried = 0;
+    	
 	private String TAG = "InviteActivity";
-
 	private boolean isSelected = false;
 	private MyContactsAdapter mainListViewAdapter;
-	private ListView contactListView;
+	private LoadMoreListView contactListView;
 	private ArrayList<MyContactItem3> contactData = new ArrayList<MyContactItem3>();
-
+    private int contactsCursorOffset = 0;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -70,9 +72,15 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		mainListViewAdapter = new MyContactsAdapter(InviteActivity.this, contactData);
 
 		//adapter.loadData();
-		contactListView = (ListView)findViewById(R.id.lstInviteView);
+		contactListView = (LoadMoreListView)findViewById(R.id.lstInviteView);
 		contactListView.setAdapter(mainListViewAdapter);
 		contactListView.setEmptyView(findViewById(R.id.lstInvitesEmpty));
+		contactListView.setOnLoadMoreListener(new OnLoadMoreListener() {			
+			@Override
+			public void onLoadMore() {
+				new LoadContacts().execute();
+			}
+		});
 
 		Log.v(TAG, "now implementing contacts loading in a separate thread");
 		new LoadContacts().execute();
@@ -161,8 +169,8 @@ public class InviteActivity extends Activity  implements OnClickListener{
 	}
 
 	class LoadContacts extends AsyncTask<Void, MyContactItem3, Void> {
-		private ProgressDialog progressDialog;
-
+		//private ProgressDialog progressDialog;        
+       
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
@@ -171,24 +179,24 @@ public class InviteActivity extends Activity  implements OnClickListener{
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			progressDialog = ProgressDialog.show(InviteActivity.this,
-					"Processing", "Loading contacts", true, false);
+			//progressDialog = ProgressDialog.show(InviteActivity.this,
+			//		"Processing", "Loading contacts", true, false);
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
 			String[] projection = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.HAS_PHONE_NUMBER};
-			Cursor cursor = null;
+			
 			Cursor photos = null;
 			Cursor emails = null;
-
+			Cursor contactsCursor = null;
 			try {
-				ContentResolver cr = getContentResolver();
-				cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, projection, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
-
-				while (cursor.moveToNext()) {           
-					String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-					String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));  
+			    ContentResolver cr = getContentResolver();
+			    contactsCursor = cr.query(ContactsContract.Contacts.CONTENT_URI, projection, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC LIMIT 20 OFFSET " + contactsCursorOffset);
+								
+				while (contactsCursor.moveToNext()) {           
+					String contactId = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts._ID));
+					String name = contactsCursor.getString(contactsCursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));  
 
 					emails = getContentResolver().query(
 							ContactsContract.CommonDataKinds.Email.CONTENT_URI, 
@@ -244,8 +252,8 @@ public class InviteActivity extends Activity  implements OnClickListener{
 				if (emails != null) {
 					emails.close();
 				}
-				if (cursor != null) {
-					cursor.close();
+				if (contactsCursor != null) {
+					contactsCursor.close();
 				}     
 				if (photos != null) {
 					photos.close();
@@ -266,13 +274,15 @@ public class InviteActivity extends Activity  implements OnClickListener{
 
 		@Override
 		protected void onPostExecute(Void unused) {
+			contactsCursorOffset+=20;
+			contactListView.onLoadMoreComplete();
 			// stop the loading animation or something
-			try {
+			/*try {
 				progressDialog.dismiss();
 				progressDialog = null;
 			} catch (Exception e) {
 				Log.v(TAG, "Error in dismissing progressdialog in onPostExecute of LoadContacts TAsk");
-			}
+			}*/
 		}
 	}
 
