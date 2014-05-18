@@ -53,11 +53,11 @@ public class Utils {
 	}
 	
 	public static SimpleDateFormat getDateFormat(){
-		return new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+		return new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 	}
 	
 	public static SimpleDateFormat getTimeFormat(){
-		return new SimpleDateFormat("hh:mm aa", Locale.US);
+		return new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
 	}
 	
 	public static void hideSoftKeyboard(Context context){

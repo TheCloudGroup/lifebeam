@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 
@@ -220,13 +221,19 @@ public class ViewPagerFlipper extends ViewPager{
     
     private void showNext(){
     	int currentItem = getCurrentItem();
-    	int size        = getAdapter().getCount();
+    	PagerAdapter adapter = getAdapter();
     	
-    	if(currentItem + 1 >= size){
-    		setCurrentItem(0, false);
-    	} else {
-    		setCurrentItem(currentItem + 1, true);
+    	if(currentItem >= 0 && adapter != null){
+    		int size        = getAdapter().getCount();
+	
+        	if(currentItem + 1 >= size){
+        		setCurrentItem(0, false);
+        	} else {
+        		setCurrentItem(currentItem + 1, true);
+        	}
     	}
+    	
+    	
     }
 
     public static abstract class OnUpdatePages{

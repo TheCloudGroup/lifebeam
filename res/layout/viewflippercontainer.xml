@@ -2,13 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relViewFlipperContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" >
     
    	<ImageView
         android:id="@+id/imgeventPhoto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
 		android:adjustViewBounds="true"		
         android:scaleType="fitCenter"
         android:src="@drawable/pix1" />
@@ -61,7 +62,7 @@
 			         android:layout_weight="0"
 			         android:padding="10dp"
 			         android:text="11/27/68"
-			         android:textColor="@color/lifebeamBlue"
+			         android:textColor="@android:color/black"
 			         android:textSize="26sp" />
             </LinearLayout>
             
