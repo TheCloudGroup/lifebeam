@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import com.appfibre.lifebeam.classes.Event;
+import com.appfibre.lifebeam.utils.ResizableImageView;
 import com.appfibre.lifebeam.utils.Utils;
 import com.parse.DeleteCallback;
 import com.parse.FunctionCallback;
@@ -45,7 +46,7 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
     private ProgressBar loadingImg;
 	private LinearLayout llyRazzleHolder;
 	private TextView txtRazzleCount;
-    private ImageView eventImageView;
+    private ResizableImageView eventImageView;
 	
 	private TextView txtRemoveEvent;
 	
@@ -61,7 +62,7 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 		parentActivity      = (SlideShowActivity)getActivity();
 		llyNavigationHolder = (LinearLayout)parentActivity.findViewById(R.id.llyNavigationHolder);
 		if(getView() != null){
-			eventImageView = (ImageView) getView().findViewById(R.id.imgeventPhoto);
+			eventImageView = (ResizableImageView) getView().findViewById(R.id.imgeventPhoto);
 		}
 	}
 	
@@ -78,7 +79,7 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 				eventUser.getString("firstName") + " " + eventUser.getString("lastName") : 
 					eventUser.getString("name");
 		
-		eventImageView = (ImageView) view.findViewById(R.id.imgeventPhoto);
+		eventImageView = (ResizableImageView) view.findViewById(R.id.imgeventPhoto);
 		loadingImg = (ProgressBar)view.findViewById(R.id.loadingImg);
 
 		updateNavigationView();
@@ -274,7 +275,7 @@ public class SlideShowEventItem extends Fragment implements OnClickListener, Tar
 			loadingImg.setVisibility(View.GONE);
 		}
 		if(eventImageView != null){
-			eventImageView.setImageBitmap(Utils.resizeBitmap(bitmap, parentActivity));
+			eventImageView.setImageBitmap(bitmap);//Utils.resizeBitmap(bitmap, parentActivity));
 		}		
 	}
 
